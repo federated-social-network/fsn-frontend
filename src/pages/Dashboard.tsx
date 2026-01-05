@@ -6,6 +6,7 @@ import type { Post } from "../types/post";
 
 export default function Dashboard() {
   const username = localStorage.getItem("username") || "";
+  const userid = localStorage.getItem("userid") || "";
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,8 +102,8 @@ export default function Dashboard() {
               <article key={p.id} className="bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <Link to={`/profile/${p.author}`} className="w-10 h-10 flex-shrink-0 block">
-                    <div className="w-10 h-10 rounded-full bg-[rgba(10,167,198,0.12)] flex items-center justify-center text-[var(--primary)] font-bold">{p.author ? p.author[0].toUpperCase() : 'U'}</div>
-                  </Link>
+                      <div className="w-10 h-10 rounded-full bg-[rgba(10,167,198,0.12)] flex items-center justify-center text-[var(--primary)] font-bold">{p.author ? p.author[0].toUpperCase() : 'U'}</div>
+                    </Link>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div>

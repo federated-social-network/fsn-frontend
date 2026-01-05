@@ -84,26 +84,20 @@ export const getPosts = (limit = 50) => {
 
 // Fetch user details. Try several common endpoint shapes to be robust
 // across different instance implementations.
-export const getUser = async (username: string) => {
+export const getUser = async (username: string, token?: string) => {
   const api = getApi();
-  const tries = [
-    `/users/${encodeURIComponent(username)}`,
-    `/user/${encodeURIComponent(username)}`,
-    `/profile/${encodeURIComponent(username)}`,
-    `/profiles/${encodeURIComponent(username)}`,
-  ];
-
-  let lastError: any = null;
-  for (const path of tries) {
-    try {
-      const res = await api.get(path);
-      return res;
-    } catch (err) {
-      lastError = err;
-      // continue trying next path
-    }
+  if (!username || String(username).trim() === "") {
+    throw new Error("No username provided to getUser");
   }
 
-  // if all failed, rethrow the last error for the caller to handle
-  throw lastError;
+  // If a token is provided explicitly, send it on this request; otherwise
+  // the instance-level interceptor will add a token from localStorage.
+  const headers: Record<string, string> = {};
+  const authToken = token || localStorage.getItem("AUTH_TOKEN") || localStorage.getItem("access_token");
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
+  // Call the username-based endpoint the backend expects.
+  return api.get(`/get_user/${encodeURIComponent(String(username))}`, { headers });
 };

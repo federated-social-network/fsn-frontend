@@ -21,7 +21,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/profile/:username" element={<Profile />} />
+        <Route path="/profile/:identifier" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );

@@ -3,7 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import { getUser } from "../api/api";
 
 export default function Profile() {
-  const { username } = useParams<{ username: string }>();
+  const { identifier } = useParams<{ identifier: string }>();
+  const username = identifier; // keep legacy variable name for display fallbacks
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
@@ -11,11 +12,11 @@ export default function Profile() {
   useEffect(() => {
     let mounted = true;
     const load = async () => {
-      if (!username) return;
+      if (!identifier) return;
       setLoading(true);
       setError(null);
       try {
-        const res = await getUser(username);
+        const res = await getUser(identifier!);
         if (!mounted) return;
         setUser(res.data);
       } catch (err: any) {
