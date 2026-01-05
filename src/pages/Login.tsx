@@ -15,11 +15,17 @@ export default function Login() {
     try {
       const res = await loginUser(username, password);
 
-      // ✅ BACKEND RETURNS access_token
-      if (res?.data?.access_token) {
-        localStorage.setItem("access_token", res.data.access_token);
+      // If the backend returns a token, store it. For now we also store
+      // credentials so the app works with simple auth flows described.
+      if (res?.status === 200) {
         localStorage.setItem("username", username);
-        navigate("/feed");
+        localStorage.setItem("password", password);
+        if (res.data?.access_token) {
+          localStorage.setItem("access_token", res.data.access_token);
+          // store under the AUTH_TOKEN key as well for compatibility with getApi()
+          localStorage.setItem("AUTH_TOKEN", res.data.access_token);
+        }
+        navigate("/dashboard");
       } else {
         setErrorMsg("Invalid login response");
       }
@@ -31,8 +37,16 @@ export default function Login() {
     console.log(localStorage.getItem("access_token"));
   };
 
+  const instance = localStorage.getItem("INSTANCE_BASE_URL") || null;
+
   return (
-    <div className="w-full max-w-md p-8 rounded-2xl shadow-xl border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)]">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+      <div className="w-full max-w-md sm:max-w-lg p-8 rounded-2xl shadow-xl border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)]">
+      {instance && (
+        <div className="text-xs text-[rgba(255,255,255,0.6)] text-center mb-3">
+          Signing in to: <span className="font-mono">{instance}</span>
+        </div>
+      )}
       <header className="mb-6 text-center">
         <div className="mx-auto w-12 h-12 rounded-xl bg-[rgba(10,167,198,0.12)] flex items-center justify-center text-primary-500 font-bold">
           FS
@@ -81,6 +95,7 @@ export default function Login() {
           Create an account
         </Link>
       </p>
+      </div>
     </div>
   );
 }

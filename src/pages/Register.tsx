@@ -9,6 +9,7 @@ export default function Register() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const navigate = useNavigate();
+  const instance = localStorage.getItem("INSTANCE_BASE_URL") || null;
 
   const handleRegister = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -21,18 +22,22 @@ export default function Register() {
       if (res.data?.message) {
         setSuccessMsg(res.data.message);
 
-        // smooth UX: redirect after showing message
+        // smooth UX: redirect to login after showing message
         setTimeout(() => {
-          navigate("/");
-        }, 1500);
+          navigate("/login");
+        }, 1200);
       } else {
-        setErrorMsg("Registration failed");
+        setErrorMsg("Registration failed: unexpected response from server");
       }
     } catch (err: any) {
-      setErrorMsg(
-        err?.response?.data?.detail ||
-        "User already exists or server error"
-      );
+      // show raw server response when available to help debugging
+      const serverBody = err?.response?.data;
+      const serverMsg =
+        (serverBody && typeof serverBody === "object")
+          ? JSON.stringify(serverBody)
+          : serverBody || err?.message;
+
+      setErrorMsg(serverMsg || "User already exists or server error");
     }
   };
 
@@ -43,6 +48,17 @@ export default function Register() {
         <p className="text-sm text-[rgba(255,255,255,0.6)]">
           Join your instance of Federated Social
         </p>
+        {instance && (
+          <p className="text-xs text-[rgba(255,255,255,0.6)] mt-2">
+            Registering on: <span className="font-mono">{instance}</span>{" "}
+            <button
+              onClick={() => navigate("/")}
+              className="underline ml-2 text-[var(--primary)]"
+            >
+              change
+            </button>
+          </p>
+        )}
       </header>
 
       <form onSubmit={handleRegister}>
@@ -89,10 +105,7 @@ export default function Register() {
 
       <p className="text-sm text-[rgba(255,255,255,0.6)] mt-4 text-center">
         Already have an account?{" "}
-        <Link
-          to="/"
-          className="text-[var(--primary)] hover:underline"
-        >
+        <Link to="/login" className="text-[var(--primary)] hover:underline">
           Sign in
         </Link>
       </p>
