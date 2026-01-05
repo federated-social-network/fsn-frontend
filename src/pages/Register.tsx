@@ -42,7 +42,8 @@ export default function Register() {
   };
 
   return (
-    <div className="w-full max-w-md p-8 rounded-2xl shadow-xl border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)]">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md p-8 rounded-2xl shadow-xl border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)]">
       <header className="mb-6 text-center">
         <h1 className="text-2xl font-semibold">Create an account</h1>
         <p className="text-sm text-[rgba(255,255,255,0.6)]">
@@ -109,6 +110,7 @@ export default function Register() {
           Sign in
         </Link>
       </p>
+      </div>
     </div>
   );
 }

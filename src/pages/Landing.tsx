@@ -5,7 +5,7 @@ export default function Landing() {
 
   const chooseInstance = (url: string) => {
     localStorage.setItem("INSTANCE_BASE_URL", url);
-    navigate("/register");
+    navigate("/login");
   };
 
   return (
@@ -23,7 +23,7 @@ export default function Landing() {
       <div className="grid md:grid-cols-2 gap-6 w-full max-w-2xl">
         
         {/* Instance A */}
-        <div className="bg-[#2a1245] rounded-xl p-6 hover:scale-[1.02] transition">
+        <div onClick={() => chooseInstance("https://instance-a.onrender.com")} className="bg-[#2a1245] rounded-xl p-6 hover:scale-[1.02] transition cursor-pointer">
           <h2 className="text-xl font-semibold mb-2">Instance A</h2>
           <p className="text-gray-400 mb-4">
             General community instance.
@@ -39,7 +39,7 @@ export default function Landing() {
         </div>
 
         {/* Instance B */}
-        <div className="bg-[#2a1245] rounded-xl p-6 hover:scale-[1.02] transition">
+        <div onClick={() => chooseInstance("https://instance-b.onrender.com")} className="bg-[#2a1245] rounded-xl p-6 hover:scale-[1.02] transition cursor-pointer">
           <h2 className="text-xl font-semibold mb-2">Instance B</h2>
           <p className="text-gray-400 mb-4">
             Alternate community instance.
