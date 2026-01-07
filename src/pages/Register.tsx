@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 
 export default function Register() {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -17,7 +18,7 @@ export default function Register() {
     setErrorMsg("");
 
     try {
-      const res = await registerUser(username, password);
+      const res = await registerUser(username, password, email);
 
       if (res.data?.message) {
         setSuccessMsg(res.data.message);
@@ -69,6 +70,16 @@ export default function Register() {
           placeholder="Choose a username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+
+        <label className="block text-sm mb-1">Email</label>
+        <input
+          type="email"
+          className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-4 py-2 mb-3 focus:outline-none"
+          placeholder="your@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
 

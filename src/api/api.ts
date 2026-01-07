@@ -50,8 +50,8 @@ export const getApi = (): AxiosInstance => {
 
 // Convenience wrappers that use getApi() so callers don't need to create
 // their own axios instances.
-export const registerUser = (username: string, password: string) =>
-  getApi().post("/register", null, { params: { username, password } });
+export const registerUser = (username: string, password: string, email?: string) =>
+  getApi().post("/register", null, { params: { username, password, email } });
 
 export const loginUser = (username: string, password: string) =>
   getApi().post("/login", null, { params: { username, password } });
@@ -100,4 +100,22 @@ export const getUser = async (username: string, token?: string) => {
 
   // Call the username-based endpoint the backend expects.
   return api.get(`/get_user/${encodeURIComponent(String(username))}`, { headers });
+};
+
+// Update user profile. Most instances expose a JSON endpoint to update
+// profile fields; the exact path may differ between backends. This helper
+// posts a JSON body to `/update_user` by default — adjust if your
+// instance expects a different path (e.g. `/users/{username}` or PATCH).
+export const updateUser = (username: string, data: Record<string, any>) =>
+  getApi().post(`/update_user`, { username, ...data });
+
+// Upload an avatar image. Uses multipart/form-data and posts to
+// `/upload_avatar`. If your backend expects a different path, update it.
+export const uploadAvatar = (username: string, file: File) => {
+  const form = new FormData();
+  form.append("username", username);
+  form.append("avatar", file);
+  return getApi().post(`/upload_avatar`, form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 };
