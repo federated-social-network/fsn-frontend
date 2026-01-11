@@ -6,4 +6,5 @@ export interface Post {
   author_id?: string;
   origin_instance: string;
   is_remote: boolean;
+  created_at?: string | Date;
 }

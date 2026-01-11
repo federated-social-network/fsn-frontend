@@ -43,8 +43,58 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md p-8 rounded-2xl shadow-xl border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)]">
+    <div className="min-h-screen relative flex items-center justify-center px-4 py-8 overflow-hidden">
+
+      {/* Decorative SVG background (non-interactive) */}
+      <div className="fixed inset-0 pointer-events-none -z-10 w-full h-full">
+        <svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
+          <defs>
+            <radialGradient id="gA" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#f472b6" stopOpacity={0.7} />
+              <stop offset="60%" stopColor="#8b5cf6" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#581c87" stopOpacity={0} />
+            </radialGradient>
+            <radialGradient id="gB" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#60a5fa" stopOpacity={0.6} />
+              <stop offset="100%" stopColor="#7c3aed" stopOpacity={0} />
+            </radialGradient>
+            <filter id="b1" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="36" />
+            </filter>
+          </defs>
+
+          <rect width="100%" height="100%" fill="#0f0c29" />
+
+          <style>{`
+            .orb { transform-origin: center; animation: float 16s ease-in-out infinite; }
+            .orb.delay { animation-duration: 20s; }
+            .orb.fast { animation-duration: 12s; }
+            .node { animation: pulse 4.2s ease-in-out infinite; }
+            .line { stroke-dasharray: 6 6; animation: dash 9s linear infinite; }
+            @keyframes float { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(18px,-22px) scale(1.02); } 100% { transform: translate(0,0) scale(1); } }
+            @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; transform: scale(1.08); } 100% { opacity: 0.5; } }
+            @keyframes dash { to { stroke-dashoffset: 1000; } }
+          `}</style>
+
+          <circle className="orb delay" cx="12%" cy="20%" r="260" fill="url(#gA)" filter="url(#b1)" opacity="0.95" />
+          <circle className="orb fast" cx="86%" cy="14%" r="320" fill="url(#gB)" filter="url(#b1)" opacity="0.9" />
+          <circle className="orb" cx="52%" cy="86%" r="300" fill="#7c3aed" filter="url(#b1)" opacity="0.55" />
+          <circle className="orb" cx="78%" cy="78%" r="220" fill="#fb7185" filter="url(#b1)" opacity="0.45" />
+
+          <g className="nodes" fill="none" stroke="#c084fc" strokeWidth={1} opacity={0.95}>
+            <circle className="node" cx="28%" cy="38%" r="7" fill="#a78bfa" />
+            <circle className="node" cx="72%" cy="24%" r="9" fill="#f472b6" />
+            <circle className="node" cx="48%" cy="80%" r="6" fill="#7dd3fc" />
+            <circle className="node" cx="20%" cy="68%" r="5" fill="#fb7185" />
+            <circle className="node" cx="84%" cy="52%" r="6" fill="#60a5fa" />
+            <line className="line" x1="28%" y1="38%" x2="72%" y2="24%" stroke="#a78bfa" />
+            <line className="line" x1="72%" y1="24%" x2="48%" y2="80%" stroke="#f472b6" />
+            <line className="line" x1="48%" y1="80%" x2="28%" y2="38%" stroke="#60a5fa" />
+          </g>
+        </svg>
+      </div>
+
+      <div className="w-full max-w-md p-8 rounded-2xl shadow-xl border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)] backdrop-blur-md relative z-10">
       <header className="mb-6 text-center">
         <h1 className="text-2xl font-semibold">Create an account</h1>
         <p className="text-sm text-[rgba(255,255,255,0.6)]">
@@ -108,11 +158,11 @@ export default function Register() {
         )}
 
         <button
-            type="submit"
-            className="w-full bg-[var(--primary)] hover:bg-[var(--primary-600)] text-white rounded-lg py-2 font-medium"
->
-  Register
-</button>
+          type="submit"
+          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-600 text-white rounded-lg py-2 font-medium shadow-lg transform transition duration-200 hover:-translate-y-0.5"
+        >
+          Register
+        </button>
       </form>
 
       <p className="text-sm text-[rgba(255,255,255,0.6)] mt-4 text-center">

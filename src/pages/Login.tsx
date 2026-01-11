@@ -40,8 +40,60 @@ export default function Login() {
   const instance = localStorage.getItem("INSTANCE_BASE_URL") || null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
-      <div className="w-full max-w-md sm:max-w-lg p-8 rounded-2xl shadow-xl border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)]">
+    <div className="min-h-screen relative flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 overflow-hidden">
+
+      {/* Decorative SVG background (non-interactive) */}
+      <div className="fixed inset-0 pointer-events-none -z-10 w-full h-full">
+        <svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
+          <defs>
+            <radialGradient id="gA" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#00f2ff" stopOpacity={0.7} />
+              <stop offset="60%" stopColor="#7c3aed" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#5b21b6" stopOpacity={0} />
+            </radialGradient>
+            <radialGradient id="gB" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#ff79c6" stopOpacity={0.6} />
+              <stop offset="100%" stopColor="#ff4d6d" stopOpacity={0} />
+            </radialGradient>
+            <filter id="b1" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="36" />
+            </filter>
+          </defs>
+
+          <rect width="100%" height="100%" fill="#0f0c29" />
+
+          <style>{`
+            .orb { transform-origin: center; animation: float 14s ease-in-out infinite; }
+            .orb.slow { animation-duration: 20s; }
+            .orb.fast { animation-duration: 10s; }
+            .node { animation: pulse 4s ease-in-out infinite; }
+            .line { stroke-dasharray: 6 6; animation: dash 8s linear infinite; }
+            @keyframes float { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-20px,-24px) scale(1.02); } 100% { transform: translate(0,0) scale(1); } }
+            @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; transform: scale(1.08); } 100% { opacity: 0.5; } }
+            @keyframes dash { to { stroke-dashoffset: 1000; } }
+          `}</style>
+
+          {/* big colorful orbs */}
+          <circle className="orb slow" cx="10%" cy="18%" r="260" fill="url(#gA)" filter="url(#b1)" opacity="0.9" />
+          <circle className="orb" cx="88%" cy="12%" r="320" fill="url(#gB)" filter="url(#b1)" opacity="0.85" />
+          <circle className="orb fast" cx="50%" cy="88%" r="300" fill="#6d28d9" filter="url(#b1)" opacity="0.55" />
+          <circle className="orb" cx="80%" cy="80%" r="220" fill="#ec4899" filter="url(#b1)" opacity="0.45" />
+
+          {/* network nodes */}
+          <g className="nodes" fill="none" stroke="#c084fc" strokeWidth={1} opacity={0.9}>
+            <circle className="node" cx="30%" cy="40%" r="6" fill="#a78bfa" />
+            <circle className="node" cx="70%" cy="28%" r="8" fill="#f472b6" />
+            <circle className="node" cx="50%" cy="82%" r="5" fill="#a78bfa" />
+            <circle className="node" cx="22%" cy="70%" r="4" fill="#fb7185" />
+            <circle className="node" cx="85%" cy="55%" r="6" fill="#60a5fa" />
+            <line className="line" x1="30%" y1="40%" x2="70%" y2="28%" stroke="#a78bfa" />
+            <line className="line" x1="70%" y1="28%" x2="50%" y2="82%" stroke="#f472b6" />
+            <line className="line" x1="50%" y1="82%" x2="30%" y2="40%" stroke="#60a5fa" />
+          </g>
+        </svg>
+      </div>
+
+      <div className="w-full max-w-md sm:max-w-lg p-8 rounded-2xl shadow-xl border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)] backdrop-blur-md relative z-10">
       {instance && (
         <div className="text-xs text-[rgba(255,255,255,0.6)] text-center mb-3">
           Signing in to: <span className="font-mono">{instance}</span>
@@ -83,7 +135,7 @@ export default function Login() {
 
         <button
           type="submit"
-          className="w-full bg-[var(--primary)] hover:bg-[var(--primary-600)] transition rounded-lg py-2 font-medium text-white"
+          className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-600 text-white rounded-lg py-2 font-medium shadow-lg transform transition duration-200 hover:-translate-y-0.5"
         >
           Sign in
         </button>

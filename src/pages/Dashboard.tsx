@@ -156,10 +156,9 @@ export default function Dashboard() {
                         <Link to={`/profile/${p.author}`} className="font-semibold hover:underline">{p.author}</Link>
                         <div className="text-xs text-[rgba(255,255,255,0.6)]">{p.origin_instance || 'local'}</div>
                       </div>
-                      <div className="text-xs text-[rgba(255,255,255,0.6)]">{p.created_at ? new Date(p.created_at).toLocaleString() : ''}</div>
+                      <div className="text-xs text-[rgba(255,255,255,0.6)]">{timeAgo(p.created_at)}</div>
                     </div>
                       <p className="mt-2 text-[rgba(255,255,255,0.9)]">{p.content}</p>
-                      <div className="text-xs text-[rgba(255,255,255,0.6)] mt-2">{timeAgo(p.created_at)}</div>
 
                     <div className="mt-3 flex items-center gap-4 text-sm text-[rgba(255,255,255,0.7)]">
                       <button className="px-2 py-1 rounded-md hover:bg-[rgba(255,255,255,0.02)]">Like</button>
