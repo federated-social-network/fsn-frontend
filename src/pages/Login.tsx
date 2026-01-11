@@ -12,6 +12,17 @@ export default function Login() {
     e?.preventDefault();
     setErrorMsg("");
 
+    // client-side validation
+    const pwdErr = validatePassword(password);
+    if (!username.trim()) {
+      setErrorMsg("Please enter your username");
+      return;
+    }
+    if (pwdErr) {
+      setErrorMsg(pwdErr);
+      return;
+    }
+
     try {
       const res = await loginUser(username, password);
 
@@ -38,6 +49,24 @@ export default function Login() {
   };
 
   const instance = localStorage.getItem("INSTANCE_BASE_URL") || null;
+
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const validatePassword = (p: string) => {
+    if (!p || p.length < 8) return "Password must be at least 8 characters";
+    if (!/[A-Za-z]/.test(p) || !/[0-9]/.test(p)) return "Password must include letters and numbers";
+    return null;
+  };
+
+  const validateUsername = (u: string) => {
+    if (!u || !u.trim()) return "Username is required";
+    return null;
+  };
+
+  const formIsValid = () => {
+    return !validateUsername(username) && !validatePassword(password);
+  };
 
   return (
     <div className="min-h-screen relative flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 overflow-hidden">
@@ -115,28 +144,29 @@ export default function Login() {
       <form onSubmit={handleLogin}>
         <label className="block text-sm mb-1">Username</label>
         <input
-          className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-4 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)]"
+          className={`w-full bg-[var(--bg-muted)] rounded-lg px-4 py-2 mb-1 focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] ${usernameError ? 'border-red-500' : 'border-[var(--muted-border)]'}`}
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => { setUsername(e.target.value); setUsernameError(validateUsername(e.target.value)); setErrorMsg(''); }}
+          aria-invalid={!!usernameError}
         />
+        {usernameError && <p className="text-xs text-red-400 mb-2">{usernameError}</p>}
 
         <label className="block text-sm mb-1">Password</label>
         <input
           type="password"
-          className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)]"
+          className={`w-full bg-[var(--bg-muted)] rounded-lg px-4 py-2 mb-1 focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] ${passwordError ? 'border-red-500' : 'border-[var(--muted-border)]'}`}
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => { setPassword(e.target.value); setPasswordError(validatePassword(e.target.value)); setErrorMsg(''); }}
+          aria-invalid={!!passwordError}
         />
+        {passwordError && <p className="text-xs text-red-400 mb-2">{passwordError}</p>}
 
-        {errorMsg && (
-          <p className="text-sm text-red-400 mb-2 text-center">
-            {errorMsg}
-          </p>
-        )}
+        {errorMsg && <p className="text-sm text-red-400 mb-2 text-center">{errorMsg}</p>}
 
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-600 text-white rounded-lg py-2 font-medium shadow-lg transform transition duration-200 hover:-translate-y-0.5"
+          disabled={!formIsValid()}
+          className={`w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-600 text-white rounded-lg py-2 font-medium shadow-lg transform transition duration-200 ${!formIsValid() ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
         >
           Sign in
         </button>

@@ -12,10 +12,49 @@ export default function Register() {
   const navigate = useNavigate();
   const instance = localStorage.getItem("INSTANCE_BASE_URL") || null;
 
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const validateUsername = (u: string) => {
+    if (!u || !u.trim()) return "Username is required";
+    return null;
+  };
+
+  const validateEmail = (e: string) => {
+    if (!e || !e.trim()) return "Email is required";
+    // simple email regex
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!re.test(e)) return "Enter a valid email address";
+    return null;
+  };
+
+  const validatePassword = (p: string) => {
+    if (!p || p.length < 8) return "Password must be at least 8 characters";
+    if (!/[A-Za-z]/.test(p) || !/[0-9]/.test(p)) return "Password must include letters and numbers";
+    return null;
+  };
+
+  const formIsValid = () => {
+    return !validateUsername(username) && !validateEmail(email) && !validatePassword(password);
+  };
+
   const handleRegister = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setSuccessMsg("");
     setErrorMsg("");
+
+    // client-side validations
+    const uErr = validateUsername(username);
+    const emErr = validateEmail(email);
+    const pErr = validatePassword(password);
+    setUsernameError(uErr);
+    setEmailError(emErr);
+    setPasswordError(pErr);
+    if (uErr || emErr || pErr) {
+      setErrorMsg(uErr || emErr || pErr || "Please fix the errors above");
+      return;
+    }
 
     try {
       const res = await registerUser(username, password, email);
@@ -116,32 +155,50 @@ export default function Register() {
       <form onSubmit={handleRegister}>
         <label className="block text-sm mb-1">Username</label>
         <input
-          className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-4 py-2 mb-3 focus:outline-none"
+          className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-4 py-2 mb-1 focus:outline-none"
           placeholder="Choose a username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            setUsernameError(validateUsername(e.target.value));
+          }}
           required
         />
+        {usernameError && (
+          <p className="text-xs text-red-400 mb-2">{usernameError}</p>
+        )}
 
         <label className="block text-sm mb-1">Email</label>
         <input
           type="email"
-          className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-4 py-2 mb-3 focus:outline-none"
+          className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-4 py-2 mb-1 focus:outline-none"
           placeholder="your@email.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setEmailError(validateEmail(e.target.value));
+          }}
           required
         />
+        {emailError && (
+          <p className="text-xs text-red-400 mb-2">{emailError}</p>
+        )}
 
         <label className="block text-sm mb-1">Password</label>
         <input
-          className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-4 py-2 mb-4 focus:outline-none"
+          className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-4 py-2 mb-1 focus:outline-none"
           type="password"
           placeholder="Choose a password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setPasswordError(validatePassword(e.target.value));
+          }}
           required
         />
+        {passwordError && (
+          <p className="text-xs text-red-400 mb-2">{passwordError}</p>
+        )}
 
         {/* SUCCESS MESSAGE */}
         {successMsg && (
@@ -159,7 +216,13 @@ export default function Register() {
 
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-600 text-white rounded-lg py-2 font-medium shadow-lg transform transition duration-200 hover:-translate-y-0.5"
+          disabled={!formIsValid()}
+          className={
+            `w-full text-white rounded-lg py-2 font-medium shadow-lg transform transition duration-200 hover:-translate-y-0.5 ` +
+            (formIsValid()
+              ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-600"
+              : "bg-gray-700/40 cursor-not-allowed")
+          }
         >
           Register
         </button>
