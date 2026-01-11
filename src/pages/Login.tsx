@@ -60,6 +60,7 @@ export default function Login() {
             </filter>
           </defs>
 
+
           <rect width="100%" height="100%" fill="#0f0c29" />
 
           <style>{`
