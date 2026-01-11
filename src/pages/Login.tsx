@@ -166,7 +166,7 @@ export default function Login() {
         <button
           type="submit"
           disabled={!formIsValid()}
-          className={`w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-600 text-white rounded-lg py-2 font-medium shadow-lg transform transition duration-200 ${!formIsValid() ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
+          className={`w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-600 text-white rounded-lg py-2 font-medium shadow-lg transform transition duration-200 ${!formIsValid() ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
         >
           Sign in
         </button>

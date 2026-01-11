@@ -217,12 +217,7 @@ export default function Register() {
         <button
           type="submit"
           disabled={!formIsValid()}
-          className={
-            `w-full text-white rounded-lg py-2 font-medium shadow-lg transform transition duration-200 hover:-translate-y-0.5 ` +
-            (formIsValid()
-              ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-600"
-              : "bg-gray-700/40 cursor-not-allowed")
-          }
+          className={`w-full mt-4 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-cyan-400 hover:to-blue-600 text-white rounded-lg py-2 font-medium shadow-lg transform transition duration-200 ${!formIsValid() ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
         >
           Register
         </button>
