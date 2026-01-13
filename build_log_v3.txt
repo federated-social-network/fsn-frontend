@@ -1,0 +1,6 @@
+
+> frontend@0.0.0 build
+> tsc -b && vite build
+
+src/pages/Dashboard.tsx(4,29): error TS6133: 'getUsers' is declared but its value is never read.
+src/pages/Dashboard.tsx(4,39): error TS6133: 'followUser' is declared but its value is never read.

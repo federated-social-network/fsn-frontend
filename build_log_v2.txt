@@ -1,0 +1,6 @@
+
+> frontend@0.0.0 build
+> tsc -b && vite build
+
+src/pages/Dashboard.tsx(27,27): error TS2552: Cannot find name 'getUsers'. Did you mean 'getUser'?
+src/pages/Dashboard.tsx(44,13): error TS2304: Cannot find name 'followUser'.

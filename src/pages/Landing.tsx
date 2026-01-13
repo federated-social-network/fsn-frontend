@@ -174,12 +174,12 @@ export default function Landing() {
       <div className="relative z-10 flex flex-col items-center justify-center w-full">
 
         <h1 className="text-5xl md:text-6xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 animate-pulse">
-          Social networking that's not for sale.
+          Decentralized. Private. Yours.
         </h1>
 
         <p className="text-surface-muted max-w-xl text-center mb-16 text-lg leading-relaxed">
-          Choose an instance. Each instance is independently managed, with its
-          own users, rules, and data.
+          Join an instance, keep control of your data, and follow people across servers.
+
         </p>
 
         <div className="grid md:grid-cols-2 gap-8 w-full max-w-3xl">

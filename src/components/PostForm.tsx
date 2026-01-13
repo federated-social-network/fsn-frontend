@@ -24,7 +24,7 @@ export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => v
 
     try {
       setLoading(true);
-      const res = await createPost(content, username, password);
+      const res = await createPost(content, username);
 
       // show server feedback when available
       if (res?.status === 200 || res?.status === 201) {
@@ -71,9 +71,9 @@ export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => v
         <button
           onClick={handlePost}
           disabled={loading}
-          className="bg-[var(--primary)] hover:bg-[var(--primary-600)] px-4 py-1.5 rounded-lg text-white disabled:opacity-60"
+          className="bg-[var(--primary)] hover:bg-[var(--primary-600)] px-6 py-2 rounded-xl text-white font-medium shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Posting..." : "Post"}
+          {loading ? "Posting..." : "Post Update"}
         </button>
       </div>
     </div>

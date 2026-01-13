@@ -58,14 +58,10 @@ export const loginUser = (username: string, password: string) =>
 
 export const createPost = (
   content: string,
-  username?: string,
-  password?: string
+  username?: string
 ) => {
-  // Build query params. If credentials provided, also add an explicit
-  // `Authorization: Basic <base64>` header — many FastAPI examples expect
-  // the header in this exact format.
+  // Build query params.
   const params: Record<string, string> = { content } as any;
-  const headers: Record<string, string> = {};
 
   if (username) {
     // include username as a param for server-side attribution if useful

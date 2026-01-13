@@ -7,6 +7,15 @@ export default {
   theme: {
     extend: {
       colors: {
+        background: {
+          DEFAULT: 'var(--bg-surface)',
+          muted: 'var(--bg-muted)',
+        },
+        surface: {
+          DEFAULT: 'var(--on-surface)',
+          muted: 'var(--on-surface-muted)',
+          subtle: 'var(--on-surface-subtle)',
+        },
         primary: {
           50: '#e6f8fb',
           100: '#cbeff6',
@@ -18,15 +27,6 @@ export default {
           700: '#00708b',
           800: '#055a6e',
           900: '#004953'
-        },
-        surface: {
-          DEFAULT: '#0f1720',
-          700: '#0b1317',
-          800: '#070b0f',
-        },
-        muted: {
-          DEFAULT: '#111318',
-          700: '#0b0d10',
         },
         accent: '#f59e0b'
       }

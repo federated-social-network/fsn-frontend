@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { getUser, updateUser, uploadAvatar } from "../api/api";
+import GlassCard from "../components/GlassCard";
 
 export default function Settings() {
-  const navigate = useNavigate();
   const username = localStorage.getItem("username") || "";
 
   const [loading, setLoading] = useState(false);
@@ -45,14 +45,11 @@ export default function Settings() {
     setError(null);
     setSuccess(null);
     try {
-      // if avatar file selected, upload it first
       if (avatarFile && username) {
         await uploadAvatar(username, avatarFile);
       }
-      // update profile fields
       await updateUser(username, form);
-      setSuccess("Settings saved.");
-      // refresh user
+      setSuccess("Success! Your settings have been saved.");
       const res = await getUser(username);
       setUser(res.data);
       setAvatarPreview(res.data.avatar_url || avatarPreview);
@@ -63,87 +60,153 @@ export default function Settings() {
     }
   };
 
-  const handleDeleteAccount = () => {
-    // destructive action placeholder: actual API may differ and should require confirmation
-    if (!confirm("Delete your account? This action cannot be undone.")) return;
-    // If backend supports an endpoint, call it here. For now, just clear localStorage and redirect.
+  const handleSignOutDelete = () => {
     localStorage.removeItem("username");
     localStorage.removeItem("password");
-    navigate("/register");
-  };
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("AUTH_TOKEN");
+    window.location.href = "/login";
+  }
+
+  // Background style
+  const background = (
+    <div className="fixed inset-0 pointer-events-none -z-10 w-full h-full opacity-20">
+      <svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="dashGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#0aa7c6" stopOpacity={0.2} />
+            <stop offset="100%" stopColor="#0f1720" stopOpacity={0} />
+          </radialGradient>
+        </defs>
+        <circle cx="90%" cy="10%" r="400" fill="url(#dashGrad)" opacity="0.3" />
+        <circle cx="10%" cy="90%" r="300" fill="#0aa7c6" opacity="0.1" />
+      </svg>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen flex items-start justify-center px-4 py-8">
-      <div className="w-full max-w-3xl">
-        <div className="bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg p-6 shadow-md">
-          <h1 className="text-2xl font-semibold mb-2">Settings</h1>
-          <p className="text-sm text-surface-muted mb-6">Manage your account, privacy and profile settings.</p>
+    <div className="min-h-screen relative text-surface p-4 md:p-8">
+      {background}
 
-          {loading && <div className="text-sm text-surface-muted">Loading…</div>}
-          {error && <div className="text-sm text-red-400 mb-3">{String(error)}</div>}
-          {success && <div className="text-sm text-green-400 mb-3">{String(success)}</div>}
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-6">
+          <Link to="/dashboard" className="text-surface-subtle hover:text-[var(--primary)] transition-colors inline-flex items-center gap-2">
+            Back to Dashboard
+          </Link>
+        </div>
+
+        <GlassCard className="p-8">
+          <h1 className="text-2xl font-bold mb-2">Account Settings</h1>
+          <p className="text-surface-muted mb-8 text-sm">Update your profile and manage your preferences.</p>
+
+          {loading && <div className="text-center py-8">Loading settings...</div>}
 
           {!loading && user && (
-            <div className="grid gap-4">
-              <section className="bg-[var(--bg-muted)] p-4 rounded-lg border border-[var(--muted-border)]">
-                <h2 className="font-semibold mb-2">Profile</h2>
-                <div className="grid gap-2">
-                  <label className="text-xs text-surface-muted">Display name</label>
-                  <input value={form.display_name} onChange={(e) => setForm({ ...form, display_name: e.target.value })} className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-3 py-2" />
-
-                  <label className="text-xs text-surface-muted">Email</label>
-                  <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-3 py-2" />
-
-                  <label className="text-xs text-surface-muted">Bio</label>
-                  <textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-3 py-2" />
-
-                  <label className="text-xs text-surface-muted">Avatar</label>
-                  <div className="flex items-center gap-3">
-                    <input type="file" accept="image/*" onChange={(e) => {
-                      const f = e.target.files?.[0] || null;
-                      setAvatarFile(f);
-                      if (f) {
-                        const reader = new FileReader();
-                        reader.onload = () => setAvatarPreview(String(reader.result));
-                        reader.readAsDataURL(f);
-                      }
-                    }} />
-                    {avatarPreview && <img src={avatarPreview} alt="preview" className="w-12 h-12 rounded-full object-cover" />}
-                  </div>
-                </div>
-              </section>
-
-              <section className="bg-[var(--bg-muted)] p-4 rounded-lg border border-[var(--muted-border)]">
-                <h2 className="font-semibold mb-2">Security</h2>
-                <div className="grid gap-2">
-                  <label className="text-xs text-surface-muted">Change password</label>
-                  <input type="password" placeholder="New password" className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-3 py-2" />
-                  <div className="text-xs text-surface-subtle">Password change requires backend support. Use the API endpoint for updating passwords.</div>
-                </div>
-              </section>
-
-              <section className="bg-[var(--bg-muted)] p-4 rounded-lg border border-[var(--muted-border)]">
-                <h2 className="font-semibold mb-2">Notifications</h2>
-                <div className="flex items-center justify-between">
+            <div className="space-y-8">
+              {/* Public Profile Section */}
+              <section>
+                <h2 className="text-sm uppercase tracking-wider text-surface-subtle font-semibold mb-4 border-b border-[var(--muted-border)] pb-2">
+                  Public Profile
+                </h2>
+                <div className="space-y-4">
                   <div>
-                    <div className="font-medium">Email notifications</div>
-                    <div className="text-xs text-surface-subtle">Receive email when someone follows you or comments on your post</div>
+                    <label className="block text-sm font-medium mb-1.5 text-surface-muted">Display Name</label>
+                    <input
+                      value={form.display_name}
+                      onChange={e => setForm({ ...form, display_name: e.target.value })}
+                      className="w-full bg-[var(--bg-muted)]/50 border border-[var(--muted-border)] rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[var(--primary)]/50 outline-none transition-all"
+                    />
                   </div>
-                  <input type="checkbox" checked={true} readOnly />
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5 text-surface-muted">About</label>
+                    <textarea
+                      rows={3}
+                      value={form.bio}
+                      onChange={e => setForm({ ...form, bio: e.target.value })}
+                      className="w-full bg-[var(--bg-muted)]/50 border border-[var(--muted-border)] rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[var(--primary)]/50 outline-none transition-all resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5 text-surface-muted">Avatar</label>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-xl bg-[var(--bg-muted)] p-1 border border-[var(--muted-border)]">
+                        {avatarPreview ? (
+                          <img src={avatarPreview} className="w-full h-full object-cover rounded-lg" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-xl font-bold bg-white/5 rounded-lg text-surface-subtle">
+                            {username[0]?.toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <label className="px-4 py-2 bg-[var(--muted-border)] hover:bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg cursor-pointer transition-colors text-sm font-medium">
+                        Upload New
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) {
+                            setAvatarFile(f);
+                            const reader = new FileReader();
+                            reader.onload = () => setAvatarPreview(String(reader.result));
+                            reader.readAsDataURL(f);
+                          }
+                        }} />
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </section>
 
-              <div className="flex items-center gap-3 mt-2">
-                <button onClick={handleSave} disabled={saving} className="bg-[var(--primary)] hover:bg-[var(--primary-600)] text-white rounded-md px-4 py-2">
-                  {saving ? "Saving…" : "Save settings"}
-                </button>
-                <button onClick={handleDeleteAccount} className="border border-red-600 text-red-400 rounded-md px-4 py-2">Delete account</button>
-              </div>
+              {/* Account Section */}
+              <section>
+                <h2 className="text-sm uppercase tracking-wider text-surface-subtle font-semibold mb-4 border-b border-[var(--muted-border)] pb-2">
+                  Account Security
+                </h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5 text-surface-muted">Email Address</label>
+                    <input
+                      value={form.email}
+                      onChange={e => setForm({ ...form, email: e.target.value })}
+                      className="w-full bg-[var(--bg-muted)]/50 border border-[var(--muted-border)] rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[var(--primary)]/50 outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5 text-surface-muted">Password</label>
+                    <input
+                      type="password"
+                      placeholder="••••••••••••"
+                      disabled
+                      className="w-full bg-[var(--bg-muted)]/30 border border-[var(--muted-border)] rounded-xl px-4 py-2.5 text-surface-subtle cursor-not-allowed"
+                    />
+                    <p className="text-xs text-surface-subtle mt-1">To change your password, please contact your instance administrator.</p>
+                  </div>
+                </div>
+              </section>
 
+              {error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm text-center">{error}</div>}
+              {success && <div className="p-4 bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl text-sm text-center">{success}</div>}
+
+              <div className="pt-4 flex items-center justify-between border-t border-[var(--muted-border)]">
+                <button
+                  onClick={handleSignOutDelete}
+                  className="text-red-400 hover:text-red-300 text-sm font-medium px-2 py-1"
+                >
+                  Sign Out / Delete Account
+                </button>
+
+                <div className="flex gap-3">
+                  <Link to="/dashboard" className="px-5 py-2.5 text-surface-muted hover:text-surface font-medium">Cancel</Link>
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="bg-[var(--primary)] hover:bg-[var(--primary-600)] text-white px-8 py-2.5 rounded-xl font-medium shadow-sm hover:shadow-md transition-all disabled:opacity-50"
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
-
-        </div>
+        </GlassCard>
       </div>
     </div>
   );

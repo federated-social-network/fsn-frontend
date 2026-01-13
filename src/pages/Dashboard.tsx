@@ -4,13 +4,16 @@ import { Link } from "react-router-dom";
 import { getPosts, getUser } from "../api/api";
 import { timeAgo } from "../utils/time";
 import type { Post } from "../types/post";
+import GlassCard from "../components/GlassCard";
+import SkeletonPost from "../components/SkeletonPost";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Dashboard() {
   const username = localStorage.getItem("username") || "";
   const userid = localStorage.getItem("userid") || "";
   const [posts, setPosts] = useState<Post[]>([]);
   const [userPostCount, setUserPostCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Default to true for better initial UX
   const [error, setError] = useState<string | null>(null);
 
   const loadPosts = useCallback(async () => {
@@ -18,7 +21,6 @@ export default function Dashboard() {
     setError(null);
     try {
       const res = await getPosts();
-      // expect backend to return array in res.data
       setPosts(res.data || []);
     } catch (err: any) {
       console.error("Failed to fetch posts", err);
@@ -33,7 +35,7 @@ export default function Dashboard() {
   useEffect(() => {
     let mounted = true;
     if (mounted) loadPosts();
-    // listen for global post events in case PostForm dispatches one
+
     const handler = () => {
       loadPosts();
     };
@@ -44,165 +46,232 @@ export default function Dashboard() {
     };
   }, [loadPosts]);
 
-  // load post count for the logged-in user (so sidebar shows that user's post count,
-  // not the total posts in the feed)
   useEffect(() => {
     let mounted = true;
+    if (!username) return;
     const loadUser = async () => {
-      if (!username) return;
       try {
         const res = await getUser(username);
-        if (!mounted) return;
-        setUserPostCount(res.data?.post_count ?? 0);
+        if (mounted) setUserPostCount(res.data?.post_count ?? 0);
       } catch (err) {
-        console.warn("Failed to load user stats", err);
-        setUserPostCount(null);
+        // silent fail for stats
+        if (mounted) setUserPostCount(null);
       }
     };
     loadUser();
     return () => { mounted = false; };
   }, [username]);
 
+  // Background for the dashboard - simpler, less colorful
+  const background = (
+    <div className="fixed inset-0 pointer-events-none -z-10 w-full h-full opacity-20">
+      <svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="dashGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#0aa7c6" stopOpacity={0.2} />
+            <stop offset="100%" stopColor="#0f1720" stopOpacity={0} />
+          </radialGradient>
+        </defs>
+        <circle cx="90%" cy="10%" r="400" fill="url(#dashGrad)" opacity="0.3" />
+        <circle cx="10%" cy="90%" r="300" fill="#0aa7c6" opacity="0.1" />
+      </svg>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-[transparent]">
-      <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-12 gap-6">
+    <div className="min-h-screen relative text-surface">
+      {background}
 
-        {/* Left sidebar: profile card */}
-        <aside className="md:col-span-3">
-          <div className="sticky top-6">
-            <div className="bg-gradient-to-b from-[rgba(10,167,198,0.12)] to-transparent rounded-xl overflow-hidden shadow-lg">
-              <div className="h-20 bg-[linear-gradient(90deg,var(--primary),rgba(10,167,198,0.25))]"></div>
-              <div className="bg-[var(--bg-muted)] p-4 border-t border-[var(--muted-border)]">
-                <div className="-mt-12 flex items-center gap-3">
-                  <Link to={`/profile/${username}`} className="block">
-                    <div className="w-16 h-16 rounded-full bg-[rgba(10,167,198,0.06)] flex items-center justify-center text-[var(--primary)] font-bold text-lg ring-4 ring-[rgba(0,0,0,0.25)]">{username ? username[0].toUpperCase() : 'U'}</div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-12 gap-8">
+
+        {/* --- Left Sidebar: Profile --- */}
+        <aside className="md:col-span-3 space-y-6 hidden md:block">
+          <div className="sticky top-24 space-y-6">
+            <GlassCard>
+              <div className="h-24 bg-[var(--bg-muted)] border-b border-[var(--muted-border)]"></div>
+              <div className="px-5 pb-5">
+                <div className="-mt-12 mb-3">
+                  <Link to={`/profile/${username}`} className="inline-block relative">
+                    <div className="w-20 h-20 rounded-2xl bg-[var(--bg-surface)] p-1 shadow-lg border border-[var(--muted-border)]">
+                      <div className="w-full h-full rounded-xl bg-[var(--bg-muted)] flex items-center justify-center text-[var(--primary)] text-2xl font-bold">
+                        {username ? username[0].toUpperCase() : 'U'}
+                      </div>
+                    </div>
                   </Link>
-                  <div className="flex-1">
-                    <div className="font-semibold text-lg">{username || 'Your Name'}</div>
-                    <div className="text-xs text-surface-subtle">Member • {userid ? `ID ${userid}` : "—"}</div>
-                  </div>
                 </div>
 
-                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                  <div>
-                    <div className="text-sm font-semibold">{userPostCount ?? posts.filter(p => p.author === username).length}</div>
-                    <div className="text-xs text-surface-subtle">Posts</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold">{Math.max(5, Math.floor(posts.length * 1.5))}</div>
-                    <div className="text-xs text-surface-subtle">Connections</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold">{Math.max(2, Math.floor(posts.length * 0.8))}</div>
-                    <div className="text-xs text-surface-subtle">Views</div>
-                  </div>
+                <h3 className="text-xl font-bold truncate">{username || 'Guest'}</h3>
+                <p className="text-sm text-surface-subtle mb-4">{userid ? `@user-${userid}` : 'Anonymous'}</p>
+
+                <div className="flex items-center justify-between py-3 border-t border-[var(--muted-border)] text-sm">
+                  <span className="text-surface-subtle">Posts</span>
+                  <span className="font-semibold">{userPostCount ?? posts.filter(p => p.author === username).length}</span>
+                </div>
+                <div className="flex items-center justify-between py-3 border-t border-[var(--muted-border)] text-sm">
+                  <span className="text-surface-subtle">Connections</span>
+                  <span className="font-semibold">{Math.max(5, Math.floor(posts.length * 1.5))}</span>
                 </div>
 
-                <div className="mt-4 space-y-2">
-                  <Link to={`/profile/${username}`} className="w-full block text-center px-3 py-2 rounded-md bg-[var(--primary)] text-white hover:opacity-95">View profile</Link>
-                  <button className="w-full block text-center px-3 py-2 rounded-md border border-[var(--muted-border)] hover:bg-[var(--bg-muted)]">My network</button>
-                </div>
+                <Link to={`/profile/${username}`} className="mt-4 block w-full py-2 bg-[var(--primary)] text-white font-medium text-center rounded-lg hover:bg-[var(--primary-600)] transition-colors">
+                  View Profile
+                </Link>
               </div>
-            </div>
+            </GlassCard>
 
-            <div className="mt-4 bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg p-4 shadow-sm">
-              <h4 className="font-semibold mb-2">Quick actions</h4>
-              <div className="flex flex-col gap-2">
-                <Link to="/" className="text-sm px-3 py-2 rounded hover:bg-[var(--bg-muted)]">Create post</Link>
-                <Link to="/settings" className="text-sm px-3 py-2 rounded hover:bg-[var(--bg-muted)]">Settings</Link>
+            <GlassCard className="p-4">
+              <nav className="flex flex-col space-y-1">
+                <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[var(--bg-muted)] text-[var(--primary)] font-medium">
+                  <span>Home</span>
+                </Link>
+                <Link to="/settings" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[var(--bg-muted)] transition-colors text-surface-muted hover:text-surface">
+                  <span>Settings</span>
+                </Link>
                 <button
                   onClick={() => {
                     localStorage.removeItem("username");
                     localStorage.removeItem("password");
+                    localStorage.removeItem("access_token");
+                    localStorage.removeItem("AUTH_TOKEN");
                     window.location.href = "/login";
                   }}
-                  className="text-sm px-3 py-2 rounded border border-[var(--muted-border)] hover:bg-[var(--bg-muted)]"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-500/10 text-surface-muted hover:text-red-400 transition-colors text-left"
                 >
-                  Sign out
+                  <span>Sign Out</span>
                 </button>
-              </div>
-            </div>
+              </nav>
+            </GlassCard>
           </div>
         </aside>
 
-        {/* Main feed */}
-        <main className="md:col-span-6">
-          <div className="mb-4">
-            <h2 className="text-2xl font-semibold">Home</h2>
-            <p className="text-sm text-surface-muted">Welcome back{username ? `, ${username}` : ""} — catch up with your network.</p>
+        {/* --- Main Feed --- */}
+        <main className="md:col-span-6 space-y-6">
+          <GlassCard className="p-0 overflow-hidden">
+            <div className="p-4 sm:p-6">
+              <PostForm onPosted={() => loadPosts()} />
+            </div>
+          </GlassCard>
+
+          <div className="flex items-center justify-between text-sm text-surface-subtle px-2">
+            <p>Recent Updates</p>
+            <button onClick={loadPosts} className="hover:text-[var(--primary)] transition-colors">
+              Refresh
+            </button>
           </div>
 
           <div className="space-y-4">
-            <div className="bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-xl p-4 shadow-md">
-              <PostForm onPosted={() => loadPosts()} />
-            </div>
-
-            {loading && <div className="text-sm text-surface-muted">Loading posts…</div>}
-            {error && <div className="text-sm text-red-400">Error: {String(error)}</div>}
-
-            {!loading && posts.length === 0 && (
-              <div className="p-4 bg-[var(--bg-muted)] rounded-lg border border-[var(--muted-border)]">No posts yet — start the conversation.</div>
+            {/* Error State */}
+            {error && (
+              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-center text-sm">
+                {String(error)}
+                <button onClick={loadPosts} className="block mx-auto mt-2 text-[var(--primary)] hover:underline">Try Again</button>
+              </div>
             )}
 
-            {posts.map((p) => (
-              <article key={p.id} className="bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-3">
-                  <Link to={`/profile/${p.author}`} className="w-12 h-12 flex-shrink-0 block">
-                    <div className="w-12 h-12 rounded-full bg-[rgba(10,167,198,0.12)] flex items-center justify-center text-[var(--primary)] font-bold">{p.author ? p.author[0].toUpperCase() : 'U'}</div>
-                  </Link>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Link to={`/profile/${p.author}`} className="font-semibold hover:underline">{p.author}</Link>
-                        <div className="text-xs text-surface-subtle">{p.origin_instance || 'local'}</div>
+            {/* Loading State */}
+            {loading && (
+              <>
+                <SkeletonPost />
+                <SkeletonPost />
+                <SkeletonPost />
+              </>
+            )}
+
+            {/* Empty State */}
+            {!loading && !error && posts.length === 0 && (
+              <div className="text-center py-12">
+                <h3 className="text-lg font-medium">No posts yet</h3>
+                <p className="text-surface-subtle">Be the first to share something.</p>
+              </div>
+            )}
+
+            {/* Post List */}
+            <AnimatePresence mode="popLayout">
+              {!loading && posts.map((p, idx) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: idx * 0.05 }}
+                  layout
+                >
+                  <GlassCard hoverEffect>
+                    <div className="p-5">
+                      <div className="flex items-start gap-4">
+                        <Link to={`/profile/${p.author}`} className="flex-shrink-0">
+                          <div className="w-12 h-12 rounded-full bg-[var(--bg-muted)] border border-[var(--muted-border)] flex items-center justify-center font-bold text-[var(--primary)]">
+                            {p.author ? p.author[0].toUpperCase() : '?'}
+                          </div>
+                        </Link>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <Link to={`/profile/${p.author}`} className="font-semibold hover:text-[var(--primary)] transition-colors truncate">
+                              {p.author}
+                            </Link>
+                            <span className="text-xs text-surface-subtle whitespace-nowrap ml-2">
+                              {timeAgo(p.created_at)}
+                            </span>
+                          </div>
+                          {p.origin_instance && (
+                            <div className="text-xs text-surface-subtle mb-3 bg-white/5 inline-block px-2 py-0.5 rounded-full border border-white/5">
+                              @{p.origin_instance}
+                            </div>
+                          )}
+                          <p className="text-surface leading-relaxed whitespace-pre-wrap break-words">
+                            {p.content}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-xs text-surface-subtle">{timeAgo(p.created_at)}</div>
                     </div>
-                    <p className="mt-2 text-surface">{p.content}</p>
-                  </div>
-                </div>
-              </article>
-            ))}
+                  </GlassCard>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </main>
 
-        {/* Right sidebar: suggestions, trends */}
-        <aside className="md:col-span-3">
-          <div className="sticky top-6 space-y-4">
-            <div className="bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg p-4 shadow-sm">
-              <h3 className="font-semibold mb-3">People you may know</h3>
-              <ul className="space-y-3">
-                <li className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[rgba(10,167,198,0.12)] flex items-center justify-center text-[var(--primary)] font-bold">C</div>
-                    <div>
-                      <div className="font-medium">charlie</div>
-                      <div className="text-xs text-surface-subtle">instance-a</div>
+        {/* --- Right Sidebar: Suggestions --- */}
+        <aside className="md:col-span-3 hidden lg:block">
+          <div className="sticky top-24 space-y-6 block">
+            <GlassCard className="p-5">
+              <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-surface-subtle">Suggested</h3>
+              <ul className="space-y-4">
+                {[
+                  { name: 'Alice', instance: 'instance-a' },
+                  { name: 'Bob', instance: 'instance-b' },
+                  { name: 'Charlie', instance: 'local' }
+                ].map((u) => (
+                  <li key={u.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[var(--bg-muted)] border border-[var(--muted-border)] flex items-center justify-center text-xs font-bold text-[var(--primary)]">
+                        {u.name[0]}
+                      </div>
+                      <div className="overflow-hidden">
+                        <div className="text-sm font-medium truncate">{u.name}</div>
+                        <div className="text-[10px] text-surface-subtle truncate">{u.instance}</div>
+                      </div>
                     </div>
-                  </div>
-                  <button className="text-sm text-[var(--primary)] border border-[var(--muted-border)] rounded px-3 py-1">Connect</button>
-                </li>
-
-                <li className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[rgba(10,167,198,0.12)] flex items-center justify-center text-[var(--primary)] font-bold">D</div>
-                    <div>
-                      <div className="font-medium">diana</div>
-                      <div className="text-xs text-surface-subtle">instance-b</div>
-                    </div>
-                  </div>
-                  <button className="text-sm text-[var(--primary)] border border-[var(--muted-border)] rounded px-3 py-1">Connect</button>
-                </li>
+                    <button className="text-xs text-[var(--primary)] hover:bg-[var(--primary)]/10 px-2 py-1 rounded transition-colors">
+                      Connect
+                    </button>
+                  </li>
+                ))}
               </ul>
-            </div>
+            </GlassCard>
 
-            <div className="bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg p-4 shadow-sm">
-              <h4 className="font-semibold mb-2">Trends</h4>
+            <GlassCard className="p-5">
+              <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-surface-subtle">Trending</h3>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs px-2 py-1 rounded bg-[var(--bg-muted)]">#federation</span>
-                <span className="text-xs px-2 py-1 rounded bg-[var(--bg-muted)]">#privacy</span>
-                <span className="text-xs px-2 py-1 rounded bg-[var(--bg-muted)]">#opensource</span>
+                {['federation', 'tech', 'privacy', 'web3', 'opensource', 'future'].map(tag => (
+                  <span key={tag} className="text-xs px-2.5 py-1.5 rounded-lg bg-[var(--bg-muted)] border border-[var(--muted-border)] hover:border-[var(--primary)]/50 cursor-pointer transition-colors text-surface-subtle hover:text-surface">
+                    #{tag}
+                  </span>
+                ))}
               </div>
+            </GlassCard>
+
+            <div className="text-xs text-surface-subtle text-center px-4">
+              <p>© 2025 Federated Social Network.</p>
+              <p className="mt-1">Decentralized & Open Source.</p>
             </div>
           </div>
         </aside>

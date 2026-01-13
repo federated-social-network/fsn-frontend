@@ -1,0 +1,7 @@
+
+> frontend@0.0.0 build
+> tsc -b && vite build
+
+src/api/api.ts(62,3): error TS6133: 'password' is declared but its value is never read.
+src/api/api.ts(68,9): error TS6133: 'headers' is declared but its value is never read.
+src/components/ProtectedRoute.tsx(1,10): error TS1484: 'ReactNode' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
