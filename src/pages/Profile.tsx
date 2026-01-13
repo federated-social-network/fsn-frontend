@@ -56,7 +56,7 @@ export default function Profile() {
     <div className="min-h-screen flex items-start justify-center px-4 py-8">
       <div className="w-full max-w-3xl">
         <div className="bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg p-6">
-          {loading && <div className="text-sm text-[rgba(255,255,255,0.7)]">Loading profile…</div>}
+          {loading && <div className="text-sm text-surface-muted">Loading profile…</div>}
           {error && <div className="text-sm text-red-400">Error: {String(error)}</div>}
 
           {!loading && !error && user && (
@@ -73,7 +73,7 @@ export default function Profile() {
                 </div>
                 <div>
                   <div className="text-2xl font-semibold">{user.display_name || user.username || username}</div>
-                  <div className="text-sm text-[rgba(255,255,255,0.7)]">@{user.username || username} • {user.instance || user.origin_instance || 'local'}</div>
+                  <div className="text-sm text-surface-muted">@{user.username || username} • {user.instance || user.origin_instance || 'local'}</div>
                 </div>
                 <div className="ml-auto">
                   {localStorage.getItem("username") === user.username && (
@@ -96,19 +96,19 @@ export default function Profile() {
                 </div>
               </div>
 
-              {user.bio && <p className="mt-4 text-[rgba(255,255,255,0.9)]">{user.bio}</p>}
+              {user.bio && <p className="mt-4 text-surface">{user.bio}</p>}
 
-              <div className="mt-4 grid grid-cols-3 gap-4 text-sm text-[rgba(255,255,255,0.8)]">
+              <div className="mt-4 grid grid-cols-3 gap-4 text-sm text-surface-muted">
                 <div>
-                  <div className="text-xs text-[rgba(255,255,255,0.6)]">Email</div>
+                  <div className="text-xs text-surface-subtle">Email</div>
                   <div className="mt-1">{user.email || "—"}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-[rgba(255,255,255,0.6)]">Following</div>
+                  <div className="text-xs text-surface-subtle">Following</div>
                   <div className="mt-1">{user.following_count ?? user.following ?? "—"}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-[rgba(255,255,255,0.6)]">Followers</div>
+                  <div className="text-xs text-surface-subtle">Followers</div>
                   <div className="mt-1">{user.followers_count ?? user.followers ?? "—"}</div>
                 </div>
               </div>
@@ -117,16 +117,16 @@ export default function Profile() {
               {editMode && (
                 <div className="mt-6 border-t pt-4">
                   <div className="grid gap-3">
-                    <label className="text-xs text-[rgba(255,255,255,0.7)]">Display name</label>
+                    <label className="text-xs text-surface-muted">Display name</label>
                     <input value={form.display_name} onChange={(e) => setForm({ ...form, display_name: e.target.value })} className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-3 py-2" />
 
-                    <label className="text-xs text-[rgba(255,255,255,0.7)]">Email</label>
+                    <label className="text-xs text-surface-muted">Email</label>
                     <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-3 py-2" />
 
-                    <label className="text-xs text-[rgba(255,255,255,0.7)]">Bio</label>
+                    <label className="text-xs text-surface-muted">Bio</label>
                     <textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-3 py-2" />
 
-                    <label className="text-xs text-[rgba(255,255,255,0.7)]">Avatar</label>
+                    <label className="text-xs text-surface-muted">Avatar</label>
                     <div className="flex items-center gap-3">
                       <input
                         type="file"
@@ -183,7 +183,7 @@ export default function Profile() {
                 </div>
               )}
 
-                          <div className="mt-4 text-sm text-[rgba(255,255,255,0.7)]">
+                          <div className="mt-4 text-sm text-surface-muted">
                             Joined: {timeAgo(user.created_at || user.joined)}
                           </div>
             </div>

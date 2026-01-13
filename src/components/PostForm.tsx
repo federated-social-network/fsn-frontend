@@ -56,7 +56,7 @@ export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => v
   };
 
   return (
-    <div className="bg-[rgba(255,255,255,0.02)] border border-[var(--muted-border)] rounded-2xl p-4 mb-6">
+    <div className="bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-2xl p-4 mb-6">
       <textarea
         className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg p-3 resize-none"
         rows={3}

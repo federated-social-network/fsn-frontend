@@ -133,14 +133,14 @@ export default function Register() {
         </svg>
       </div>
 
-      <div className="w-full max-w-md p-8 rounded-2xl shadow-xl border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)] backdrop-blur-md relative z-10">
+      <div className="w-full max-w-md p-8 rounded-2xl shadow-xl border border-[var(--muted-border)] bg-[var(--bg-muted)] backdrop-blur-md relative z-10">
       <header className="mb-6 text-center">
         <h1 className="text-2xl font-semibold">Create an account</h1>
-        <p className="text-sm text-[rgba(255,255,255,0.6)]">
+        <p className="text-sm text-surface-subtle">
           Join your instance of Federated Social
         </p>
         {instance && (
-          <p className="text-xs text-[rgba(255,255,255,0.6)] mt-2">
+          <p className="text-xs text-surface-subtle mt-2">
             Registering on: <span className="font-mono">{instance}</span>{" "}
             <button
               onClick={() => navigate("/")}
@@ -223,7 +223,7 @@ export default function Register() {
         </button>
       </form>
 
-      <p className="text-sm text-[rgba(255,255,255,0.6)] mt-4 text-center">
+      <p className="text-sm text-surface-subtle mt-4 text-center">
         Already have an account?{" "}
         <Link to="/login" className="text-[var(--primary)] hover:underline">
           Sign in

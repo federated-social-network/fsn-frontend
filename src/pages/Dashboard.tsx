@@ -75,32 +75,32 @@ export default function Dashboard() {
               <div className="bg-[var(--bg-muted)] p-4 border-t border-[var(--muted-border)]">
                 <div className="-mt-12 flex items-center gap-3">
                   <Link to={`/profile/${username}`} className="block">
-                    <div className="w-16 h-16 rounded-full bg-[rgba(255,255,255,0.06)] flex items-center justify-center text-[var(--primary)] font-bold text-lg ring-4 ring-[rgba(0,0,0,0.25)]">{username ? username[0].toUpperCase() : 'U'}</div>
+                    <div className="w-16 h-16 rounded-full bg-[rgba(10,167,198,0.06)] flex items-center justify-center text-[var(--primary)] font-bold text-lg ring-4 ring-[rgba(0,0,0,0.25)]">{username ? username[0].toUpperCase() : 'U'}</div>
                   </Link>
                   <div className="flex-1">
                     <div className="font-semibold text-lg">{username || 'Your Name'}</div>
-                    <div className="text-xs text-[rgba(255,255,255,0.6)]">Member • {userid ? `ID ${userid}` : "—"}</div>
+                    <div className="text-xs text-surface-subtle">Member • {userid ? `ID ${userid}` : "—"}</div>
                   </div>
                 </div>
 
                 <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                   <div>
                     <div className="text-sm font-semibold">{userPostCount ?? posts.filter(p => p.author === username).length}</div>
-                      <div className="text-xs text-[rgba(255,255,255,0.6)]">Posts</div>
-                    </div>
+                    <div className="text-xs text-surface-subtle">Posts</div>
+                  </div>
                   <div>
                     <div className="text-sm font-semibold">{Math.max(5, Math.floor(posts.length * 1.5))}</div>
-                    <div className="text-xs text-[rgba(255,255,255,0.6)]">Connections</div>
+                    <div className="text-xs text-surface-subtle">Connections</div>
                   </div>
                   <div>
                     <div className="text-sm font-semibold">{Math.max(2, Math.floor(posts.length * 0.8))}</div>
-                    <div className="text-xs text-[rgba(255,255,255,0.6)]">Views</div>
+                    <div className="text-xs text-surface-subtle">Views</div>
                   </div>
                 </div>
 
                 <div className="mt-4 space-y-2">
                   <Link to={`/profile/${username}`} className="w-full block text-center px-3 py-2 rounded-md bg-[var(--primary)] text-white hover:opacity-95">View profile</Link>
-                  <button className="w-full block text-center px-3 py-2 rounded-md border border-[var(--muted-border)] hover:bg-[rgba(255,255,255,0.02)]">My network</button>
+                  <button className="w-full block text-center px-3 py-2 rounded-md border border-[var(--muted-border)] hover:bg-[var(--bg-muted)]">My network</button>
                 </div>
               </div>
             </div>
@@ -108,15 +108,15 @@ export default function Dashboard() {
             <div className="mt-4 bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg p-4 shadow-sm">
               <h4 className="font-semibold mb-2">Quick actions</h4>
               <div className="flex flex-col gap-2">
-                <Link to="/" className="text-sm px-3 py-2 rounded hover:bg-[rgba(255,255,255,0.02)]">Create post</Link>
-                  <Link to="/settings" className="text-sm px-3 py-2 rounded hover:bg-[rgba(255,255,255,0.02)]">Settings</Link>
+                <Link to="/" className="text-sm px-3 py-2 rounded hover:bg-[var(--bg-muted)]">Create post</Link>
+                <Link to="/settings" className="text-sm px-3 py-2 rounded hover:bg-[var(--bg-muted)]">Settings</Link>
                 <button
                   onClick={() => {
                     localStorage.removeItem("username");
                     localStorage.removeItem("password");
                     window.location.href = "/login";
                   }}
-                  className="text-sm px-3 py-2 rounded border border-[var(--muted-border)] hover:bg-[rgba(255,255,255,0.02)]"
+                  className="text-sm px-3 py-2 rounded border border-[var(--muted-border)] hover:bg-[var(--bg-muted)]"
                 >
                   Sign out
                 </button>
@@ -129,7 +129,7 @@ export default function Dashboard() {
         <main className="md:col-span-6">
           <div className="mb-4">
             <h2 className="text-2xl font-semibold">Home</h2>
-            <p className="text-sm text-[rgba(255,255,255,0.7)]">Welcome back{username ? `, ${username}` : ""} — catch up with your network.</p>
+            <p className="text-sm text-surface-muted">Welcome back{username ? `, ${username}` : ""} — catch up with your network.</p>
           </div>
 
           <div className="space-y-4">
@@ -137,7 +137,7 @@ export default function Dashboard() {
               <PostForm onPosted={() => loadPosts()} />
             </div>
 
-            {loading && <div className="text-sm text-[rgba(255,255,255,0.7)]">Loading posts…</div>}
+            {loading && <div className="text-sm text-surface-muted">Loading posts…</div>}
             {error && <div className="text-sm text-red-400">Error: {String(error)}</div>}
 
             {!loading && posts.length === 0 && (
@@ -154,17 +154,11 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between">
                       <div>
                         <Link to={`/profile/${p.author}`} className="font-semibold hover:underline">{p.author}</Link>
-                        <div className="text-xs text-[rgba(255,255,255,0.6)]">{p.origin_instance || 'local'}</div>
+                        <div className="text-xs text-surface-subtle">{p.origin_instance || 'local'}</div>
                       </div>
-                      <div className="text-xs text-[rgba(255,255,255,0.6)]">{timeAgo(p.created_at)}</div>
+                      <div className="text-xs text-surface-subtle">{timeAgo(p.created_at)}</div>
                     </div>
-                      <p className="mt-2 text-[rgba(255,255,255,0.9)]">{p.content}</p>
-
-                    <div className="mt-3 flex items-center gap-4 text-sm text-[rgba(255,255,255,0.7)]">
-                      <button className="px-2 py-1 rounded-md hover:bg-[rgba(255,255,255,0.02)]">Like</button>
-                      <button className="px-2 py-1 rounded-md hover:bg-[rgba(255,255,255,0.02)]">Comment</button>
-                      <button className="px-2 py-1 rounded-md hover:bg-[rgba(255,255,255,0.02)]">Share</button>
-                    </div>
+                    <p className="mt-2 text-surface">{p.content}</p>
                   </div>
                 </div>
               </article>
@@ -183,7 +177,7 @@ export default function Dashboard() {
                     <div className="w-10 h-10 rounded-full bg-[rgba(10,167,198,0.12)] flex items-center justify-center text-[var(--primary)] font-bold">C</div>
                     <div>
                       <div className="font-medium">charlie</div>
-                      <div className="text-xs text-[rgba(255,255,255,0.6)]">instance-a</div>
+                      <div className="text-xs text-surface-subtle">instance-a</div>
                     </div>
                   </div>
                   <button className="text-sm text-[var(--primary)] border border-[var(--muted-border)] rounded px-3 py-1">Connect</button>
@@ -194,7 +188,7 @@ export default function Dashboard() {
                     <div className="w-10 h-10 rounded-full bg-[rgba(10,167,198,0.12)] flex items-center justify-center text-[var(--primary)] font-bold">D</div>
                     <div>
                       <div className="font-medium">diana</div>
-                      <div className="text-xs text-[rgba(255,255,255,0.6)]">instance-b</div>
+                      <div className="text-xs text-surface-subtle">instance-b</div>
                     </div>
                   </div>
                   <button className="text-sm text-[var(--primary)] border border-[var(--muted-border)] rounded px-3 py-1">Connect</button>
@@ -205,9 +199,9 @@ export default function Dashboard() {
             <div className="bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg p-4 shadow-sm">
               <h4 className="font-semibold mb-2">Trends</h4>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs px-2 py-1 rounded bg-[rgba(255,255,255,0.02)]">#federation</span>
-                <span className="text-xs px-2 py-1 rounded bg-[rgba(255,255,255,0.02)]">#privacy</span>
-                <span className="text-xs px-2 py-1 rounded bg-[rgba(255,255,255,0.02)]">#opensource</span>
+                <span className="text-xs px-2 py-1 rounded bg-[var(--bg-muted)]">#federation</span>
+                <span className="text-xs px-2 py-1 rounded bg-[var(--bg-muted)]">#privacy</span>
+                <span className="text-xs px-2 py-1 rounded bg-[var(--bg-muted)]">#opensource</span>
               </div>
             </div>
           </div>
