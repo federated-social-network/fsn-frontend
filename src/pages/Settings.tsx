@@ -77,9 +77,9 @@ export default function Settings() {
       <div className="w-full max-w-3xl">
         <div className="bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg p-6 shadow-md">
           <h1 className="text-2xl font-semibold mb-2">Settings</h1>
-          <p className="text-sm text-[rgba(255,255,255,0.7)] mb-6">Manage your account, privacy and profile settings.</p>
+          <p className="text-sm text-surface-muted mb-6">Manage your account, privacy and profile settings.</p>
 
-          {loading && <div className="text-sm text-[rgba(255,255,255,0.7)]">Loading…</div>}
+          {loading && <div className="text-sm text-surface-muted">Loading…</div>}
           {error && <div className="text-sm text-red-400 mb-3">{String(error)}</div>}
           {success && <div className="text-sm text-green-400 mb-3">{String(success)}</div>}
 
@@ -88,16 +88,16 @@ export default function Settings() {
               <section className="bg-[var(--bg-muted)] p-4 rounded-lg border border-[var(--muted-border)]">
                 <h2 className="font-semibold mb-2">Profile</h2>
                 <div className="grid gap-2">
-                  <label className="text-xs text-[rgba(255,255,255,0.7)]">Display name</label>
+                  <label className="text-xs text-surface-muted">Display name</label>
                   <input value={form.display_name} onChange={(e) => setForm({ ...form, display_name: e.target.value })} className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-3 py-2" />
 
-                  <label className="text-xs text-[rgba(255,255,255,0.7)]">Email</label>
+                  <label className="text-xs text-surface-muted">Email</label>
                   <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-3 py-2" />
 
-                  <label className="text-xs text-[rgba(255,255,255,0.7)]">Bio</label>
+                  <label className="text-xs text-surface-muted">Bio</label>
                   <textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-3 py-2" />
 
-                  <label className="text-xs text-[rgba(255,255,255,0.7)]">Avatar</label>
+                  <label className="text-xs text-surface-muted">Avatar</label>
                   <div className="flex items-center gap-3">
                     <input type="file" accept="image/*" onChange={(e) => {
                       const f = e.target.files?.[0] || null;
@@ -116,9 +116,9 @@ export default function Settings() {
               <section className="bg-[var(--bg-muted)] p-4 rounded-lg border border-[var(--muted-border)]">
                 <h2 className="font-semibold mb-2">Security</h2>
                 <div className="grid gap-2">
-                  <label className="text-xs text-[rgba(255,255,255,0.7)]">Change password</label>
+                  <label className="text-xs text-surface-muted">Change password</label>
                   <input type="password" placeholder="New password" className="w-full bg-[var(--bg-muted)] border border-[var(--muted-border)] rounded-lg px-3 py-2" />
-                  <div className="text-xs text-[rgba(255,255,255,0.6)]">Password change requires backend support. Use the API endpoint for updating passwords.</div>
+                  <div className="text-xs text-surface-subtle">Password change requires backend support. Use the API endpoint for updating passwords.</div>
                 </div>
               </section>
 
@@ -127,7 +127,7 @@ export default function Settings() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-medium">Email notifications</div>
-                    <div className="text-xs text-[rgba(255,255,255,0.6)]">Receive email when someone follows you or comments on your post</div>
+                    <div className="text-xs text-surface-subtle">Receive email when someone follows you or comments on your post</div>
                   </div>
                   <input type="checkbox" checked={true} readOnly />
                 </div>

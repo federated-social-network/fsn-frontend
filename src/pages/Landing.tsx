@@ -9,9 +9,9 @@ export default function Landing() {
     localStorage.setItem("INSTANCE_BASE_URL", url);
     navigate("/login");
   };
-  
+
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-[#0a0e27] via-[#1a0a3a] to-[#0f0520] text-white flex flex-col items-center justify-center px-6 overflow-hidden">
+    <div className="min-h-screen relative bg-gradient-to-br from-[#0a0e27] via-[#1a0a3a] to-[#0f0520] dark:from-[#0a0e27] dark:via-[#1a0a3a] dark:to-[#0f0520] light:bg-surface text-surface flex flex-col items-center justify-center px-6 overflow-hidden">
 
       {/* Animated background layers */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -34,17 +34,17 @@ export default function Landing() {
       >
         <defs>
           <filter id="glow1" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="6" result="coloredBlur" />
             <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
           <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="8" result="coloredBlur" />
             <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
           <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -152,7 +152,7 @@ export default function Landing() {
         {/* Central nodes */}
         <circle className="glow-ring" cx="600" cy="400" r="8" style={{ fill: 'none', stroke: '#00f2ff', strokeWidth: '1.5' }} />
         <circle className="node" cx="600" cy="400" r="6" />
-        
+
         {/* Surrounding nodes */}
         <circle className="node" cx="200" cy="150" r="4" style={{ animationDelay: '0.2s' }} />
         <circle className="node" cx="1000" cy="100" r="5" style={{ animationDelay: '0.8s' }} />
@@ -172,44 +172,44 @@ export default function Landing() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center w-full">
-      
+
         <h1 className="text-5xl md:text-6xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 animate-pulse">
           Social networking that's not for sale.
         </h1>
 
-        <p className="text-gray-300 max-w-xl text-center mb-16 text-lg leading-relaxed">
+        <p className="text-surface-muted max-w-xl text-center mb-16 text-lg leading-relaxed">
           Choose an instance. Each instance is independently managed, with its
           own users, rules, and data.
         </p>
 
         <div className="grid md:grid-cols-2 gap-8 w-full max-w-3xl">
-          
+
           {/* Instance A Card */}
-          <div 
+          <div
             onMouseEnter={() => setHoveredCard('a')}
             onMouseLeave={() => setHoveredCard(null)}
-            onClick={() => chooseInstance("https://instance-a.onrender.com")} 
+            onClick={() => chooseInstance("https://instance-a.onrender.com")}
             className="group relative cursor-pointer h-full"
           >
             {/* Glassmorphism background with gradient border */}
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500" />
-            
+
             <div className="relative backdrop-blur-xl bg-white/[0.05] border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-all duration-500 overflow-hidden group-hover:shadow-2xl group-hover:shadow-cyan-500/50 h-full flex flex-col justify-between">
-              
+
               {/* Animated gradient background inside card */}
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-              
+
               {/* Content */}
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`w-3 h-3 rounded-full transition-all duration-500 ${hoveredCard === 'a' ? 'bg-cyan-400 shadow-lg shadow-cyan-400/50 scale-150' : 'bg-cyan-300'}`} />
                   <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Instance A</h2>
                 </div>
-                
-                <p className="text-gray-300 mb-6 text-sm leading-relaxed group-hover:text-gray-200 transition-colors">
+
+                <p className="text-surface-muted mb-6 text-sm leading-relaxed group-hover:text-surface transition-colors">
                   General community instance for everyone.
                 </p>
-                
+
                 <button
                   onClick={() => chooseInstance("https://instance-a.onrender.com")}
                   className="w-full relative overflow-hidden py-3 px-6 rounded-lg font-semibold transition-all duration-500 group/btn"
@@ -224,7 +224,7 @@ export default function Landing() {
                   </span>
                 </button>
               </div>
-              
+
               {/* Hover shine effect */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
@@ -233,31 +233,31 @@ export default function Landing() {
           </div>
 
           {/* Instance B Card */}
-          <div 
+          <div
             onMouseEnter={() => setHoveredCard('b')}
             onMouseLeave={() => setHoveredCard(null)}
-            onClick={() => chooseInstance("https://instance-b.onrender.com")} 
+            onClick={() => chooseInstance("https://instance-b.onrender.com")}
             className="group relative cursor-pointer h-full"
           >
             {/* Glassmorphism background with gradient border */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500" />
-            
+
             <div className="relative backdrop-blur-xl bg-white/[0.05] border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-all duration-500 overflow-hidden group-hover:shadow-2xl group-hover:shadow-purple-500/50 h-full flex flex-col justify-between">
-              
+
               {/* Animated gradient background inside card */}
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-              
+
               {/* Content */}
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`w-3 h-3 rounded-full transition-all duration-500 ${hoveredCard === 'b' ? 'bg-purple-400 shadow-lg shadow-purple-400/50 scale-150' : 'bg-purple-300'}`} />
                   <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">Instance B</h2>
                 </div>
-                
-                <p className="text-gray-300 mb-6 text-sm leading-relaxed group-hover:text-gray-200 transition-colors">
+
+                <p className="text-surface-muted mb-6 text-sm leading-relaxed group-hover:text-surface transition-colors">
                   Alternate community instance with unique features.
                 </p>
-                
+
                 <button
                   onClick={() => chooseInstance("https://instance-b.onrender.com")}
                   className="w-full relative overflow-hidden py-3 px-6 rounded-lg font-semibold transition-all duration-500 group/btn"
@@ -272,7 +272,7 @@ export default function Landing() {
                   </span>
                 </button>
               </div>
-              
+
               {/* Hover shine effect */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
@@ -280,7 +280,7 @@ export default function Landing() {
             </div>
           </div>
 
-        </div> 
+        </div>
 
       </div>
     </div>

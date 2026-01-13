@@ -123,9 +123,9 @@ export default function Login() {
         </svg>
       </div>
 
-      <div className="w-full max-w-md sm:max-w-lg p-8 rounded-2xl shadow-xl border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)] backdrop-blur-md relative z-10">
+      <div className="w-full max-w-md sm:max-w-lg p-8 rounded-2xl shadow-xl border border-[var(--muted-border)] bg-[var(--bg-muted)] backdrop-blur-md relative z-10">
       {instance && (
-        <div className="text-xs text-[rgba(255,255,255,0.6)] text-center mb-3">
+        <div className="text-xs text-surface-subtle text-center mb-3">
           Signing in to: <span className="font-mono">{instance}</span>
         </div>
       )}
@@ -134,7 +134,7 @@ export default function Login() {
           FS
         </div>
         <h1 className="text-2xl font-semibold mt-3">Federated Social</h1>
-        <p className="text-sm text-[rgba(255,255,255,0.6)]">
+        <p className="text-sm text-surface-subtle">
           Decentralized. Private. Yours.
           
           
@@ -172,7 +172,7 @@ export default function Login() {
         </button>
       </form>
 
-      <p className="text-sm text-[rgba(255,255,255,0.6)] mt-4 text-center">
+      <p className="text-sm text-surface-subtle mt-4 text-center">
         New here?{" "}
         <Link to="/register" className="text-[var(--primary)] hover:underline">
           Create an account
