@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Sketch Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Fredericka+the+Great&display=swap');
+
 /* Dark theme (default) */
 :root,
 :root[data-theme="dark"] {

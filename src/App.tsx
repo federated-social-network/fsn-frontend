@@ -5,14 +5,9 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import ThemeToggle from "./components/ThemeToggle";
-
-
-
 export default function App() {
   return (
     <ThemeProvider>
-      <ThemeToggle />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />

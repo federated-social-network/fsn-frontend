@@ -7,6 +7,7 @@ import type { Post } from "../types/post";
 import GlassCard from "../components/GlassCard";
 import SkeletonPost from "../components/SkeletonPost";
 import { motion, AnimatePresence } from "framer-motion";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function Dashboard() {
   const username = localStorage.getItem("username") || "";
@@ -80,6 +81,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen relative text-surface">
+      <ThemeToggle />
       {background}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-12 gap-8">
