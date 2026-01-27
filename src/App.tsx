@@ -7,6 +7,8 @@ import Profile from "./pages/Profile";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ThemeToggle from "./components/ThemeToggle";
 
+
+
 export default function App() {
   return (
     <ThemeProvider>
