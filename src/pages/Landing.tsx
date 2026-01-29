@@ -68,7 +68,7 @@ export default function Landing() {
           {/* Pin */}
           <circle cx="120" cy="80" r="7" fill="#FF6B6B" stroke="#000" strokeWidth="1" />
           <circle cx="120" cy="80" r="5" fill="#FF8C8C" opacity="0.9" />
-
+          
           {/* Luggage */}
           <rect x="90" y="100" width="60" height="45" rx="4" fill="#FFB347" stroke="#000" strokeWidth="1.5" opacity="0.85" />
           <rect x="95" y="105" width="50" height="35" fill="#FFC857" opacity="0.7" />
@@ -84,14 +84,14 @@ export default function Landing() {
           {/* Pin */}
           <circle cx="1080" cy="650" r="7" fill="#4CAF50" stroke="#000" strokeWidth="1" />
           <circle cx="1080" cy="650" r="5" fill="#66BB6A" opacity="0.9" />
-
+          
           {/* Mountain backdrop card */}
           <rect x="1000" y="670" width="160" height="100" rx="3" fill="#E8F5E9" stroke="#000" strokeWidth="1.5" opacity="0.85" />
-
+          
           {/* Simple mountain */}
           <polygon points="1040,700 1080,670 1120,700" fill="#90EE90" stroke="#000" strokeWidth="1" opacity="0.8" />
           <polygon points="1060,700 1080,685 1100,700" fill="#228B22" stroke="#000" strokeWidth="0.5" opacity="0.7" />
-
+          
           {/* Binoculars icon */}
           <circle cx="1020" cy="730" r="5" fill="none" stroke="#333" strokeWidth="2" />
           <circle cx="1140" cy="730" r="5" fill="none" stroke="#333" strokeWidth="2" />
@@ -103,7 +103,7 @@ export default function Landing() {
           {/* Pin */}
           <circle cx="150" cy="720" r="7" fill="#4169E1" stroke="#000" strokeWidth="1" />
           <circle cx="150" cy="720" r="5" fill="#6495ED" opacity="0.9" />
-
+          
           {/* Camera body */}
           <rect x="110" y="680" width="80" height="60" rx="4" fill="#333" stroke="#000" strokeWidth="1.5" opacity="0.85" />
           {/* Lens */}
@@ -117,7 +117,7 @@ export default function Landing() {
         <g style={{ animationDelay: '2.5s' }} className="travel-item">
           {/* Pin */}
           <circle cx="1100" cy="250" r="6" fill="#FF1493" stroke="#000" strokeWidth="1" />
-
+          
           {/* Sticky note */}
           <rect x="1070" y="270" width="60" height="50" fill="#FFFF99" stroke="#000" strokeWidth="1" opacity="0.9" style={{ transform: 'rotate(-8deg)', transformOrigin: '1100px 250px' }} />
           <text x="1100" y="292" fontSize="10" fontFamily="cursive" fill="#333" textAnchor="middle" fontWeight="bold">Share</text>
@@ -129,7 +129,7 @@ export default function Landing() {
           {/* Pin */}
           <circle cx="1030" cy="400" r="7" fill="#FF9800" stroke="#000" strokeWidth="1" />
           <circle cx="1030" cy="400" r="5" fill="#FFB74D" opacity="0.9" />
-
+          
           {/* Passport/Map */}
           <rect x="1000" y="420" width="60" height="80" rx="2" fill="#C41C3B" stroke="#000" strokeWidth="1.5" opacity="0.85" />
           <rect x="1005" y="425" width="50" height="70" fill="#E53935" opacity="0.9" />
@@ -141,7 +141,7 @@ export default function Landing() {
         <g style={{ animationDelay: '1.2s' }} className="travel-item">
           {/* Pin */}
           <circle cx="80" cy="480" r="6" fill="#00CED1" stroke="#000" strokeWidth="1" />
-
+          
           {/* Sticky note */}
           <rect x="50" y="500" width="60" height="50" fill="#B0E0E6" stroke="#000" strokeWidth="1" opacity="0.9" style={{ transform: 'rotate(5deg)', transformOrigin: '80px 480px' }} />
           <text x="80" y="522" fontSize="10" fontFamily="cursive" fill="#003366" textAnchor="middle" fontWeight="bold">Connect</text>

@@ -197,8 +197,8 @@ export default function Dashboard() {
                   transition={{ duration: 0.3, delay: idx * 0.05 }}
                   layout
                 >
-                  <GlassCard hoverEffect>
-                    <div className="p-5">
+                  <GlassCard hoverEffect variant="note" className="relative group overflow-visible">
+                    <div className="p-5 relative z-10">
                       <div className="flex items-start gap-4">
                         <Link to={`/profile/${p.author}`} className="flex-shrink-0">
                           <div className="w-12 h-12 rounded-full bg-[var(--bg-muted)] border border-[var(--muted-border)] flex items-center justify-center font-bold text-[var(--primary)]">
