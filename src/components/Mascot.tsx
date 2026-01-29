@@ -3,12 +3,13 @@ import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'fr
 
 interface MascotProps {
     isPasswordFocused: boolean;
+    showPassword?: boolean;
 }
 
 // Shared Spring Config
 const springConfig = { damping: 20, stiffness: 150, mass: 0.5 };
 
-export default function Mascot({ isPasswordFocused }: MascotProps) {
+export default function Mascot({ isPasswordFocused, showPassword = false }: MascotProps) {
     // Use MotionValues instead of State for high-performance animation
     const targetX = useMotionValue(0);
     const targetY = useMotionValue(0);
@@ -51,16 +52,16 @@ export default function Mascot({ isPasswordFocused }: MascotProps) {
                 {/* 1. Purple Block (Tallest, Back Left) */}
                 <g transform="translate(130, 40)">
                     <rect x="0" y="0" width="90" height="260" fill="#6200ea" />
-                    <WhiteEye cx={45} cy={40} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} />
-                    <WhiteEye cx={70} cy={40} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} />
+                    <WhiteEye cx={45} cy={40} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
+                    <WhiteEye cx={70} cy={40} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
                     <rect x="58" y="30" width="4" height="30" fill="black" />
                 </g>
 
                 {/* 2. Black Block (Middle Right) */}
                 <g transform="translate(200, 130)">
                     <rect x="0" y="0" width="70" height="170" fill="#1a1a1a" />
-                    <WhiteEye cx={35} cy={30} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} />
-                    <WhiteEye cx={55} cy={30} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} />
+                    <WhiteEye cx={35} cy={30} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
+                    <WhiteEye cx={55} cy={30} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
                 </g>
 
                 {/* 3. Orange Blob (Front Left) */}
@@ -68,8 +69,8 @@ export default function Mascot({ isPasswordFocused }: MascotProps) {
                     <path d="M 0 100 C 0 10 150 10 150 100" fill="#ff6d00" />
                     <rect x="0" y="100" width="150" height="20" fill="#ff6d00" />
 
-                    <DotEye cx={45} cy={70} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} />
-                    <DotEye cx={105} cy={70} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} />
+                    <DotEye cx={45} cy={70} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
+                    <DotEye cx={105} cy={70} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
 
                     <path d="M 65 90 A 10 10 0 0 0 85 90 Z" fill="#1a1a1a" transform="rotate(10, 75, 90)" />
                 </g>
@@ -79,7 +80,7 @@ export default function Mascot({ isPasswordFocused }: MascotProps) {
                     <path d="M 0 60 A 32 32 0 0 1 64 60 L 64 140 L 0 140 Z" fill="#ffd600" />
                     <rect x="0" y="60" width="64" height="80" fill="#ffd600" />
 
-                    <DotEye cx={25} cy={45} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} />
+                    <DotEye cx={25} cy={45} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
                     <rect x="35" y="60" width="40" height="4" fill="black" />
                 </g>
 
@@ -95,11 +96,15 @@ interface EyeProps {
     eyeX: MotionValue<number>;
     eyeY: MotionValue<number>;
     isPasswordFocused: boolean;
+    showPassword: boolean;
 }
 
-const WhiteEye = ({ cx, cy, eyeX, eyeY, isPasswordFocused }: EyeProps) => {
+const WhiteEye = ({ cx, cy, eyeX, eyeY, isPasswordFocused, showPassword }: EyeProps) => {
     const x = useTransform(eyeX, (v) => v * 0.8);
     const y = useTransform(eyeY, (v) => v * 0.8);
+
+    const isClosed = isPasswordFocused && !showPassword;
+    const isPeeking = isPasswordFocused && showPassword;
 
     return (
         <g>
@@ -108,21 +113,24 @@ const WhiteEye = ({ cx, cy, eyeX, eyeY, isPasswordFocused }: EyeProps) => {
                 cx={cx} cy={cy} r="2.5" fill="black"
                 style={{ x, y }}
                 initial={false}
-                animate={isPasswordFocused ? { scale: 0.1, opacity: 0 } : { scale: 1, opacity: 1 }}
+                animate={isClosed ? { scale: 0.1, opacity: 0 } : (isPeeking ? { scale: 1.3, opacity: 1 } : { scale: 1, opacity: 1 })}
             />
             <motion.path
                 d={`M ${cx - 6} ${cy} Q ${cx} ${cy + 4} ${cx + 6} ${cy}`}
                 stroke="black" strokeWidth="2" fill="none"
                 initial={{ opacity: 0 }}
-                animate={isPasswordFocused ? { opacity: 1 } : { opacity: 0 }}
+                animate={isClosed ? { opacity: 1 } : { opacity: 0 }}
             />
         </g>
     );
 };
 
-const DotEye = ({ cx, cy, eyeX, eyeY, isPasswordFocused }: EyeProps) => {
+const DotEye = ({ cx, cy, eyeX, eyeY, isPasswordFocused, showPassword }: EyeProps) => {
     const x = useTransform(eyeX, (v) => v * 0.5);
     const y = useTransform(eyeY, (v) => v * 0.5);
+
+    const isClosed = isPasswordFocused && !showPassword;
+    const isPeeking = isPasswordFocused && showPassword;
 
     return (
         <g>
@@ -130,8 +138,9 @@ const DotEye = ({ cx, cy, eyeX, eyeY, isPasswordFocused }: EyeProps) => {
                 cx={cx} cy={cy} r="3.5" fill="black"
                 style={{ x, y }}
                 initial={false}
-                animate={isPasswordFocused ? { scaleY: 0.1 } : { scaleY: 1 }}
+                animate={isClosed ? { scaleY: 0.1 } : (isPeeking ? { scale: 1.5, scaleY: 1 } : { scale: 1, scaleY: 1 })}
             />
         </g>
     );
 };
+

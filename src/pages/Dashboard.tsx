@@ -70,20 +70,14 @@ export default function Dashboard() {
     return () => { mounted = false; };
   }, [username]);
 
-  // Background for the dashboard - simpler, less colorful
+  // Background for the dashboard - Minimal Hybrid Pattern
   const background = (
-    <div className="fixed inset-0 pointer-events-none -z-10 w-full h-full opacity-20">
-      <svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="dashGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#0aa7c6" stopOpacity={0.2} />
-            <stop offset="100%" stopColor="#0f1720" stopOpacity={0} />
-          </radialGradient>
-        </defs>
-        <circle cx="90%" cy="10%" r="400" fill="url(#dashGrad)" opacity="0.3" />
-        <circle cx="10%" cy="90%" r="300" fill="#0aa7c6" opacity="0.1" />
-      </svg>
-    </div>
+    <div className="fixed inset-0 pointer-events-none -z-10 w-full h-full opacity-10"
+      style={{
+        backgroundImage: `radial-gradient(#000 1px, transparent 1px)`,
+        backgroundSize: '24px 24px'
+      }}
+    />
   );
 
   return (
@@ -109,7 +103,7 @@ export default function Dashboard() {
                   </Link>
                 </div>
 
-                <h3 className="text-xl font-bold truncate">{username || 'Guest'}</h3>
+                <h3 className="text-xl font-bold truncate font-['Cabin_Sketch'] tracking-wide">{username || 'Guest'}</h3>
                 <p className="text-sm text-surface-subtle mb-4">{userid ? `@user-${userid}` : 'Anonymous'}</p>
 
                 <div className="flex items-center justify-between py-3 border-t border-[var(--muted-border)] text-sm">
@@ -161,7 +155,7 @@ export default function Dashboard() {
           </GlassCard>
 
           <div className="flex items-center justify-between text-sm text-surface-subtle px-2">
-            <p>Recent Updates</p>
+            <p className="font-['Cabin_Sketch'] text-xl font-bold">Recent Updates</p>
             <button onClick={loadPosts} className="hover:text-[var(--primary)] transition-colors">
               Refresh
             </button>
@@ -242,7 +236,7 @@ export default function Dashboard() {
         <aside className="md:col-span-3 hidden lg:block">
           <div className="sticky top-24 space-y-6 block">
             <GlassCard className="p-5">
-              <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-surface-subtle">Suggested</h3>
+              <h3 className="font-bold mb-4 text-xl uppercase tracking-wider text-surface font-['Cabin_Sketch']">Suggested</h3>
               <ul className="space-y-4">
                 {[
                   { name: 'Alice', instance: 'instance-a' },
@@ -268,7 +262,7 @@ export default function Dashboard() {
             </GlassCard>
 
             <GlassCard className="p-5">
-              <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-surface-subtle">Trending</h3>
+              <h3 className="font-bold mb-4 text-xl uppercase tracking-wider text-surface font-['Cabin_Sketch']">Trending</h3>
               <div className="flex flex-wrap gap-2">
                 {['federation', 'tech', 'privacy', 'web3', 'opensource', 'future'].map(tag => (
                   <span key={tag} className="text-xs px-2.5 py-1.5 rounded-lg bg-[var(--bg-muted)] border border-[var(--muted-border)] hover:border-[var(--primary)]/50 cursor-pointer transition-colors text-surface-subtle hover:text-surface">

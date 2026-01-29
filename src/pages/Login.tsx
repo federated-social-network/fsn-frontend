@@ -58,9 +58,9 @@ const Login = () => {
     };
 
     return (
-        <div className="login-main">
+        <div className="login-main font-['Fredericka_the_Great']">
             <div className="login-left">
-                <Mascot isPasswordFocused={isPasswordFocused} />
+                <Mascot isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
             </div>
             <div className="login-right">
                 <div className="login-right-container">
@@ -68,7 +68,7 @@ const Login = () => {
                         <img src={Logo} alt="Logo" />
                     </div>
                     <div className="login-center">
-                        <h2>Welcome back!</h2>
+                        <h2 className="font-['Cabin_Sketch'] text-4xl font-bold">Welcome back!</h2>
                         <p>Please enter your details</p>
                         {errorMsg && <p className="error-msg">{errorMsg}</p>}
                         <form onSubmit={handleLogin}>
@@ -77,6 +77,7 @@ const Login = () => {
                                 placeholder="Username"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
+                                className="font-['Fredericka_the_Great']"
                             />
                             <div className="pass-input-div">
                                 <input
@@ -86,6 +87,7 @@ const Login = () => {
                                     onChange={(e) => setPassword(e.target.value)}
                                     onFocus={() => setIsPasswordFocused(true)}
                                     onBlur={() => setIsPasswordFocused(false)}
+                                    className="font-['Fredericka_the_Great']"
                                 />
                                 {showPassword ? (
                                     <FaEyeSlash onClick={() => setShowPassword(!showPassword)} />
@@ -106,10 +108,10 @@ const Login = () => {
                                 </Link>
                             </div>
                             <div className="login-center-buttons">
-                                <button type="submit" disabled={isLoading}>
+                                <button type="submit" disabled={isLoading} className="font-['Cabin_Sketch'] text-xl tracking-wider font-bold">
                                     {isLoading ? "Logging In..." : "Log In"}
                                 </button>
-                                <button type="button">
+                                <button type="button" className="font-['Cabin_Sketch'] text-xl tracking-wider font-bold">
                                     Log In with Google
                                 </button>
                             </div>

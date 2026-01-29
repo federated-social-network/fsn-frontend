@@ -125,7 +125,7 @@ const AuthPage = () => {
                         {isRegisterMode ? "Join the Crew!" : "Welcome Back!"}
                     </h2>
                     <div className="w-full max-w-xs scale-125">
-                        <Mascot isPasswordFocused={isPasswordFocused} />
+                        <Mascot isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
                     </div>
                 </div>
 
