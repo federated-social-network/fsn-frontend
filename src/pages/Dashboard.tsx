@@ -22,7 +22,14 @@ export default function Dashboard() {
     setError(null);
     try {
       const res = await getPosts();
-      setPosts(res.data || []);
+      const postsData = res.data || [];
+      // Sort posts by created_at in descending order (newest first)
+      const sortedPosts = postsData.sort((a: Post, b: Post) => {
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return dateB - dateA;
+      });
+      setPosts(sortedPosts);
     } catch (err: any) {
       console.error("Failed to fetch posts", err);
       const serverBody = err?.response?.data;

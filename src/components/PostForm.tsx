@@ -10,9 +10,9 @@ export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => v
     setError("");
 
     const username = localStorage.getItem("username");
-    const password = localStorage.getItem("password");
+    const token = localStorage.getItem("AUTH_TOKEN") || localStorage.getItem("access_token");
 
-    if (!username || !password) {
+    if (!username || !token) {
       setError("Not authenticated — please log in.");
       return;
     }
