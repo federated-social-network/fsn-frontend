@@ -193,6 +193,7 @@ export default function Profile() {
               <p className="text-lg font-hand text-[var(--ink-secondary)]">@{user?.username || username}</p>
               {user?.instance && <span className="text-xs px-2 py-0.5 mt-2 inline-block font-hand bg-black/5 rounded">instance: {user.instance}</span>}
 
+
               {/* Edit Button */}
               {isOwnProfile && !editMode && !loading && (
                 <button
