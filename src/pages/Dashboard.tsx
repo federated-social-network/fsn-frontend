@@ -154,6 +154,7 @@ export default function Dashboard() {
     }
   }, [activeTab]);
 
+  
   // Poll for new posts
   useEffect(() => {
     const interval = setInterval(async () => {
