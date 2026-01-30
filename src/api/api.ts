@@ -115,3 +115,7 @@ export const uploadAvatar = (username: string, file: File) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
+
+export const deletePost = (postId: string | number) => {
+  return getApi().delete(`/delete/${postId}`);
+};

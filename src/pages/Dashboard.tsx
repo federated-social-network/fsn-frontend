@@ -4,17 +4,17 @@ import { Link } from "react-router-dom";
 import { getPosts, getUser } from "../api/api";
 import { timeAgo } from "../utils/time";
 import type { Post } from "../types/post";
-import GlassCard from "../components/GlassCard";
+import SketchCard from "../components/SketchCard";
 import SkeletonPost from "../components/SkeletonPost";
 import { motion, AnimatePresence } from "framer-motion";
 import ThemeToggle from "../components/ThemeToggle";
 
 export default function Dashboard() {
   const username = localStorage.getItem("username") || "";
-  const userid = localStorage.getItem("userid") || "";
+
   const [posts, setPosts] = useState<Post[]>([]);
   const [userPostCount, setUserPostCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true); // Default to true for better initial UX
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadPosts = useCallback(async () => {
@@ -23,7 +23,6 @@ export default function Dashboard() {
     try {
       const res = await getPosts();
       const postsData = res.data || [];
-      // Sort posts by created_at in descending order (newest first)
       const sortedPosts = postsData.sort((a: Post, b: Post) => {
         const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
         const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
@@ -62,7 +61,6 @@ export default function Dashboard() {
         const res = await getUser(username);
         if (mounted) setUserPostCount(res.data?.post_count ?? 0);
       } catch (err) {
-        // silent fail for stats
         if (mounted) setUserPostCount(null);
       }
     };
@@ -70,213 +68,193 @@ export default function Dashboard() {
     return () => { mounted = false; };
   }, [username]);
 
-  // Background for the dashboard - Minimal Hybrid Pattern
-  const background = (
-    <div className="fixed inset-0 pointer-events-none -z-10 w-full h-full opacity-10"
-      style={{
-        backgroundImage: `radial-gradient(#000 1px, transparent 1px)`,
-        backgroundSize: '24px 24px'
-      }}
-    />
-  ); 
-
-
   return (
-    <div className="min-h-screen relative text-surface">
+    <div className="h-screen overflow-hidden flex flex-col">
       <ThemeToggle />
-      {background}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-12 gap-8">
+      {/* Fixed Header/Nav could go here if we had one, but we have sidebar nav */}
 
-        {/* --- Left Sidebar: Profile --- */}
-        <aside className="md:col-span-3 space-y-6 hidden md:block">
-          <div className="sticky top-24 space-y-6">
-            <GlassCard>
-              <div className="h-24 bg-[var(--bg-muted)] border-b border-[var(--muted-border)]"></div>
-              <div className="px-5 pb-5">
-                <div className="-mt-12 mb-3">
-                  <Link to={`/profile/${username}`} className="inline-block relative">
-                    <div className="w-20 h-20 rounded-2xl bg-[var(--bg-surface)] p-1 shadow-lg border border-[var(--muted-border)]">
-                      <div className="w-full h-full rounded-xl bg-[var(--bg-muted)] flex items-center justify-center text-[var(--primary)] text-2xl font-bold">
-                        {username ? username[0].toUpperCase() : 'U'}
-                      </div>
-                    </div>
-                  </Link>
+      <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-12 gap-8 h-full">
+
+        {/* --- Left Sidebar: Profile (Static) --- */}
+        <aside className="md:col-span-3 space-y-8 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide">
+          <SketchCard rotate={-1} pinned pinColor="#ef4444">
+            <div className="p-4 text-center">
+              <Link to={`/profile/${username}`} className="inline-block relative mb-2">
+                <div className="w-24 h-24 mx-auto rounded-full border-4 border-[var(--ink-primary)] overflow-hidden shadow-sm bg-[var(--paper-cream)] flex items-center justify-center">
+                  <span className="font-sketch text-4xl text-[var(--ink-blue)] font-bold">
+                    {username ? username[0].toUpperCase() : 'U'}
+                  </span>
                 </div>
+              </Link>
 
-                <h3 className="text-xl font-bold truncate font-['Cabin_Sketch'] tracking-wide">{username || 'Guest'}</h3>
-                <p className="text-sm text-surface-subtle mb-4">{userid ? `@user-${userid}` : 'Anonymous'}</p>
+              <h3 className="text-2xl font-bold font-sketch truncate">{username || 'Guest'}</h3>
 
-                <div className="flex items-center justify-between py-3 border-t border-[var(--muted-border)] text-sm">
-                  <span className="text-surface-subtle">Posts</span>
-                  <span className="font-semibold">{userPostCount ?? posts.filter(p => p.author === username).length}</span>
+              <div className="grid grid-cols-2 gap-2 text-sm border-t-2 border-dashed border-[var(--ink-secondary)] pt-4 mt-2">
+                <div className="flex flex-col">
+                  <span className="font-bold  text-[var(--ink-primary)] text-lg">{userPostCount ?? posts.filter(p => p.author === username).length}</span>
+                  <span className="font-hand text-[var(--ink-secondary)]">Posts</span>
                 </div>
-                <div className="flex items-center justify-between py-3 border-t border-[var(--muted-border)] text-sm">
-                  <span className="text-surface-subtle">Connections</span>
-                  <span className="font-semibold">{Math.max(5, Math.floor(posts.length * 1.5))}</span>
+                <div className="flex flex-col border-l-2 border-dashed border-[var(--ink-secondary)]">
+                  <span className="font-bold text-[var(--ink-primary)] text-lg">{Math.max(5, Math.floor(posts.length * 1.5))}</span>
+                  <span className="font-hand text-[var(--ink-secondary)]">Karma</span>
                 </div>
-
-                <Link to={`/profile/${username}`} className="mt-4 block w-full py-2 bg-[var(--primary)] text-white font-medium text-center rounded-lg hover:bg-[var(--primary-600)] transition-colors">
-                  View Profile
-                </Link>
               </div>
-            </GlassCard>
 
-            <GlassCard className="p-4">
-              <nav className="flex flex-col space-y-1">
-                <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[var(--bg-muted)] text-[var(--primary)] font-medium">
-                  <span>Home</span>
-                </Link>
-                <Link to="/settings" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[var(--bg-muted)] transition-colors text-surface-muted hover:text-surface">
-                  <span>Settings</span>
-                </Link>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem("username");
-                    localStorage.removeItem("password");
-                    localStorage.removeItem("access_token");
-                    localStorage.removeItem("AUTH_TOKEN");
-                    window.location.href = "/login";
-                  }}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-500/10 text-surface-muted hover:text-red-400 transition-colors text-left"
-                >
-                  <span>Sign Out</span>
-                </button>
-              </nav>
-            </GlassCard>
-          </div>
+              <Link to={`/profile/${username}`} className="mt-6 block w-full py-2 bg-[var(--ink-blue)] text-white font-sketch rounded shadow-[2px_2px_0px_rgba(0,0,0,0.8)] hover:translate-y-px hover:shadow-none transition-all">
+                My Notebook
+              </Link>
+            </div>
+          </SketchCard>
+
+          <SketchCard variant="paper" rotate={1} className="p-4" pinned pinColor="#3b82f6">
+            <nav className="flex flex-col space-y-2 font-hand text-lg">
+              <Link to="/" className="flex items-center gap-2 px-2 hover:bg-black/5 rounded">
+                <span className="text-2xl">🏠</span> Home
+              </Link>
+              <Link to="/settings" className="flex items-center gap-2 px-2 hover:bg-black/5 rounded">
+                <span className="text-2xl">⚙️</span> Settings
+              </Link>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("username");
+                  localStorage.removeItem("password");
+                  localStorage.removeItem("access_token");
+                  localStorage.removeItem("AUTH_TOKEN");
+                  window.location.href = "/login";
+                }}
+                className="flex items-center gap-2 px-2 text-red-600 hover:bg-red-500/10 rounded w-full text-left"
+              >
+                <span className="text-2xl">🚪</span> Sign Out
+              </button>
+            </nav>
+          </SketchCard>
         </aside>
 
-        {/* --- Main Feed --- */}
-        <main className="md:col-span-6 space-y-6">
-          <GlassCard className="p-0 overflow-hidden">
-            <div className="p-4 sm:p-6">
+        {/* --- Main Feed (Scrollable) --- */}
+        <main className="md:col-span-6 h-full overflow-y-auto px-2 pb-20 no-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div className="space-y-10">
+            <div className="relative z-10 pt-2">
               <PostForm onPosted={() => loadPosts()} />
             </div>
-          </GlassCard>
 
-          <div className="flex items-center justify-between text-sm text-surface-subtle px-2">
-            <p className="font-['Cabin_Sketch'] text-xl font-bold">Recent Updates</p>
-            <button onClick={loadPosts} className="hover:text-[var(--primary)] transition-colors">
-              Refresh
-            </button>
-          </div>
+            <div className="flex items-center justify-between px-2 pb-2 border-b-2 border-black sticky top-0 bg-[var(--bg-surface)]/95 backdrop-blur z-20">
+              <h2 className="font-sketch text-3xl font-bold">Latest Scribbles</h2>
+              <button onClick={loadPosts} className="font-hand text-lg hover:underline decoration-wavy">
+                ↻ Refresh
+              </button>
+            </div>
 
-          <div className="space-y-4">
-            {/* Error State */}
-            {error && (
-              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-center text-sm">
-                {String(error)}
-                <button onClick={loadPosts} className="block mx-auto mt-2 text-[var(--primary)] hover:underline">Try Again</button>
-              </div>
-            )}
+            <div className="space-y-8">
+              {/* Error State */}
+              {error && (
+                <SketchCard variant="sticky" className="bg-red-100 rotate-1">
+                  <div className="p-4 text-center text-red-800 font-hand font-bold text-xl">
+                    ⚠️ {String(error)}
+                    <button onClick={loadPosts} className="block mx-auto mt-2 underline">Try Again</button>
+                  </div>
+                </SketchCard>
+              )}
 
-            {/* Loading State */}
-            {loading && (
-              <>
-                <SkeletonPost />
-                <SkeletonPost />
-                <SkeletonPost />
-              </>
-            )}
+              {/* Loading State */}
+              {loading && (
+                <div className="space-y-12">
+                  <SkeletonPost />
+                  <SkeletonPost />
+                </div>
+              )}
 
-            {/* Empty State */}
-            {!loading && !error && posts.length === 0 && (
-              <div className="text-center py-12">
-                <h3 className="text-lg font-medium">No posts yet</h3>
-                <p className="text-surface-subtle">Be the first to share something.</p>
-              </div>
-            )}
+              {/* Empty State */}
+              {!loading && !error && posts.length === 0 && (
+                <div className="text-center py-12">
+                  <h3 className="font-sketch text-3xl mb-2 text-[var(--ink-secondary)]">Page is empty...</h3>
+                  <p className="font-hand text-xl">Start writing something above!</p>
+                </div>
+              )}
 
-            {/* Post List */}
-            <AnimatePresence mode="popLayout">
-              {!loading && posts.map((p, idx) => (
-                <motion.div
-                  key={p.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: idx * 0.05 }}
-                  layout
-                >
-                  <GlassCard hoverEffect variant="note" className="relative group overflow-visible">
-                    <div className="p-5 relative z-10">
-                      <div className="flex items-start gap-4">
-                        <Link to={`/profile/${p.author}`} className="flex-shrink-0">
-                          <div className="w-12 h-12 rounded-full bg-[var(--bg-muted)] border border-[var(--muted-border)] flex items-center justify-center font-bold text-[var(--primary)]">
-                            {p.author ? p.author[0].toUpperCase() : '?'}
-                          </div>
-                        </Link>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <Link to={`/profile/${p.author}`} className="font-semibold hover:text-[var(--primary)] transition-colors truncate">
-                              {p.author}
-                            </Link>
-                            <span className="text-xs text-surface-subtle whitespace-nowrap ml-2">
-                              {timeAgo(p.created_at)}
-                            </span>
-                          </div>
-                          {p.origin_instance && (
-                            <div className="text-xs text-surface-subtle mb-3 bg-white/5 inline-block px-2 py-0.5 rounded-full border border-white/5">
-                              @{p.origin_instance}
+              {/* Post List */}
+              <AnimatePresence mode="popLayout">
+                {!loading && posts.map((p, idx) => (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, y: 50, rotate: -2 }}
+                    animate={{ opacity: 1, y: 0, rotate: idx % 2 === 0 ? 1 : -1 }}
+                    transition={{ type: 'spring', bounce: 0.4 }}
+                    className="mb-8"
+                  >
+                    <SketchCard className="group">
+                      <div className="p-6">
+                        <div className="flex items-start gap-4 mb-4">
+                          <Link to={`/profile/${p.author}`} className="flex-shrink-0">
+                            <div className="w-12 h-12 rounded-full border-2 border-black bg-white flex items-center justify-center font-sketch font-bold text-xl hover:scale-110 transition-transform">
+                              {p.author ? p.author[0].toUpperCase() : '?'}
                             </div>
-                          )}
-                          <p className="text-surface leading-relaxed whitespace-pre-wrap break-words">
-                            {p.content}
-                          </p>
+                          </Link>
+                          <div className="flex-1 min-w-0 pt-1">
+                            <div className="flex flex-wrap items-baseline gap-2">
+                              <Link to={`/profile/${p.author}`} className="font-bold font-hand text-xl hover:underline decoration-2 decoration-[var(--ink-blue)]">
+                                {p.author}
+                              </Link>
+                              <span className="text-sm font-hand text-[var(--ink-secondary)]">wrote {timeAgo(p.created_at)}</span>
+                            </div>
+                            {p.origin_instance && (
+                              <span className="inline-block bg-[var(--highlighter-yellow)] px-2 -rotate-1 text-xs font-heading mt-1">
+                                via @{p.origin_instance}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="font-hand text-xl leading-relaxed whitespace-pre-wrap break-words border-l-4 border-[var(--ink-blue)] pl-4 py-1 ml-2">
+                          {p.content}
                         </div>
                       </div>
-                    </div>
-                  </GlassCard>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                    </SketchCard>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
           </div>
         </main>
 
-        {/* --- Right Sidebar: Suggestions --- */}
-        <aside className="md:col-span-3 hidden lg:block">
-          <div className="sticky top-24 space-y-6 block">
-            <GlassCard className="p-5">
-              <h3 className="font-bold mb-4 text-xl uppercase tracking-wider text-surface font-['Cabin_Sketch']">Suggested</h3>
-              <ul className="space-y-4">
-                {[
-                  { name: 'Alice', instance: 'instance-a' },
-                  { name: 'Bob', instance: 'instance-b' },
-                  { name: 'Charlie', instance: 'local' }
-                ].map((u) => (
-                  <li key={u.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[var(--bg-muted)] border border-[var(--muted-border)] flex items-center justify-center text-xs font-bold text-[var(--primary)]">
-                        {u.name[0]}
-                      </div>
-                      <div className="overflow-hidden">
-                        <div className="text-sm font-medium truncate">{u.name}</div>
-                        <div className="text-[10px] text-surface-subtle truncate">{u.instance}</div>
-                      </div>
+        {/* --- Right Sidebar: Suggestions (Static) --- */}
+        <aside className="md:col-span-3 hidden lg:block h-full overflow-y-auto pb-4 space-y-8">
+          <SketchCard variant="sticky" rotate={2} className="p-4" pinned pinColor="#10b981">
+            <h3 className="font-sketch text-xl mb-4 text-center border-b-2 border-black pb-2">Cool People</h3>
+            <ul className="space-y-3 font-hand text-lg">
+              {[
+                { name: 'Alice', instance: 'instance-a' },
+                { name: 'Bob', instance: 'instance-b' },
+                { name: 'Charlie', instance: 'local' }
+              ].map((u) => (
+                <li key={u.name} className="flex items-center justify-between border-b border-dashed border-gray-400 pb-2 last:border-0">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full border border-black bg-white flex items-center justify-center text-sm font-bold">
+                      {u.name[0]}
                     </div>
-                    <button className="text-xs text-[var(--primary)] hover:bg-[var(--primary)]/10 px-2 py-1 rounded transition-colors">
-                      Connect
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </GlassCard>
+                    <span className="truncate max-w-[80px]">{u.name}</span>
+                  </div>
+                  <button className="text-sm text-[var(--ink-blue)] underline decoration-wavy hover:bg-white/50 px-1 rounded">
+                    Add +
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </SketchCard>
 
-            <GlassCard className="p-5">
-              <h3 className="font-bold mb-4 text-xl uppercase tracking-wider text-surface font-['Cabin_Sketch']">Trending</h3>
-              <div className="flex flex-wrap gap-2">
-                {['federation', 'tech', 'privacy', 'web3', 'opensource', 'future'].map(tag => (
-                  <span key={tag} className="text-xs px-2.5 py-1.5 rounded-lg bg-[var(--bg-muted)] border border-[var(--muted-border)] hover:border-[var(--primary)]/50 cursor-pointer transition-colors text-surface-subtle hover:text-surface">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </GlassCard>
-
-            <div className="text-xs text-surface-subtle text-center px-4">
-              <p>© 2025 Federated Social Network.</p>
-              <p className="mt-1">Decentralized & Open Source.</p>
+          <SketchCard rotate={-2} className="p-5">
+            <h3 className="font-sketch font-bold text-2xl mb-4">Trending #</h3>
+            <div className="flex flex-wrap gap-2 font-hand">
+              {['art', 'sketch', 'design', 'federation', 'wip'].map(tag => (
+                <span key={tag} className="bg-black/5 px-2 py-1 rounded border border-black/20 hover:bg-[var(--highlighter-green)] hover:-rotate-2 transition-all cursor-pointer">
+                  #{tag}
+                </span>
+              ))}
             </div>
+          </SketchCard>
+
+          <div className="text-center font-hand text-sm opacity-60">
+            <p>Built with 🖊️ & ☕</p>
           </div>
         </aside>
 
