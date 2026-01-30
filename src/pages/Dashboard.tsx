@@ -78,7 +78,7 @@ export default function Dashboard() {
         backgroundSize: '24px 24px'
       }}
     />
-  );
+  ); 
 
   return (
     <div className="min-h-screen relative text-surface">
