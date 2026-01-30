@@ -1,7 +1,7 @@
 import PostForm from "../components/PostForm";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { getPosts, getUser } from "../api/api";
+import { getPosts, getUser, getRandomUsers, initiateConnection, acceptConnection, getPendingConnections, getFollowedPosts } from "../api/api";
 import { timeAgo } from "../utils/time";
 import type { Post } from "../types/post";
 import SketchCard from "../components/SketchCard";
@@ -64,13 +64,95 @@ export default function Dashboard() {
     };
     loadUser();
     return () => { mounted = false; };
-    return () => { mounted = false; };
   }, [username]);
 
   const mainRef = useRef<HTMLElement>(null);
   const [hasNewPosts, setHasNewPosts] = useState(false);
   const [showNewPostsBtn, setShowNewPostsBtn] = useState(false);
   const [showScrollTopBtn, setShowScrollTopBtn] = useState(false);
+  const [suggestedUsers, setSuggestedUsers] = useState<any[]>([]);
+  const [showAllUsers, setShowAllUsers] = useState(false);
+  const [activeTab, setActiveTab] = useState<'global' | 'following'>('global');
+  const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
+  const [pendingInvites, setPendingInvites] = useState<any[]>([]);
+  const [followedPosts, setFollowedPosts] = useState<Post[]>([]);
+  const [loadingFollowing, setLoadingFollowing] = useState(false);
+
+  const handleConnect = async (e: React.MouseEvent, targetUsername: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await initiateConnection(targetUsername);
+      setSentRequests(prev => {
+        const next = new Set(prev);
+        next.add(targetUsername);
+        return next;
+      });
+    } catch (err) {
+      console.error("Failed to connect", err);
+    }
+  };
+
+  const handleAccept = async (connectionId: string) => {
+    try {
+      await acceptConnection(connectionId);
+      setPendingInvites(prev => prev.filter(i => i.connection_id !== connectionId));
+    } catch (err) {
+      console.error("Failed to accept", err);
+    }
+  };
+
+  // Fetch users for sidebar
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await getRandomUsers();
+        const usersData = Array.isArray(res.data) ? res.data : (res.data?.users || []);
+        const mappedUsers = usersData.map((u: any) => ({
+          username: u.username || u,
+          instance: u.instance || 'local'
+        }));
+        setSuggestedUsers(mappedUsers);
+      } catch (e) {
+        console.error("Failed to fetch users", e);
+        setSuggestedUsers([]);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Fetch Pending Invites
+  useEffect(() => {
+    const fetchInvites = async () => {
+      try {
+        const res = await getPendingConnections();
+        setPendingInvites(Array.isArray(res.data) ? res.data : []);
+      } catch (e) {
+        console.error("Failed to fetch pending invites", e);
+      }
+    };
+    fetchInvites();
+  }, []);
+
+  // Fetch Following Feed
+  useEffect(() => {
+    if (activeTab === 'following') {
+      const loadFollowing = async () => {
+        setLoadingFollowing(true);
+        try {
+          const res = await getFollowedPosts();
+          const data = res.data || [];
+          const sorted = data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          setFollowedPosts(sorted);
+        } catch (e) {
+          console.error("Failed to load following feed", e);
+        } finally {
+          setLoadingFollowing(false);
+        }
+      };
+      loadFollowing();
+    }
+  }, [activeTab]);
 
   // Poll for new posts
   useEffect(() => {
@@ -122,101 +204,169 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col">
-      {/* Fixed Header/Nav could go here if we had one, but we have sidebar nav */}
+    <div className="h-screen overflow-hidden flex flex-col bg-[var(--bg-surface)]">
 
-      <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-12 gap-8 h-full">
+      {/* --- Top Navigation Bar --- */}
+      <nav className="flex-none px-6 py-3 bg-[var(--paper-white)] border-b-2 border-dashed border-gray-300 flex items-center justify-between z-40 relative shadow-sm">
+        <div className="flex items-center gap-4">
+          <Link to="/" className="text-3xl font-sketch font-bold hover:scale-105 transition-transform text-[var(--ink-primary)]">
+            Federated Social
+          </Link>
+          <span className="hidden md:inline-block bg-[var(--pastel-blue)] px-3 py-1 rounded-full border border-black text-sm font-hand transform -rotate-2">
+            Connected to <strong>Instance A</strong>
+          </span>
+        </div>
 
-        {/* --- Left Sidebar: Profile (Static) --- */}
-        <aside className="md:col-span-3 space-y-8 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide">
-          <SketchCard rotate={-1} pinned pinColor="#ef4444">
-            <div className="p-4 text-center">
-              <Link to={`/profile/${username}`} className="inline-block relative mb-2">
-                <div className="w-24 h-24 mx-auto rounded-full border-4 border-[var(--ink-primary)] overflow-hidden shadow-sm bg-[var(--paper-cream)] flex items-center justify-center">
-                  <span className="font-sketch text-4xl text-[var(--ink-blue)] font-bold">
-                    {username ? username[0].toUpperCase() : 'U'}
-                  </span>
-                </div>
-              </Link>
+        <div className="flex items-center gap-4">
+          <Link to={`/profile/${username}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <span className="font-hand font-bold text-lg hidden sm:block">{username}</span>
+            <div className="w-10 h-10 rounded-full bg-[var(--pastel-yellow)] border-2 border-black flex items-center justify-center font-sketch text-xl">
+              {username ? username[0].toUpperCase() : '?'}
+            </div>
+          </Link>
+          <button
+            onClick={() => {
+              localStorage.removeItem("username");
+              localStorage.removeItem("password");
+              localStorage.removeItem("access_token");
+              localStorage.removeItem("AUTH_TOKEN");
+              window.location.href = "/login";
+            }}
+            className="text-2xl hover:scale-110 transition-transform"
+            title="Sign Out"
+          >
+            🚪
+          </button>
+        </div>
+      </nav>
 
-              <h3 className="text-2xl font-bold font-sketch truncate">{username || 'Guest'}</h3>
+      {/* --- Main Content Grid --- */}
+      <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 md:grid-cols-12 gap-8 h-full">
 
-              <div className="grid grid-cols-2 gap-2 text-sm border-t-2 border-dashed border-[var(--ink-secondary)] pt-4 mt-2">
-                <div className="flex flex-col">
-                  <span className="font-bold  text-[var(--ink-primary)] text-lg">{userPostCount ?? posts.filter(p => p.author === username).length}</span>
-                  <span className="font-hand text-[var(--ink-secondary)]">Posts</span>
-                </div>
-                <div className="flex flex-col border-l-2 border-dashed border-[var(--ink-secondary)]">
-                  <span className="font-bold text-[var(--ink-primary)] text-lg">{Math.max(5, Math.floor(posts.length * 1.5))}</span>
-                  <span className="font-hand text-[var(--ink-secondary)]">Karma</span>
-                </div>
-              </div>
+        {/* --- LEFT SIDEBAR: Available Users --- */}
+        <aside className="md:col-span-3 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-6">
+          <SketchCard variant="sticky" rotate={-1} className="p-4" pinned pinColor="#ef4444">
+            <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Available Users</h3>
+            <div className="space-y-3">
+              {suggestedUsers.length > 0 ? (
+                <>
+                  {suggestedUsers.slice(0, showAllUsers ? undefined : 2).map((u: any) => (
+                    <Link key={u.username} to={`/profile/${u.username}`} className="block group relative">
+                      <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-black/5 transition-colors border border-transparent hover:border-black/10">
+                        <div className="w-10 h-10 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-lg shrink-0">
+                          {u.username[0].toUpperCase()}
+                        </div>
+                        <div className="overflow-hidden flex-1">
+                          <div className="font-bold font-hand truncate">{u.username}</div>
+                          <div className="text-xs bg-black/10 px-1.5 rounded-full inline-block truncate max-w-full">
+                            {u.instance || 'local'}
+                          </div>
+                        </div>
 
-              <Link to={`/profile/${username}`} className="mt-6 block w-full py-2 bg-[var(--ink-blue)] text-white font-sketch rounded shadow-[2px_2px_0px_rgba(0,0,0,0.8)] hover:translate-y-px hover:shadow-none transition-all">
-                My Notebook
-              </Link>
+                        {/* Connect Button */}
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2">
+                          {sentRequests.has(u.username) ? (
+                            <span className="text-xs font-hand text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200">
+                              Sent ✓
+                            </span>
+                          ) : (
+                            <button
+                              onClick={(e) => handleConnect(e, u.username)}
+                              className="bg-[var(--ink-blue)] text-white text-xs px-2 py-1.5 rounded font-hand shadow-sm hover:scale-105 hover:shadow-md transition-all flex items-center gap-1"
+                            >
+                              <span>+</span> Connect
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+
+                  {suggestedUsers.length > 2 && (
+                    <button
+                      onClick={() => setShowAllUsers(!showAllUsers)}
+                      className="w-full text-center text-sm font-hand text-[var(--ink-blue)] hover:underline mt-1 bg-transparent border-none shadow-none"
+                    >
+                      {showAllUsers ? "Show Less" : "Show More"}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-4 font-hand opacity-50">Searching for signs of life...</div>
+              )}
             </div>
           </SketchCard>
 
-          <SketchCard variant="paper" rotate={1} className="p-4" pinned pinColor="#3b82f6">
-            <nav className="flex flex-col space-y-2 font-hand text-lg">
-              <Link to="/" className="flex items-center gap-2 px-2 hover:bg-black/5 rounded">
-                <span className="text-2xl">🏠</span> Home
-              </Link>
-              <Link to="/settings" className="flex items-center gap-2 px-2 hover:bg-black/5 rounded">
-                <span className="text-2xl">⚙️</span> Settings
-              </Link>
-              <button
-                onClick={() => {
-                  localStorage.removeItem("username");
-                  localStorage.removeItem("password");
-                  localStorage.removeItem("access_token");
-                  localStorage.removeItem("AUTH_TOKEN");
-                  window.location.href = "/login";
-                }}
-                className="flex items-center gap-2 px-2 text-red-600 hover:bg-red-500/10 rounded w-full text-left"
-              >
-                <span className="text-2xl">🚪</span> Sign Out
-              </button>
+          {/* Navigation Links moved to small sticky note */}
+          <SketchCard variant="paper" rotate={1} className="p-3 bg-[var(--pastel-yellow)]">
+            <nav className="flex flex-col gap-2 font-hand text-lg">
+              <Link to="/" className="hover:underline">🏠 Home</Link>
+              <Link to="/settings" className="hover:underline">⚙️ Settings</Link>
             </nav>
           </SketchCard>
         </aside>
 
-        {/* --- Main Feed (Scrollable) --- */}
+
+        {/* --- CENTER FEED --- */}
         <main
           ref={mainRef}
           onScroll={handleScroll}
           className="md:col-span-6 h-full overflow-y-auto px-2 pb-20 no-scrollbar relative"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          <div className="space-y-10">
-            <div className="relative z-10 pt-2">
+          <div className="space-y-8">
+            {/* Create Post Card */}
+            <div className="relative z-10">
               <PostForm onPosted={() => loadPosts()} />
             </div>
 
-            <div className="flex items-center justify-between px-2 pb-2 border-b-2 border-black sticky top-0 bg-[var(--bg-surface)]/95 backdrop-blur z-20">
-              <h2 className="font-sketch text-3xl font-bold">Latest Scribbles</h2>
-              <button onClick={loadPosts} className="font-hand text-lg hover:underline decoration-wavy">
-                ↻ Refresh
-              </button>
+            {/* Refresh / Feed Header */}
+            <div className="border-b-2 border-dashed border-gray-300 pb-2 px-2">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-sketch text-2xl text-gray-500">Fresh Ink</span>
+                <button onClick={loadPosts} className="font-hand text-sm hover:text-[var(--ink-blue)]">
+                  ↻ Refresh
+                </button>
+              </div>
+
+              <div className="flex gap-6">
+                <button
+                  onClick={() => setActiveTab('global')}
+                  className={`font-hand text-lg pb-1 relative transition-colors ${activeTab === 'global' ? 'text-black font-bold' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                  Global
+                  {activeTab === 'global' && (
+                    <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--ink-blue)] rounded-full" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab('following')}
+                  className={`font-hand text-lg pb-1 relative transition-colors ${activeTab === 'following' ? 'text-black font-bold' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                  Following
+                  {activeTab === 'following' && (
+                    <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--ink-blue)] rounded-full" />
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* New Posts Indicator */}
             <AnimatePresence>
-              {showNewPostsBtn && (
+              {showNewPostsBtn && activeTab === 'global' && (
                 <motion.button
                   initial={{ y: -50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -50, opacity: 0 }}
                   onClick={handleRefreshClick}
-                  className="sticky top-16 left-1/2 -translate-x-1/2 z-30 bg-[var(--ink-blue)] text-white font-sketch px-6 py-2 rounded-full shadow-xl border-2 border-white flex items-center gap-2 hover:scale-105 transition-transform mx-auto"
+                  className="sticky top-4 left-1/2 -translate-x-1/2 z-30 bg-[var(--pastel-blue)] text-black font-sketch px-5 py-2 rounded-full shadow-lg border-2 border-black flex items-center gap-2 hover:scale-105 transition-transform mx-auto"
                 >
-                  <span className="text-xl">↑</span> New Scribbles available!
+                  <span className="text-xl">↑</span> New Notes!
                 </motion.button>
               )}
             </AnimatePresence>
 
-            {/* Scroll to Top Button */}
+            {/* Scroll to Top */}
             <AnimatePresence>
               {showScrollTopBtn && (
                 <motion.button
@@ -224,124 +374,219 @@ export default function Dashboard() {
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
                   onClick={handleScrollToTop}
-                  className="sticky bottom-6 left-[85%] z-30 bg-black text-white w-12 h-12 rounded-full shadow-xl border-2 border-white flex items-center justify-center hover:scale-110 hover:bg-[var(--ink-blue)] transition-all ml-auto mb-4 mr-4"
-                  title="Scroll to Top"
+                  className="sticky bottom-6 left-[90%] z-30 bg-black text-white w-10 h-10 rounded-full shadow-xl flex items-center justify-center hover:bg-[var(--ink-blue)] transition-colors"
                 >
-                  <span className="text-2xl font-bold">↑</span>
+                  ↑
                 </motion.button>
               )}
             </AnimatePresence>
 
-            <div className="space-y-8">
-              {/* Error State */}
-              {error && (
-                <SketchCard variant="sticky" className="bg-red-100 rotate-1">
-                  <div className="p-4 text-center text-red-800 font-hand font-bold text-xl">
-                    ⚠️ {String(error)}
-                    <button onClick={loadPosts} className="block mx-auto mt-2 underline">Try Again</button>
-                  </div>
-                </SketchCard>
-              )}
+            {/* ERROR */}
+            {error && (
+              <div className="bg-[var(--pastel-pink)] border-2 border-red-400 p-4 rounded text-center font-hand text-red-800 rotate-1">
+                ⚠️ {String(error)}
+              </div>
+            )}
 
-              {/* Loading State */}
-              {loading && (
-                <div className="space-y-12">
-                  <SkeletonPost />
-                  <SkeletonPost />
-                </div>
-              )}
+            {/* LOADING */}
+            {loading && (
+              <div className="space-y-8">
+                <SkeletonPost />
+                <SkeletonPost />
+              </div>
+            )}
 
-              {/* Empty State */}
-              {!loading && !error && posts.length === 0 && (
-                <div className="text-center py-12">
-                  <h3 className="font-sketch text-3xl mb-2 text-[var(--ink-secondary)]">Page is empty...</h3>
-                  <p className="font-hand text-xl">Start writing something above!</p>
-                </div>
-              )}
+            {/* POSTS - GLOBAL */}
+            {activeTab === 'global' && (
+              <>
+                <AnimatePresence mode="popLayout">
+                  {!loading && posts.map((p) => (
+                    <motion.div
+                      key={p.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ type: 'spring', bounce: 0.3 }}
+                      className="mb-8"
+                    >
+                      <SketchCard className="group hover:-translate-y-1 transition-transform bg-white relative">
+                        {/* Tape effect top center */}
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-yellow-100/50 border-l border-r border-white/40 rotate-1 shadow-sm opacity-80 backdrop-blur-sm pointer-events-none"></div>
 
-              {/* Post List */}
-              <AnimatePresence mode="popLayout">
-                {!loading && posts.map((p, idx) => (
-                  <motion.div
-                    key={p.id}
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ type: 'spring', bounce: 0.4 }}
-                    className="mb-8"
-                  >
-                    <SketchCard className="group">
-                      <div className="p-6">
-                        <div className="flex items-start gap-4 mb-4">
-                          <Link to={`/profile/${p.author}`} className="flex-shrink-0">
-                            <div className="w-12 h-12 rounded-full border-2 border-black bg-white flex items-center justify-center font-sketch font-bold text-xl hover:scale-110 transition-transform">
-                              {p.author ? p.author[0].toUpperCase() : '?'}
-                            </div>
-                          </Link>
-                          <div className="flex-1 min-w-0 pt-1">
-                            <div className="flex flex-wrap items-baseline gap-2">
-                              <Link to={`/profile/${p.author}`} className="font-bold font-hand text-xl hover:underline decoration-2 decoration-[var(--ink-blue)]">
-                                {p.author}
+                        <div className="p-5">
+                          {/* Header */}
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex items-center gap-3">
+                              <Link to={`/profile/${p.author}`}>
+                                <div className="w-10 h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-sm">
+                                  {p.author ? p.author[0].toUpperCase() : '?'}
+                                </div>
                               </Link>
-                              <span className="text-sm font-hand text-[var(--ink-secondary)]">wrote {timeAgo(p.created_at)}</span>
+                              <div>
+                                <div className="font-bold font-sketch text-lg leading-none">
+                                  <Link to={`/profile/${p.author}`} className="hover:underline">{p.author}</Link>
+                                </div>
+                                <div className="text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
+                              </div>
                             </div>
                             {p.origin_instance && (
-                              <span className="inline-block bg-[var(--highlighter-yellow)] px-2 -rotate-1 text-xs font-heading mt-1">
-                                via @{p.origin_instance}
+                              <span className="bg-[var(--pastel-lavender)] px-2 py-0.5 rounded text-xs border border-black/10 font-hand">
+                                {p.origin_instance}
                               </span>
                             )}
                           </div>
-                        </div>
 
-                        <div className="font-hand text-xl leading-relaxed whitespace-pre-wrap break-words border-l-4 border-[var(--ink-blue)] pl-4 py-1 ml-2">
-                          {p.content}
+                          {/* Content */}
+                          <div className="font-hand text-xl leading-relaxed whitespace-pre-wrap pl-1">
+                            {p.content}
+                          </div>
                         </div>
-                      </div>
-                    </SketchCard>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+                      </SketchCard>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {!loading && posts.length === 0 && (
+                  <div className="text-center py-20 opacity-50 font-hand text-xl">
+                    No scribbles here yet. Be the first!
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* POSTS - FOLLOWING */}
+            {activeTab === 'following' && (
+              <>
+                {loadingFollowing && (
+                  <div className="space-y-8">
+                    <SkeletonPost />
+                    <SkeletonPost />
+                  </div>
+                )}
+
+                <AnimatePresence mode="popLayout">
+                  {!loadingFollowing && followedPosts.map((p) => (
+                    <motion.div
+                      key={p.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ type: 'spring', bounce: 0.3 }}
+                      className="mb-8"
+                    >
+                      <SketchCard className="group hover:-translate-y-1 transition-transform bg-white relative">
+                        {/* Tape effect top center */}
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-yellow-100/50 border-l border-r border-white/40 rotate-1 shadow-sm opacity-80 backdrop-blur-sm pointer-events-none"></div>
+
+                        <div className="p-5">
+                          {/* Header */}
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex items-center gap-3">
+                              <Link to={`/profile/${p.author}`}>
+                                <div className="w-10 h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-sm">
+                                  {p.author ? p.author[0].toUpperCase() : '?'}
+                                </div>
+                              </Link>
+                              <div>
+                                <div className="font-bold font-sketch text-lg leading-none">
+                                  <Link to={`/profile/${p.author}`} className="hover:underline">{p.author}</Link>
+                                </div>
+                                <div className="text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
+                              </div>
+                            </div>
+                            {p.origin_instance && (
+                              <span className="bg-[var(--pastel-lavender)] px-2 py-0.5 rounded text-xs border border-black/10 font-hand">
+                                {p.origin_instance}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Content */}
+                          <div className="font-hand text-xl leading-relaxed whitespace-pre-wrap pl-1">
+                            {p.content}
+                          </div>
+                        </div>
+                      </SketchCard>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {!loadingFollowing && followedPosts.length === 0 && (
+                  <div className="text-center py-20 opacity-60">
+                    <div className="text-6xl mb-4">👥</div>
+                    <div className="font-sketch text-2xl">Following Feed</div>
+                    <p className="font-hand text-lg mt-2">No posts from your circle yet.</p>
+                    <p className="font-hand text-sm text-gray-500">Connect with people to see their scribbles here!</p>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </main>
 
-        {/* --- Right Sidebar: Suggestions (Static) --- */}
-        <aside className="md:col-span-3 hidden lg:block h-full overflow-y-auto pb-4 space-y-8">
-          <SketchCard variant="sticky" rotate={2} className="p-4" pinned pinColor="#10b981">
-            <h3 className="font-sketch text-xl mb-4 text-center border-b-2 border-black pb-2">Cool People</h3>
-            <ul className="space-y-3 font-hand text-lg">
-              {[
-                { name: 'Alice', instance: 'instance-a' },
-                { name: 'Bob', instance: 'instance-b' },
-                { name: 'Charlie', instance: 'local' }
-              ].map((u) => (
-                <li key={u.name} className="flex items-center justify-between border-b border-dashed border-gray-400 pb-2 last:border-0">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full border border-black bg-white flex items-center justify-center text-sm font-bold">
-                      {u.name[0]}
-                    </div>
-                    <span className="truncate max-w-[80px]">{u.name}</span>
-                  </div>
-                  <button className="text-sm text-[var(--ink-blue)] underline decoration-wavy hover:bg-white/50 px-1 rounded">
-                    Add +
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </SketchCard>
 
-          <SketchCard rotate={-2} className="p-5">
-            <h3 className="font-sketch font-bold text-2xl mb-4">Trending #</h3>
-            <div className="flex flex-wrap gap-2 font-hand">
-              {['art', 'sketch', 'design', 'federation', 'wip'].map(tag => (
-                <span key={tag} className="bg-black/5 px-2 py-1 rounded border border-black/20 hover:bg-[var(--highlighter-green)] hover:-rotate-2 transition-all cursor-pointer">
-                  #{tag}
-                </span>
-              ))}
+        {/* --- RIGHT SIDEBAR: Info / Status --- */}
+        <aside className="md:col-span-3 hidden lg:block h-full overflow-y-auto p-4 no-scrollbar space-y-6">
+          {/* Pending Invites */}
+          <SketchCard variant="sticky" rotate={-2} className="p-4 bg-[var(--pastel-pink)]" pinned pinColor="#ec4899">
+            <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Pending Invites</h3>
+            <div className="space-y-3">
+              {pendingInvites.length > 0 ? (
+                pendingInvites.map((invite: any) => (
+                  <div key={invite.connection_id} className="bg-white/50 p-2 rounded border border-black/5 flex items-center justify-between">
+                    <div className="font-hand text-sm truncate w-24">
+                      {invite.from_username || "Unknown"}
+                    </div>
+                    <button
+                      onClick={() => handleAccept(invite.connection_id)}
+                      className="bg-white border border-black/20 hover:bg-green-100 text-xs px-2 py-1 rounded font-bold text-green-700 shadow-sm"
+                    >
+                      Accept
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="font-hand text-sm text-center opacity-60 italic py-2">
+                  No pending invites...
+                </div>
+              )}
             </div>
           </SketchCard>
 
-          <div className="text-center font-hand text-sm opacity-60">
-            <p>Built with 🖊️ & ☕</p>
+          <SketchCard variant="sticky" rotate={2} className="p-5 bg-[var(--pastel-blue)]" pinned pinColor="#2563eb">
+            <h3 className="font-sketch text-xl mb-4 text-center">Network Status</h3>
+            <div className="space-y-4 font-hand">
+              <div className="flex items-center justify-between">
+                <span>Target Instance:</span>
+                <span className="font-bold">Instance A</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Federation:</span>
+                <span className="text-green-700 font-bold bg-green-100 px-2 rounded-full">ACTIVE</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Sync:</span>
+                <span className="animate-pulse">● Live</span>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-dashed border-black/20 text-xs text-center">
+              v1.2.0 • Federated
+            </div>
+          </SketchCard>
+
+          <SketchCard rotate={-1} className="p-4">
+            <h3 className="font-sketch font-bold text-lg mb-2">Activity Log</h3>
+            <ul className="text-sm font-hand space-y-2 opacity-80">
+              <li>• New user joined from Local</li>
+              <li>• Instance B federated 2m ago</li>
+              <li>• System update pending</li>
+            </ul>
+          </SketchCard>
+
+          {/* Decorative Doodles moved here or kept simple */}
+          <div className="text-center">
+            <div className="inline-block p-4 border-2 border-dashed border-gray-300 rounded-full rotate-3 bg-white">
+              ✒️ 📸 📌
+            </div>
           </div>
         </aside>
 

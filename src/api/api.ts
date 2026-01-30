@@ -74,8 +74,8 @@ export const createPost = (
 };
 
 // Fetch posts from the instance. Returns an array of posts.
-export const getPosts = (limit = 50) => {
-  return getApi().get("/get_posts", { params: { limit } });
+export const getPosts = (limit = 50, username?: string) => {
+  return getApi().get("/get_posts", { params: { limit, username } });
 };
 
 // Fetch user details. Try several common endpoint shapes to be robust
@@ -119,3 +119,17 @@ export const uploadAvatar = (username: string, file: File) => {
 export const deletePost = (postId: string | number) => {
   return getApi().delete(`/delete/${postId}`);
 };
+
+export const getUsers = () => getApi().get("/users");
+
+export const getRandomUsers = () => getApi().get("/random_users");
+
+export const initiateConnection = (username: string) =>
+  getApi().post(`/connect/${username}`);
+
+export const acceptConnection = (connectionId: string | number) =>
+  getApi().post(`/connect/accept/${connectionId}`);
+
+export const getPendingConnections = () => getApi().get("/connections/pending");
+
+export const getFollowedPosts = () => getApi().get("/timeline_connected_users");

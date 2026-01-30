@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getUser, updateUser, uploadAvatar, deletePost } from "../api/api";
+import { getUser, updateUser, uploadAvatar, deletePost, initiateConnection } from "../api/api";
 import SketchCard from "../components/SketchCard";
 import { timeAgo } from "../utils/time";
 import type { Post } from "../types/post";
@@ -108,6 +108,15 @@ export default function Profile() {
     }
   };
 
+  const handleConnect = async () => {
+    try {
+      await initiateConnection(username);
+      alert(`Request sent to ${username}!`);
+    } catch (err: any) {
+      alert("Failed to connect: " + (err?.response?.data?.detail || "Unknown error"));
+    }
+  };
+
   if (!username) {
     return <div className="p-8 text-center text-red-400 font-marker">Invalid profile URL</div>;
   }
@@ -211,6 +220,16 @@ export default function Profile() {
                   Edit Profile
                 </button>
               )}
+
+              {/* Connect Button for Others */}
+              {!isOwnProfile && !loading && (
+                <button
+                  onClick={handleConnect}
+                  className="mt-6 px-6 py-2 bg-[var(--ink-blue)] text-white border-2 border-black font-heading rounded transition-colors shadow-sketch w-full hover:scale-[1.02] hover:shadow-none"
+                >
+                  Connect +
+                </button>
+              )}
             </div>
 
             {loading && <div className="text-center py-8 font-hand text-lg">Loading info...</div>}
@@ -303,7 +322,7 @@ export default function Profile() {
           {!loading && !error && posts.length > 0 && (
             <div className="space-y-8 pb-20">
               <AnimatePresence mode="popLayout">
-                {posts.map((p, idx) => (
+                {posts.map((p) => (
                   <motion.div
                     layout
                     key={p.id}

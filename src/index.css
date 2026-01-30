@@ -23,6 +23,13 @@
   --highlighter-yellow: rgba(255, 255, 0, 0.2);
   --highlighter-green: rgba(0, 255, 0, 0.15);
 
+  /* Pastel Palette */
+  --pastel-mint: #d1fae5;
+  --pastel-lavender: #e9d5ff;
+  --pastel-yellow: #fef9c3;
+  --pastel-blue: #dbeafe;
+  --pastel-pink: #fce7f3;
+
   /* Fonts */
   --font-heading: 'Cabin Sketch', cursive;
   --font-body: 'Patrick Hand', cursive;
@@ -140,5 +147,17 @@ textarea:focus {
 
   .shadow-sketch {
     box-shadow: 3px 4px 0px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Hide Scrollbar but allow scrolling */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
   }
 }
