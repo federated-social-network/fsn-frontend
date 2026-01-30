@@ -1,5 +1,5 @@
 import PostForm from "../components/PostForm";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { getPosts, getUser } from "../api/api";
 import { timeAgo } from "../utils/time";
@@ -66,7 +66,62 @@ export default function Dashboard() {
     };
     loadUser();
     return () => { mounted = false; };
+    return () => { mounted = false; };
   }, [username]);
+
+  const mainRef = useRef<HTMLElement>(null);
+  const [hasNewPosts, setHasNewPosts] = useState(false);
+  const [showNewPostsBtn, setShowNewPostsBtn] = useState(false);
+  const [showScrollTopBtn, setShowScrollTopBtn] = useState(false);
+
+  // Poll for new posts
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await getPosts(1); // Fetch just the latest
+        const latestInfo = res.data?.[0];
+        // If we have posts and the latest fetched post is newer than our top post
+        if (latestInfo && posts.length > 0 && latestInfo.id !== posts[0].id) {
+          setHasNewPosts(true);
+        }
+      } catch (err) {
+        // ignore polling errors
+      }
+    }, 15000); // Check every 15s
+
+    return () => clearInterval(interval);
+  }, [posts]);
+
+  // Handle scroll to show buttons
+  const handleScroll = () => {
+    if (!mainRef.current) return;
+    const scrollTop = mainRef.current.scrollTop;
+
+    // Show "New Posts" button if we have new posts AND we are scrolled down a bit
+    if (scrollTop > 100 && hasNewPosts) {
+      setShowNewPostsBtn(true);
+    } else {
+      setShowNewPostsBtn(false);
+    }
+
+    // Show "Scroll Top" button if scrolled down significantly
+    if (scrollTop > 300) {
+      setShowScrollTopBtn(true);
+    } else {
+      setShowScrollTopBtn(false);
+    }
+  };
+
+  const handleRefreshClick = () => {
+    loadPosts();
+    setHasNewPosts(false);
+    setShowNewPostsBtn(false);
+    mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleScrollToTop = () => {
+    mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="h-screen overflow-hidden flex flex-col">
@@ -132,7 +187,12 @@ export default function Dashboard() {
         </aside>
 
         {/* --- Main Feed (Scrollable) --- */}
-        <main className="md:col-span-6 h-full overflow-y-auto px-2 pb-20 no-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <main
+          ref={mainRef}
+          onScroll={handleScroll}
+          className="md:col-span-6 h-full overflow-y-auto px-2 pb-20 no-scrollbar relative"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
           <div className="space-y-10">
             <div className="relative z-10 pt-2">
               <PostForm onPosted={() => loadPosts()} />
@@ -144,6 +204,37 @@ export default function Dashboard() {
                 ↻ Refresh
               </button>
             </div>
+
+            {/* New Posts Indicator */}
+            <AnimatePresence>
+              {showNewPostsBtn && (
+                <motion.button
+                  initial={{ y: -50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -50, opacity: 0 }}
+                  onClick={handleRefreshClick}
+                  className="sticky top-16 left-1/2 -translate-x-1/2 z-30 bg-[var(--ink-blue)] text-white font-sketch px-6 py-2 rounded-full shadow-xl border-2 border-white flex items-center gap-2 hover:scale-105 transition-transform mx-auto"
+                >
+                  <span className="text-xl">↑</span> New Scribbles available!
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            {/* Scroll to Top Button */}
+            <AnimatePresence>
+              {showScrollTopBtn && (
+                <motion.button
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  onClick={handleScrollToTop}
+                  className="sticky bottom-6 left-[85%] z-30 bg-black text-white w-12 h-12 rounded-full shadow-xl border-2 border-white flex items-center justify-center hover:scale-110 hover:bg-[var(--ink-blue)] transition-all ml-auto mb-4 mr-4"
+                  title="Scroll to Top"
+                >
+                  <span className="text-2xl font-bold">↑</span>
+                </motion.button>
+              )}
+            </AnimatePresence>
 
             <div className="space-y-8">
               {/* Error State */}
