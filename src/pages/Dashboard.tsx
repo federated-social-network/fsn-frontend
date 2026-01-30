@@ -7,8 +7,6 @@ import type { Post } from "../types/post";
 import SketchCard from "../components/SketchCard";
 import SkeletonPost from "../components/SkeletonPost";
 import { motion, AnimatePresence } from "framer-motion";
-import ThemeToggle from "../components/ThemeToggle";
-
 export default function Dashboard() {
   const username = localStorage.getItem("username") || "";
 
@@ -125,8 +123,6 @@ export default function Dashboard() {
 
   return (
     <div className="h-screen overflow-hidden flex flex-col">
-      <ThemeToggle />
-
       {/* Fixed Header/Nav could go here if we had one, but we have sidebar nav */}
 
       <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-12 gap-8 h-full">
@@ -268,8 +264,8 @@ export default function Dashboard() {
                 {!loading && posts.map((p, idx) => (
                   <motion.div
                     key={p.id}
-                    initial={{ opacity: 0, y: 50, rotate: -2 }}
-                    animate={{ opacity: 1, y: 0, rotate: idx % 2 === 0 ? 1 : -1 }}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ type: 'spring', bounce: 0.4 }}
                     className="mb-8"
                   >

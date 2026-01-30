@@ -31,23 +31,8 @@
   /* Scribble Borders */
   --border-sketch-1: 255px 15px 225px 15px / 15px 225px 15px 255px;
   --border-sketch-2: 23px 255px 12px 245px / 241px 17px 252px 24px;
-}
 
-/* Dark Theme Overrides */
-:root[data-theme="dark"] {
-  --bg-surface: #121212;
-  --bg-muted: #1e1e1e;
-  --on-surface: #e0e0e0;
-  --on-surface-muted: #b0b0b0;
-  --on-surface-subtle: #808080;
-  --primary: #90caf9;
-  --ink-primary: #f5f5f5;
-  --ink-blue: #64b5f6;
-  --paper-white: #1e1e1e;
-}
-
-/* Light Theme Overrides */
-:root[data-theme="light"] {
+  /* UI Colors (Default Light) */
   --bg-surface: #f4f6f8;
   --bg-muted: #ffffff;
   --on-surface: var(--ink-primary);
@@ -72,12 +57,6 @@ body {
     linear-gradient(90deg, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
   background-size: 25px 25px;
   /* Slightly larger grid */
-}
-
-:root[data-theme="dark"] body {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
 }
 
 /* Typography Overrides */
