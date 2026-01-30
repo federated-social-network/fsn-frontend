@@ -145,6 +145,7 @@ export default function Profile() {
                       className="px-6 py-2 bg-white border-2 border-[var(--ink-secondary)] text-[var(--ink-secondary)] rounded shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-y-px transition-all"
                     >
                       Nah, keep it
+                      
                     </button>
                     <button
                       onClick={confirmDelete}
