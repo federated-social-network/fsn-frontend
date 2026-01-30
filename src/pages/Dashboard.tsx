@@ -1,4 +1,5 @@
 import PostForm from "../components/PostForm";
+import Navbar from "../components/Navbar";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { getPosts, getUser, getRandomUsers, initiateConnection, acceptConnection, getPendingConnections, getFollowedPosts } from "../api/api";
@@ -154,7 +155,7 @@ export default function Dashboard() {
     }
   }, [activeTab]);
 
-  
+
   // Poll for new posts
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -208,38 +209,7 @@ export default function Dashboard() {
     <div className="h-screen overflow-hidden flex flex-col bg-[var(--bg-surface)]">
 
       {/* --- Top Navigation Bar --- */}
-      <nav className="flex-none px-6 py-3 bg-[var(--paper-white)] border-b-2 border-dashed border-gray-300 flex items-center justify-between z-40 relative shadow-sm">
-        <div className="flex items-center gap-4">
-          <Link to="/" className="text-3xl font-sketch font-bold hover:scale-105 transition-transform text-[var(--ink-primary)]">
-            Federated Social
-          </Link>
-          <span className="hidden md:inline-block bg-[var(--pastel-blue)] px-3 py-1 rounded-full border border-black text-sm font-hand transform -rotate-2">
-            Connected to <strong>Instance A</strong>
-          </span>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Link to={`/profile/${username}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <span className="font-hand font-bold text-lg hidden sm:block">{username}</span>
-            <div className="w-10 h-10 rounded-full bg-[var(--pastel-yellow)] border-2 border-black flex items-center justify-center font-sketch text-xl">
-              {username ? username[0].toUpperCase() : '?'}
-            </div>
-          </Link>
-          <button
-            onClick={() => {
-              localStorage.removeItem("username");
-              localStorage.removeItem("password");
-              localStorage.removeItem("access_token");
-              localStorage.removeItem("AUTH_TOKEN");
-              window.location.href = "/login";
-            }}
-            className="text-2xl hover:scale-110 transition-transform"
-            title="Sign Out"
-          >
-            🚪
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* --- Main Content Grid --- */}
       <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 md:grid-cols-12 gap-8 h-full">
@@ -321,35 +291,47 @@ export default function Dashboard() {
               <PostForm onPosted={() => loadPosts()} />
             </div>
 
-            {/* Refresh / Feed Header */}
-            <div className="border-b-2 border-dashed border-gray-300 pb-2 px-2">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-sketch text-2xl text-gray-500">Fresh Ink</span>
-                <button onClick={loadPosts} className="font-hand text-sm hover:text-[var(--ink-blue)]">
-                  ↻ Refresh
+            {/* Refresh / Feed Header (Folder Tabs Style) */}
+            <div className="flex flex-col gap-2 relative z-20 mt-4 px-2">
+              <div className="flex justify-between items-end">
+                <div className="flex items-end gap-0 relative top-[2px]">
+                  {/* GLOBAL TAB */}
+                  <button
+                    onClick={() => setActiveTab('global')}
+                    className={`
+                        relative px-6 py-2 rounded-t-lg border-2 border-b-0 transition-all duration-200
+                        ${activeTab === 'global'
+                        ? 'bg-[var(--paper-white)] border-black font-sketch font-bold text-xl z-20 pb-3'
+                        : 'bg-black/5 border-transparent text-gray-500 font-hand text-lg hover:bg-black/10 z-10 mb-1'}
+                     `}
+                  >
+                    Global
+                    {/* Tab highlight/shine */}
+                    {activeTab === 'global' && <div className="absolute top-1 left-2 right-2 h-[2px] bg-white/50 rounded-full"></div>}
+                  </button>
+
+                  {/* FOLLOWING TAB */}
+                  <button
+                    onClick={() => setActiveTab('following')}
+                    className={`
+                        relative px-6 py-2 rounded-t-lg border-2 border-b-0 transition-all duration-200 -ml-1
+                        ${activeTab === 'following'
+                        ? 'bg-[var(--paper-white)] border-black font-sketch font-bold text-xl z-20 pb-3'
+                        : 'bg-black/5 border-transparent text-gray-500 font-hand text-lg hover:bg-black/10 z-10 mb-1'}
+                     `}
+                  >
+                    Following
+                  </button>
+                </div>
+
+                {/* Refresh Button (moved to right) */}
+                <button onClick={loadPosts} className="font-hand text-sm hover:text-[var(--ink-blue)] mb-2 flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
+                  <span>↻</span> Refresh
                 </button>
               </div>
 
-              <div className="flex gap-6">
-                <button
-                  onClick={() => setActiveTab('global')}
-                  className={`font-hand text-lg pb-1 relative transition-colors ${activeTab === 'global' ? 'text-black font-bold' : 'text-gray-400 hover:text-gray-600'}`}
-                >
-                  Global
-                  {activeTab === 'global' && (
-                    <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--ink-blue)] rounded-full" />
-                  )}
-                </button>
-                <button
-                  onClick={() => setActiveTab('following')}
-                  className={`font-hand text-lg pb-1 relative transition-colors ${activeTab === 'following' ? 'text-black font-bold' : 'text-gray-400 hover:text-gray-600'}`}
-                >
-                  Following
-                  {activeTab === 'following' && (
-                    <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--ink-blue)] rounded-full" />
-                  )}
-                </button>
-              </div>
+              {/* Divider Line connecting tabs */}
+              <div className="w-full h-0 border-b-2 border-black relative z-10"></div>
             </div>
 
             {/* New Posts Indicator */}
