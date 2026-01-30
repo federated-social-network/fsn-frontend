@@ -99,7 +99,7 @@ const AuthPage = () => {
     };
 
     return (
-        <div className="min-h-screen relative flex items-center justify-center p-6 font-['Fredericka_the_Great'] bg-white text-black overflow-hidden">
+    <div className="min-h-screen relative flex items-center justify-center p-6 font-fredericka bg-white text-black overflow-hidden">
 
             {/* Full Screen Grid Background */}
             <div
@@ -121,7 +121,7 @@ const AuthPage = () => {
                         boxShadow: '12px 12px 0px rgba(0,0,0,0.8)'
                     }}
                 >
-                    <h2 className="text-4xl font-bold text-center mb-8 font-['Cabin_Sketch'] tracking-wider">
+                    <h2 className="text-4xl font-bold text-center mb-8 font-cabin tracking-wider">
                         {isRegisterMode ? "Join the Crew!" : "Welcome Back!"}
                     </h2>
                     <div className="w-full max-w-xs scale-125">
@@ -146,7 +146,7 @@ const AuthPage = () => {
                             }}
                         >
                             <div className="flex flex-col items-center mb-6">
-                                <h1 className="text-5xl font-bold font-['Cabin_Sketch'] tracking-wider text-center mb-2">
+                                <h1 className="text-5xl font-bold font-cabin tracking-wider text-center mb-2">
                                     {isRegisterMode ? "Sign Up" : "Log In"}
                                 </h1>
                                 <p className="text-center text-xl text-gray-700">
@@ -164,7 +164,7 @@ const AuthPage = () => {
                                         placeholder="Username"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
-                                        className="w-full bg-white border-2 border-black p-4 text-xl outline-none focus:ring-4 focus:ring-black/10 transition-all font-['Fredericka_the_Great'] text-black placeholder:text-gray-500"
+                                        className="w-full bg-white border-2 border-black p-4 text-xl outline-none focus:ring-4 focus:ring-black/10 transition-all font-fredericka text-black placeholder:text-gray-500"
                                         style={{ borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px' }}
                                     />
                                 </div>
@@ -176,21 +176,21 @@ const AuthPage = () => {
                                             placeholder="Email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            className="w-full bg-white border-2 border-black p-4 text-xl outline-none focus:ring-4 focus:ring-black/10 transition-all font-['Fredericka_the_Great'] text-black placeholder:text-gray-500"
+                                            className="w-full bg-white border-2 border-black p-4 text-xl outline-none focus:ring-4 focus:ring-black/10 transition-all font-fredericka text-black placeholder:text-gray-500"
                                             style={{ borderRadius: '15px 225px 15px 255px / 255px 15px 225px 15px' }}
                                         />
                                     </div>
                                 )}
 
                                 <div className="relative">
-                                    <input
+                                        <input
                                         type={showPassword ? "text" : "password"}
                                         placeholder="Password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         onFocus={() => setIsPasswordFocused(true)}
                                         onBlur={() => setIsPasswordFocused(false)}
-                                        className="w-full bg-white border-2 border-black p-4 text-xl outline-none focus:ring-4 focus:ring-black/10 transition-all font-['Fredericka_the_Great'] text-black placeholder:text-gray-500"
+                                        className="w-full bg-white border-2 border-black p-4 text-xl outline-none focus:ring-4 focus:ring-black/10 transition-all font-fredericka text-black placeholder:text-gray-500"
                                         style={{ borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px' }}
                                     />
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-xl hover:scale-110 transition-transform text-black">
@@ -206,14 +206,14 @@ const AuthPage = () => {
                                     <div className="flex justify-between items-center text-sm font-bold px-2">
                                         <label className="flex items-center gap-2 cursor-pointer group">
                                             <input type="checkbox" className="w-5 h-5 border-2 border-black rounded-sm cursor-pointer accent-black" />
-                                            <span className="group-hover:underline">Remember me</span>
+                                            <span className="group-hover:underline font-cabin">Remember me</span>
                                         </label>
-                                        <Link to="#" className="hover:underline">Forgot?</Link>
+                                        <Link to="#" className="hover:underline font-cabin">Forgot?</Link>
                                     </div>
                                 )}
 
                                 <button type="submit" disabled={isLoading}
-                                    className="w-full py-4 bg-black text-white text-2xl font-bold font-['Cabin_Sketch'] tracking-widest hover:bg-gray-800 transition-transform hover:scale-[1.02] active:scale-95 shadow-xl mt-4"
+                                    className="w-full py-4 bg-black text-white text-2xl font-bold font-cabin tracking-widest hover:bg-gray-800 transition-transform hover:scale-[1.02] active:scale-95 shadow-xl mt-4"
                                     style={{ borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px' }}
                                 >
                                     {isLoading
@@ -226,7 +226,7 @@ const AuthPage = () => {
                             <div className="mt-8 text-center pt-6">
                                 <p className="text-lg">
                                     {isRegisterMode ? "Got an account?" : "Need an account?"}
-                                    <a href="#" onClick={toggleMode} className="ml-2 font-bold underline decoration-2 underline-offset-4 hover:text-gray-600">
+                                    <a href="#" onClick={toggleMode} className="ml-2 font-bold font-cabin underline decoration-2 underline-offset-4 hover:text-gray-600">
                                         {isRegisterMode ? "Log In Here" : "Sign Up Here"}
                                     </a>
                                 </p>
