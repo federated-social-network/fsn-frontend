@@ -112,7 +112,6 @@ export default function Profile() {
     return <div className="p-8 text-center text-red-400 font-marker">Invalid profile URL</div>;
   }
 
-  
   return (
     <div className="h-screen overflow-hidden flex flex-col md:flex-row">
       <div className="flex-1 max-w-7xl mx-auto w-full md:grid md:grid-cols-12 h-full">
