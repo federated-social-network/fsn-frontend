@@ -68,25 +68,8 @@ export default function Settings() {
     window.location.href = "/login";
   }
 
-  // Background style
-  const background = (
-    <div className="fixed inset-0 pointer-events-none -z-10 w-full h-full opacity-20">
-      <svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="dashGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#0aa7c6" stopOpacity={0.2} />
-            <stop offset="100%" stopColor="#0f1720" stopOpacity={0} />
-          </radialGradient>
-        </defs>
-        <circle cx="90%" cy="10%" r="400" fill="url(#dashGrad)" opacity="0.3" />
-        <circle cx="10%" cy="90%" r="300" fill="#0aa7c6" opacity="0.1" />
-      </svg>
-    </div>
-  );
-
   return (
     <div className="min-h-screen relative text-surface p-4 md:p-8">
-      {background}
 
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">

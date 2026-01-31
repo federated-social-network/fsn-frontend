@@ -216,7 +216,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col bg-[var(--bg-surface)]">
+    <div className="h-screen overflow-hidden flex flex-col">
 
       {/* --- Top Navigation Bar --- */}
       <Navbar />
