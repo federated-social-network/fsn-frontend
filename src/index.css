@@ -1,6 +1,5 @@
-/* Sketch Fonts */
-/* Cabin Sketch (Headings), Patrick Hand (Body), Permanent Marker (Accents) */
-@import url('https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Patrick+Hand&family=Permanent+Marker&display=swap');
+/* Google Sans */
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -31,9 +30,9 @@
   --pastel-pink: #fce7f3;
 
   /* Fonts */
-  --font-heading: 'Cabin Sketch', cursive;
-  --font-body: 'Patrick Hand', cursive;
-  --font-marker: 'Permanent Marker', cursive;
+  --font-heading: 'Google Sans', sans-serif;
+  --font-body: 'Google Sans', sans-serif;
+  --font-marker: 'Google Sans', sans-serif;
 
   /* Scribble Borders */
   --border-sketch-1: 255px 15px 225px 15px / 15px 225px 15px 255px;
@@ -75,7 +74,7 @@ h5,
 h6 {
   font-family: var(--font-heading);
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0px;
 }
 
 /* Buttons */

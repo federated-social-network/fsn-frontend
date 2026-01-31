@@ -8,6 +8,7 @@ import type { Post } from "../types/post";
 import SketchCard from "../components/SketchCard";
 import SkeletonPost from "../components/SkeletonPost";
 import { motion, AnimatePresence } from "framer-motion";
+
 export default function Dashboard() {
   const username = localStorage.getItem("username") || "";
 
@@ -205,6 +206,16 @@ export default function Dashboard() {
     mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const instances = [
+    { name: "Instance A", url: "https://instance-a.onrender.com", color: "bg-cyan-100 border-cyan-300" },
+    { name: "Instance B", url: "https://instance-b.onrender.com", color: "bg-purple-100 border-purple-300" }
+  ];
+
+  const handleSwitchInstance = (url: string) => {
+    localStorage.setItem("INSTANCE_BASE_URL", url);
+    window.location.href = "/login"; // Force reload to login on new instance
+  };
+
   return (
     <div className="h-screen overflow-hidden flex flex-col bg-[var(--bg-surface)]">
 
@@ -214,14 +225,26 @@ export default function Dashboard() {
       {/* --- Main Content Grid --- */}
       <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 md:grid-cols-12 gap-8 h-full">
 
-        {/* --- LEFT SIDEBAR: Available Users --- */}
+        {/* --- LEFT SIDEBAR: Available Users & Nav --- */}
         <aside className="md:col-span-3 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-6">
-          <SketchCard variant="sticky" rotate={-1} className="p-4" pinned pinColor="#ef4444">
+          {/* Navigation Links */}
+          <SketchCard variant="paper" className="p-3 bg-white">
+            <nav className="flex flex-col gap-2 font-hand text-lg">
+              <Link to="/" className="flex items-center gap-3 px-3 py-2 hover:bg-black/5 rounded-lg transition-colors">
+                <span>🏠</span> Home
+              </Link>
+              <Link to="/settings" className="flex items-center gap-3 px-3 py-2 hover:bg-black/5 rounded-lg transition-colors">
+                <span>⚙️</span> Settings
+              </Link>
+            </nav>
+          </SketchCard>
+
+          <SketchCard variant="paper" className="p-4 bg-[var(--pastel-yellow)]">
             <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Available Users</h3>
             <div className="space-y-3">
               {suggestedUsers.length > 0 ? (
                 <>
-                  {suggestedUsers.slice(0, showAllUsers ? undefined : 2).map((u: any) => (
+                  {suggestedUsers.slice(0, showAllUsers ? undefined : 3).map((u: any) => (
                     <Link key={u.username} to={`/profile/${u.username}`} className="block group relative">
                       <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-black/5 transition-colors border border-transparent hover:border-black/10">
                         <div className="w-10 h-10 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-lg shrink-0">
@@ -253,7 +276,7 @@ export default function Dashboard() {
                     </Link>
                   ))}
 
-                  {suggestedUsers.length > 2 && (
+                  {suggestedUsers.length > 3 && (
                     <button
                       onClick={() => setShowAllUsers(!showAllUsers)}
                       className="w-full text-center text-sm font-hand text-[var(--ink-blue)] hover:underline mt-1 bg-transparent border-none shadow-none"
@@ -263,17 +286,9 @@ export default function Dashboard() {
                   )}
                 </>
               ) : (
-                <div className="text-center py-4 font-hand opacity-50">Searching for signs of life...</div>
+                <div className="text-center py-4 font-hand opacity-50">Searching for signs...</div>
               )}
             </div>
-          </SketchCard>
-
-          {/* Navigation Links moved to small sticky note */}
-          <SketchCard variant="paper" rotate={1} className="p-3 bg-[var(--pastel-yellow)]">
-            <nav className="flex flex-col gap-2 font-hand text-lg">
-              <Link to="/" className="hover:underline">🏠 Home</Link>
-              <Link to="/settings" className="hover:underline">⚙️ Settings</Link>
-            </nav>
           </SketchCard>
         </aside>
 
@@ -291,47 +306,46 @@ export default function Dashboard() {
               <PostForm onPosted={() => loadPosts()} />
             </div>
 
-            {/* Refresh / Feed Header (Folder Tabs Style) */}
-            <div className="flex flex-col gap-2 relative z-20 mt-4 px-2">
-              <div className="flex justify-between items-end">
-                <div className="flex items-end gap-0 relative top-[2px]">
-                  {/* GLOBAL TAB */}
+            {/* Refresh / Feed Header (Aligned Professional Toggle) */}
+            <div className="flex flex-col gap-4 relative z-20 mt-2 px-1">
+              <div className="relative flex justify-center items-center h-12">
+
+                {/* Toggle Switch - Centered & Fixed Width for perfect alignment */}
+                <div className="bg-white border border-gray-200 p-1 rounded-full grid grid-cols-2 relative w-[280px] shadow-sm">
+                  {/* Sliding Background */}
+                  <motion.div
+                    layout
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    className="absolute top-1 bottom-1 rounded-full bg-black shadow-sm"
+                    style={{
+                      left: activeTab === 'global' ? '4px' : '50%',
+                      width: 'calc(50% - 4px)'
+                    }}
+                  />
+
                   <button
                     onClick={() => setActiveTab('global')}
-                    className={`
-                        relative px-6 py-2 rounded-t-lg border-2 border-b-0 transition-all duration-200
-                        ${activeTab === 'global'
-                        ? 'bg-[var(--paper-white)] border-black font-sketch font-bold text-xl z-20 pb-3'
-                        : 'bg-black/5 border-transparent text-gray-500 font-hand text-lg hover:bg-black/10 z-10 mb-1'}
-                     `}
+                    className={`relative z-10 py-1.5 rounded-full font-bold text-sm transition-colors duration-200 flex justify-center items-center ${activeTab === 'global' ? 'text-white' : 'text-gray-500 hover:text-black'}`}
                   >
                     Global
-                    {/* Tab highlight/shine */}
-                    {activeTab === 'global' && <div className="absolute top-1 left-2 right-2 h-[2px] bg-white/50 rounded-full"></div>}
                   </button>
-
-                  {/* FOLLOWING TAB */}
                   <button
                     onClick={() => setActiveTab('following')}
-                    className={`
-                        relative px-6 py-2 rounded-t-lg border-2 border-b-0 transition-all duration-200 -ml-1
-                        ${activeTab === 'following'
-                        ? 'bg-[var(--paper-white)] border-black font-sketch font-bold text-xl z-20 pb-3'
-                        : 'bg-black/5 border-transparent text-gray-500 font-hand text-lg hover:bg-black/10 z-10 mb-1'}
-                     `}
+                    className={`relative z-10 py-1.5 rounded-full font-bold text-sm transition-colors duration-200 flex justify-center items-center ${activeTab === 'following' ? 'text-white' : 'text-gray-500 hover:text-black'}`}
                   >
                     Following
                   </button>
                 </div>
 
-                {/* Refresh Button (moved to right) */}
-                <button onClick={loadPosts} className="font-hand text-sm hover:text-[var(--ink-blue)] mb-2 flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
-                  <span>↻</span> Refresh
+                {/* Refresh Button - Absolute Right */}
+                <button
+                  onClick={loadPosts}
+                  className="absolute right-0 w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-black hover:text-white transition-colors shadow-sm"
+                  title="Refresh Feed"
+                >
+                  ↻
                 </button>
               </div>
-
-              {/* Divider Line connecting tabs */}
-              <div className="w-full h-0 border-b-2 border-black relative z-10"></div>
             </div>
 
             {/* New Posts Indicator */}
@@ -366,7 +380,7 @@ export default function Dashboard() {
 
             {/* ERROR */}
             {error && (
-              <div className="bg-[var(--pastel-pink)] border-2 border-red-400 p-4 rounded text-center font-hand text-red-800 rotate-1">
+              <div className="bg-[var(--pastel-pink)] border-2 border-red-400 p-4 rounded text-center font-hand text-red-800">
                 ⚠️ {String(error)}
               </div>
             )}
@@ -391,9 +405,8 @@ export default function Dashboard() {
                       transition={{ type: 'spring', bounce: 0.3 }}
                       className="mb-8"
                     >
-                      <SketchCard className="group hover:-translate-y-1 transition-transform bg-white relative">
-                        {/* Tape effect top center */}
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-yellow-100/50 border-l border-r border-white/40 rotate-1 shadow-sm opacity-80 backdrop-blur-sm pointer-events-none"></div>
+                      <SketchCard className="group transition-transform bg-white relative">
+                        {/* Tape effect removed from top center for straight look */}
 
                         <div className="p-5">
                           {/* Header */}
@@ -455,9 +468,8 @@ export default function Dashboard() {
                       transition={{ type: 'spring', bounce: 0.3 }}
                       className="mb-8"
                     >
-                      <SketchCard className="group hover:-translate-y-1 transition-transform bg-white relative">
-                        {/* Tape effect top center */}
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-yellow-100/50 border-l border-r border-white/40 rotate-1 shadow-sm opacity-80 backdrop-blur-sm pointer-events-none"></div>
+                      <SketchCard className="group transition-transform bg-white relative">
+                        {/* Tape effect removed */}
 
                         <div className="p-5">
                           {/* Header */}
@@ -509,7 +521,7 @@ export default function Dashboard() {
         {/* --- RIGHT SIDEBAR: Info / Status --- */}
         <aside className="md:col-span-3 hidden lg:block h-full overflow-y-auto p-4 no-scrollbar space-y-6">
           {/* Pending Invites */}
-          <SketchCard variant="sticky" rotate={-2} className="p-4 bg-[var(--pastel-pink)]" pinned pinColor="#ec4899">
+          <SketchCard variant="paper" className="p-4 bg-[var(--pastel-pink)]">
             <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Pending Invites</h3>
             <div className="space-y-3">
               {pendingInvites.length > 0 ? (
@@ -534,43 +546,43 @@ export default function Dashboard() {
             </div>
           </SketchCard>
 
-          <SketchCard variant="sticky" rotate={2} className="p-5 bg-[var(--pastel-blue)]" pinned pinColor="#2563eb">
-            <h3 className="font-sketch text-xl mb-4 text-center">Network Status</h3>
-            <div className="space-y-4 font-hand">
-              <div className="flex items-center justify-between">
-                <span>Target Instance:</span>
-                <span className="font-bold">Instance A</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Federation:</span>
-                <span className="text-green-700 font-bold bg-green-100 px-2 rounded-full">ACTIVE</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Sync:</span>
-                <span className="animate-pulse">● Live</span>
-              </div>
-            </div>
+          {/* Available Instances - New Card */}
+          <SketchCard variant="paper" className="p-4 bg-[var(--pastel-blue)]">
+            <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Available Instances</h3>
+            <div className="space-y-3">
+              {instances.map((inst, index) => {
+                const currentUrl = localStorage.getItem("INSTANCE_BASE_URL");
+                // flexible check: match exact string or if current is null/empty assume A (if on A) or simply check if currentUrl contains the instance domain
+                // For safety, let's normalize by removing trailing slash
+                const normalize = (u: string | null) => u?.replace(/\/$/, "") || "";
+                const isCurrent = normalize(currentUrl) === normalize(inst.url);
 
-            <div className="mt-6 pt-4 border-t border-dashed border-black/20 text-xs text-center">
-              v1.2.0 • Federated
+                return (
+                  <div key={index} className={`p-3 rounded-lg border flex flex-col gap-1 ${inst.color} bg-white/50`}>
+                    <div className="flex justify-between items-center">
+                      <div className="font-bold font-sketch text-md">{inst.name}</div>
+                      {isCurrent && <span className="text-[10px] font-bold bg-black/10 px-1.5 rounded-full text-black/60">CURRENT</span>}
+                    </div>
+                    <div className="text-xs font-hand break-all opacity-70">{inst.url}</div>
+
+                    {!isCurrent ? (
+                      <button
+                        onClick={() => handleSwitchInstance(inst.url)}
+                        className="mt-2 text-xs bg-white border border-black/20 hover:bg-black/5 py-1 px-2 rounded font-bold self-start"
+                      >
+                        Switch to Instance
+                      </button>
+                    ) : (
+                      <div className="mt-2 text-xs font-bold text-gray-400 select-none">
+                        You are here
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </SketchCard>
 
-          <SketchCard rotate={-1} className="p-4">
-            <h3 className="font-sketch font-bold text-lg mb-2">Activity Log</h3>
-            <ul className="text-sm font-hand space-y-2 opacity-80">
-              <li>• New user joined from Local</li>
-              <li>• Instance B federated 2m ago</li>
-              <li>• System update pending</li>
-            </ul>
-          </SketchCard>
-
-          {/* Decorative Doodles moved here or kept simple */}
-          <div className="text-center">
-            <div className="inline-block p-4 border-2 border-dashed border-gray-300 rounded-full rotate-3 bg-white">
-              ✒️ 📸 📌
-            </div>
-          </div>
         </aside>
 
       </div>
