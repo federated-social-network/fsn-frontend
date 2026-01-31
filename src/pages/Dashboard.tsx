@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { getPosts, getUser, getRandomUsers, initiateConnection, acceptConnection, getPendingConnections, getFollowedPosts } from "../api/api";
 import { timeAgo } from "../utils/time";
+import { parseUsername } from "../utils/user";
+import { INSTANCES, getInstanceName, getInstanceColor } from "../config/instances";
 import type { Post } from "../types/post";
 import SketchCard from "../components/SketchCard";
 import SkeletonPost from "../components/SkeletonPost";
@@ -206,10 +208,7 @@ export default function Dashboard() {
     mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const instances = [
-    { name: "Instance A", url: "https://instance-a.onrender.com", color: "bg-cyan-100 border-cyan-300" },
-    { name: "Instance B", url: "https://instance-b.onrender.com", color: "bg-purple-100 border-purple-300" }
-  ];
+
 
   const handleSwitchInstance = (url: string) => {
     localStorage.setItem("INSTANCE_BASE_URL", url);
@@ -412,21 +411,23 @@ export default function Dashboard() {
                           {/* Header */}
                           <div className="flex justify-between items-start mb-3">
                             <div className="flex items-center gap-3">
-                              <Link to={`/profile/${p.author}`}>
+                              <Link to={`/profile/${parseUsername(p.author).username}`}>
                                 <div className="w-10 h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-sm">
-                                  {p.author ? p.author[0].toUpperCase() : '?'}
+                                  {parseUsername(p.author).username[0].toUpperCase()}
                                 </div>
                               </Link>
                               <div>
                                 <div className="font-bold font-sketch text-lg leading-none">
-                                  <Link to={`/profile/${p.author}`} className="hover:underline">{p.author}</Link>
+                                  <Link to={`/profile/${parseUsername(p.author).username}`} className="hover:underline">
+                                    {parseUsername(p.author).username}
+                                  </Link>
                                 </div>
                                 <div className="text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
                               </div>
                             </div>
-                            {p.origin_instance && (
-                              <span className="bg-[var(--pastel-lavender)] px-2 py-0.5 rounded text-xs border border-black/10 font-hand">
-                                {p.origin_instance}
+                            {(p.origin_instance || parseUsername(p.author).instance) && (
+                              <span className={`px-2 py-0.5 rounded text-xs border font-hand ${getInstanceColor(p.origin_instance || parseUsername(p.author).instance)}`}>
+                                {getInstanceName(p.origin_instance || parseUsername(p.author).instance)}
                               </span>
                             )}
                           </div>
@@ -475,21 +476,23 @@ export default function Dashboard() {
                           {/* Header */}
                           <div className="flex justify-between items-start mb-3">
                             <div className="flex items-center gap-3">
-                              <Link to={`/profile/${p.author}`}>
+                              <Link to={`/profile/${parseUsername(p.author).username}`}>
                                 <div className="w-10 h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-sm">
-                                  {p.author ? p.author[0].toUpperCase() : '?'}
+                                  {parseUsername(p.author).username[0].toUpperCase()}
                                 </div>
                               </Link>
                               <div>
                                 <div className="font-bold font-sketch text-lg leading-none">
-                                  <Link to={`/profile/${p.author}`} className="hover:underline">{p.author}</Link>
+                                  <Link to={`/profile/${parseUsername(p.author).username}`} className="hover:underline">
+                                    {parseUsername(p.author).username}
+                                  </Link>
                                 </div>
                                 <div className="text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
                               </div>
                             </div>
-                            {p.origin_instance && (
-                              <span className="bg-[var(--pastel-lavender)] px-2 py-0.5 rounded text-xs border border-black/10 font-hand">
-                                {p.origin_instance}
+                            {(p.origin_instance || parseUsername(p.author).instance) && (
+                              <span className={`px-2 py-0.5 rounded text-xs border font-hand ${getInstanceColor(p.origin_instance || parseUsername(p.author).instance)}`}>
+                                {getInstanceName(p.origin_instance || parseUsername(p.author).instance)}
                               </span>
                             )}
                           </div>
@@ -550,7 +553,7 @@ export default function Dashboard() {
           <SketchCard variant="paper" className="p-4 bg-[var(--pastel-blue)]">
             <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Available Instances</h3>
             <div className="space-y-3">
-              {instances.map((inst, index) => {
+              {INSTANCES.map((inst, index) => {
                 const currentUrl = localStorage.getItem("INSTANCE_BASE_URL");
                 // flexible check: match exact string or if current is null/empty assume A (if on A) or simply check if currentUrl contains the instance domain
                 // For safety, let's normalize by removing trailing slash

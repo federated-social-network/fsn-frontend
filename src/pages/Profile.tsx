@@ -3,12 +3,17 @@ import { useParams, Link } from "react-router-dom";
 import { getUser, updateUser, uploadAvatar, deletePost, initiateConnection } from "../api/api";
 import SketchCard from "../components/SketchCard";
 import { timeAgo } from "../utils/time";
+import { parseUsername } from "../utils/user";
+import { getInstanceName, getInstanceColor } from "../config/instances";
 import type { Post } from "../types/post";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Profile() {
   const { identifier } = useParams<{ identifier: string }>();
-  const username = identifier || "";
+  // Ensure we work with the clean username for logic, but might need the raw one for API calls?
+  // Actually, usually API expects the raw one if it's a URL, but for display we want the short one.
+  const rawUsername = identifier || "";
+  const { username, instance } = parseUsername(rawUsername);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +28,11 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const isOwnProfile = localStorage.getItem("username") === username;
+  // isOwnProfile check needs to be robust. 
+  // If local storage has "Harish" and profile is "Harish", match.
+  // If local has "Harish" and profile is "url.../Harish", match.
+  const myUsername = localStorage.getItem("username");
+  const isOwnProfile = myUsername === rawUsername || myUsername === username;
 
   useEffect(() => {
     let mounted = true;
@@ -33,7 +42,8 @@ export default function Profile() {
       setError(null);
       try {
         // Fetch User (which now includes access to their posts)
-        const userRes = await getUser(username);
+        // Pass the raw username (identifier) to the API as it might need the full URL for remote lookup
+        const userRes = await getUser(rawUsername);
 
         if (!mounted) return;
         const userData = userRes.data;
@@ -45,9 +55,9 @@ export default function Profile() {
           id: p.id,
           content: p.content,
           created_at: p.created_at,
-          author: username, // implicit
+          author: rawUsername, // implicit
           author_id: userData.id,
-          origin_instance: userData.instance || "", // implicit
+          origin_instance: userData.instance || instance || "", // implicit from URL if not in data
           is_remote: false
         }));
 
@@ -63,17 +73,17 @@ export default function Profile() {
     };
     load();
     return () => { mounted = false; };
-  }, [username]);
+  }, [rawUsername]);
 
   const handleSave = async () => {
     setSaving(true);
     setSaveError(null);
     try {
       if (avatarFile) {
-        await uploadAvatar(username, avatarFile);
+        await uploadAvatar(rawUsername, avatarFile);
       }
-      await updateUser(username, form);
-      const res = await getUser(username);
+      await updateUser(rawUsername, form);
+      const res = await getUser(rawUsername);
       setUser(res.data);
       setEditMode(false);
     } catch (err: any) {
@@ -110,14 +120,14 @@ export default function Profile() {
 
   const handleConnect = async () => {
     try {
-      await initiateConnection(username);
+      await initiateConnection(rawUsername);
       alert(`Request sent to ${username}!`);
     } catch (err: any) {
       alert("Failed to connect: " + (err?.response?.data?.detail || "Unknown error"));
     }
   };
 
-  if (!username) {
+  if (!rawUsername) {
     return <div className="p-8 text-center text-red-400 font-marker">Invalid profile URL</div>;
   }
 
@@ -199,9 +209,13 @@ export default function Profile() {
                 )}
               </div>
 
-              <h1 className="text-3xl font-bold font-sketch mb-1 break-all">{user?.display_name || user?.username || username}</h1>
-              <p className="text-lg font-hand text-[var(--ink-secondary)]">@{user?.username || username}</p>
-              {user?.instance && <span className="text-xs px-2 py-0.5 mt-2 inline-block font-hand bg-black/5 rounded">instance: {user.instance}</span>}
+              <h1 className="text-3xl font-bold font-sketch mb-1 break-all">{parseUsername(user?.username).username || username}</h1>
+              <p className="text-lg font-hand text-[var(--ink-secondary)]">@{parseUsername(user?.username).username || username}</p>
+              {(user?.instance || instance) && (
+                <span className={`px-2 py-0.5 mt-2 inline-block font-hand rounded text-xs border ${getInstanceColor(user?.instance || instance)}`}>
+                  instance: {getInstanceName(user?.instance || instance)}
+                </span>
+              )}
 
 
               {/* Edit Button */}
@@ -237,6 +251,7 @@ export default function Profile() {
             {error && <div className="text-center py-8 text-red-500 font-heading">Error: {error}</div>}
 
             {/* Stats & Bio */}
+
             {!loading && !error && !editMode && user && (
               <div className="mt-8 space-y-6">
                 <div className="grid grid-cols-3 gap-2 py-4 border-y-2 border-dashed border-[var(--ink-secondary)]">
