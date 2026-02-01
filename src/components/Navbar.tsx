@@ -18,7 +18,7 @@ export default function Navbar() {
         localStorage.removeItem("password");
         localStorage.removeItem("access_token");
         localStorage.removeItem("AUTH_TOKEN");
-        window.location.href = "/login";
+        window.location.href = "/";
     };
 
     return (
