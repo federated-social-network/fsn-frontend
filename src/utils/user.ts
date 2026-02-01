@@ -17,7 +17,7 @@ export const parseUsername = (input: string | undefined | null) => {
             const url = new URL(input);
             // Assume the last segment of the path is the username
             const pathSegments = url.pathname.split("/").filter(Boolean);
-            const username = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : "Unknown";
+            const username = pathSegments.length > 0 ? decodeURIComponent(pathSegments[pathSegments.length - 1]) : "Unknown";
 
             const friendlyInstance = getInstanceName(url.hostname);
 

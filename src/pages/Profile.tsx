@@ -248,7 +248,18 @@ export default function Profile() {
             </div>
 
             {loading && <div className="text-center py-8 font-hand text-lg">Loading info...</div>}
-            {error && <div className="text-center py-8 text-red-500 font-heading">Error: {error}</div>}
+            {error && (
+              <div className="py-8 px-4 text-center">
+                <div className="text-5xl mb-3">😵‍💫</div>
+                <h3 className="font-sketch text-xl font-bold text-red-500 mb-2">Whoops!</h3>
+                <div className="font-hand text-lg text-[var(--ink-secondary)] bg-red-50 border-2 border-dashed border-red-300 p-3 rounded transform -rotate-1">
+                  {error}
+                </div>
+                <p className="mt-4 font-hand text-sm text-gray-500">
+                  We couldn't find this scribbler. They might be on another instance!
+                </p>
+              </div>
+            )}
 
             {/* Stats & Bio */}
 
