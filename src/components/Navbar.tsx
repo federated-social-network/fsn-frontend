@@ -1,11 +1,18 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getInstanceName } from "../config/instances";
+import { useState } from "react";
+import ConfirmationModal from "./ConfirmationModal";
 
 export default function Navbar() {
     const username = localStorage.getItem("username") || "";
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-    const handleLogout = () => {
+    const handleLogoutClick = () => {
+        setShowLogoutConfirm(true);
+    };
+
+    const performLogout = () => {
         localStorage.removeItem("username");
         localStorage.removeItem("password");
         localStorage.removeItem("access_token");
@@ -83,21 +90,27 @@ export default function Navbar() {
 
                         {/* Logout Button */}
                         <button
-                            onClick={handleLogout}
-                            className="relative group p-2"
+                            onClick={handleLogoutClick}
+                            className="bg-black/5 hover:bg-black/10 border-2 border-transparent hover:border-black/5 rounded-full px-4 py-2 flex items-center gap-2 transition-all"
                             title="Sign Out"
                         >
-                            <div className="text-2xl group-hover:scale-125 transition-transform duration-200" style={{ filter: "drop-shadow(2px 2px 0px rgba(0,0,0,0.1))" }}>
-                                🚪
-                            </div>
-                            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-hand pointer-events-none z-50">
-                                See ya!
-                            </span>
+                            <span className="text-xl">🚪</span>
+                            <span className="font-sketch font-bold text-sm text-[var(--ink-primary)]">Log Out</span>
                         </button>
                     </div>
-
                 </div>
             </div>
+
+            <ConfirmationModal
+                isOpen={showLogoutConfirm}
+                onClose={() => setShowLogoutConfirm(false)}
+                onConfirm={performLogout}
+                title="Leaving so soon?"
+                message="Are you sure you want to log out? You'll need to sign in again to access your scribbles."
+                confirmText="Yes, Log Out"
+                confirmColor="bg-red-500"
+                icon="👋"
+            />
         </div>
     );
 }

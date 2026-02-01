@@ -10,10 +10,13 @@ import type { Post } from "../types/post";
 import SketchCard from "../components/SketchCard";
 import SkeletonPost from "../components/SkeletonPost";
 import { motion, AnimatePresence } from "framer-motion";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 export default function Dashboard() {
 
   const [posts, setPosts] = useState<Post[]>([]);
+  const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
+  const [pendingInstanceUrl, setPendingInstanceUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -196,7 +199,13 @@ export default function Dashboard() {
 
 
   const handleSwitchInstance = (url: string) => {
-    localStorage.setItem("INSTANCE_BASE_URL", url);
+    setPendingInstanceUrl(url);
+    setShowSwitchConfirm(true);
+  };
+
+  const performSwitchInstance = () => {
+    if (!pendingInstanceUrl) return;
+    localStorage.setItem("INSTANCE_BASE_URL", pendingInstanceUrl);
     window.location.href = "/login"; // Force reload to login on new instance
   };
 
@@ -574,6 +583,18 @@ export default function Dashboard() {
         </aside>
 
       </div>
+
+      {/* Instance Switch Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showSwitchConfirm}
+        onClose={() => setShowSwitchConfirm(false)}
+        onConfirm={performSwitchInstance}
+        title="Switching Instance?"
+        message="You will be logged out first and redirected to the new instance. Are you sure you want to proceed?"
+        confirmText="Yes, Switch"
+        confirmColor="bg-blue-600"
+        icon="🔄"
+      />
     </div>
   );
 }
