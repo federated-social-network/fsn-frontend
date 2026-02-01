@@ -15,7 +15,6 @@ export default function SketchCard({
     children,
     className = "",
     variant = "paper",
-    rotate = 0,
     taped = false,
     pinned = false,
     pinColor = "#e94242"

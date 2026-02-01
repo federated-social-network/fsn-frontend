@@ -2,7 +2,7 @@ import PostForm from "../components/PostForm";
 import Navbar from "../components/Navbar";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { getPosts, getUser, getRandomUsers, initiateConnection, acceptConnection, getPendingConnections, getFollowedPosts } from "../api/api";
+import { getPosts, getRandomUsers, initiateConnection, acceptConnection, getPendingConnections, getFollowedPosts } from "../api/api";
 import { timeAgo } from "../utils/time";
 import { parseUsername } from "../utils/user";
 import { INSTANCES, getInstanceName, getInstanceColor } from "../config/instances";
@@ -12,10 +12,8 @@ import SkeletonPost from "../components/SkeletonPost";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Dashboard() {
-  const username = localStorage.getItem("username") || "";
 
   const [posts, setPosts] = useState<Post[]>([]);
-  const [userPostCount, setUserPostCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,20 +53,7 @@ export default function Dashboard() {
     };
   }, [loadPosts]);
 
-  useEffect(() => {
-    let mounted = true;
-    if (!username) return;
-    const loadUser = async () => {
-      try {
-        const res = await getUser(username);
-        if (mounted) setUserPostCount(res.data?.post_count ?? 0);
-      } catch (err) {
-        if (mounted) setUserPostCount(null);
-      }
-    };
-    loadUser();
-    return () => { mounted = false; };
-  }, [username]);
+
 
   const mainRef = useRef<HTMLElement>(null);
   const [hasNewPosts, setHasNewPosts] = useState(false);
