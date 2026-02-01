@@ -1,234 +1,259 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'framer-motion';
-import type { Variants } from 'framer-motion';
 
 interface MascotProps {
     isPasswordFocused: boolean;
     showPassword?: boolean;
 }
 
-// Shared Spring Config - softer for smoother feel
-const springConfig = { damping: 25, stiffness: 120, mass: 0.8 };
+
 
 export default function Mascot({ isPasswordFocused, showPassword = false }: MascotProps) {
-    // Use MotionValues for eye tracking
-    const targetX = useMotionValue(0);
-    const targetY = useMotionValue(0);
-
-    const eyeX = useSpring(targetX, springConfig);
-    const eyeY = useSpring(targetY, springConfig);
-
     const ref = useRef<HTMLDivElement>(null);
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+
+    // Faster eye movement configuration
+    const springConfig = { damping: 20, stiffness: 300, mass: 0.5 };
+
+    const eyeX = useSpring(mouseX, springConfig);
+    const eyeY = useSpring(mouseY, springConfig);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!ref.current) return;
-
             const rect = ref.current.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
 
-            const dx = e.clientX - centerX;
-            const dy = e.clientY - centerY;
+            // Limit movement range for eyes
+            const limit = 15; // Increased limit slightly
+            let dx = e.clientX - centerX;
+            let dy = e.clientY - centerY;
 
-            const maxMove = 12;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            // Smooth clamping
-            const factor = Math.min(distance / 25, maxMove) / (distance || 1);
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > 1) { // Avoid divide by zero
+                const factor = Math.min(dist, 100) / dist; // Soft clamp logic
+                const finalLimit = limit * (Math.min(dist, 300) / 300); // Scale based on distance
 
-            const moveX = dx * factor;
-            const moveY = dy * factor;
-
-            targetX.set(moveX);
-            targetY.set(moveY);
+                mouseX.set(dx * (finalLimit / (dist || 1)));
+                mouseY.set(dy * (finalLimit / (dist || 1)));
+            }
         };
-
         window.addEventListener('mousemove', handleMouseMove);
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
-    // Animation Variants - minimal and clean
-    const createFloatVariant = (delay: number): Variants => ({
-        animate: {
-            y: [0, -6, 0],
-            rotate: [0, 0.5, -0.5, 0],
-            transition: {
-                duration: 5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: delay,
-            }
-        },
-        scared: {
-            y: 5,
-            scale: 0.98,
-            transition: { type: "spring", bounce: 0.4 }
-        },
-        hover: {
-            scale: 1.02,
-            y: -8,
-            rotate: 0,
-            transition: { type: "spring", stiffness: 300, damping: 15 }
-        },
-        tap: {
-            scale: 0.97,
-            y: 2,
-            transition: { type: "spring", stiffness: 400, damping: 15 }
-        }
-    });
-
     return (
-        <div ref={ref} className="w-full max-w-[500px] mx-auto aspect-[4/3] relative">
-            <svg viewBox="0 0 400 300" width="100%" height="100%">
+        <div ref={ref} className="w-full max-w-[400px] mx-auto aspect-square relative select-none pointer-events-none">
+            <svg viewBox="0 0 400 400" width="100%" height="100%" className="overflow-visible">
+                {/* 
+                   Sketch Filter: Creates the wobbly hand-drawn line effect.
+                   We apply this to the groups.
+                */}
+                <defs>
+                    <filter id="crayon">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" result="noise" />
+                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" />
+                    </filter>
+                </defs>
 
-                {/* 1. Purple Block (Tallest, Back Left) */}
+                {/* 
+                    Robot Character Group 
+                    Apply filter url(#crayon) for the wax crayon look
+                */}
                 <motion.g
-                    transform="translate(130, 40)"
-                    variants={createFloatVariant(0)}
-                    animate={isPasswordFocused ? "scared" : "animate"}
-                    whileHover="hover"
-                    whileTap="tap"
+                    filter="url(#crayon)"
+                    initial={{ y: 0 }}
+                    animate={{
+                        y: [0, -5, 0],
+                        rotate: [0, 1, -1, 0]
+                    }}
+                    transition={{
+                        duration: 6,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
                 >
-                    <rect x="0" y="0" width="90" height="260" fill="#6200ea" rx="4" />
-                    {/* Shadow/Depth Overlay */}
-                    <rect x="0" y="0" width="90" height="260" fill="black" fillOpacity="0.1" rx="4" style={{ mixBlendMode: 'multiply' }} clipPath="inset(0 0 40% 40%)" />
+                    {/* ANTENNA */}
+                    <g transform="translate(200, 120)">
+                        <motion.path
+                            d="M 0 0 Q -10 -20 0 -40"
+                            stroke="black" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round"
+                            animate={{ rotate: [0, 5, -5, 0] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                        />
+                        <circle cx="0" cy="-45" r="8" fill="#ef4444" stroke="black" strokeWidth="4" />
+                    </g>
 
-                    <WhiteEye cx={45} cy={40} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} delay={0} />
-                    <WhiteEye cx={70} cy={40} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} delay={0.2} />
+                    {/* HEAD */}
+                    <rect x="120" y="120" width="160" height="140" rx="20" fill="#a5b4fc" stroke="black" strokeWidth="5" strokeLinejoin="round" />
 
-                    <rect x="58" y="30" width="4" height="30" fill="black" rx="1" />
+                    {/* FACE AREA */}
+                    {/* Eyes Container */}
+                    <g transform="translate(200, 180)">
+
+                        {/* Left Eye */}
+                        <g transform="translate(-40, 0)">
+                            <circle r="25" fill="white" stroke="black" strokeWidth="4" />
+                            <Pupil eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
+                            {/* Eyelid (Checking/Hiding) */}
+                            <Eyelid isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
+                        </g>
+
+                        {/* Right Eye */}
+                        <g transform="translate(40, 0)">
+                            <circle r="25" fill="white" stroke="black" strokeWidth="4" />
+                            <Pupil eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
+                            <Eyelid isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
+                        </g>
+
+                    </g>
+
+                    {/* MOUTH */}
+                    <Mouth isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
+
+
+                    {/* BODY / NECK */}
+                    <path d="M 170 260 L 170 300" stroke="black" strokeWidth="5" strokeLinecap="round" />
+                    <path d="M 230 260 L 230 300" stroke="black" strokeWidth="5" strokeLinecap="round" />
+                    <rect x="140" y="300" width="120" height="80" rx="10" fill="#a5b4fc" stroke="black" strokeWidth="5" strokeLinejoin="round" />
+
+                    {/* ARMS (Hands covering eyes when password focused?) */}
+                    <Hands isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
+
                 </motion.g>
-
-                {/* 2. Black Block (Middle Right) */}
-                <motion.g
-                    transform="translate(200, 130)"
-                    variants={createFloatVariant(1.2)}
-                    animate={isPasswordFocused ? "scared" : "animate"}
-                    whileHover="hover"
-                    whileTap="tap"
-                >
-                    <rect x="0" y="0" width="70" height="170" fill="#1a1a1a" rx="4" />
-
-                    <WhiteEye cx={35} cy={30} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} delay={0.5} />
-                    <WhiteEye cx={55} cy={30} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} delay={0.7} />
-                </motion.g>
-
-                {/* 3. Orange Blob (Front Left) */}
-                <motion.g
-                    transform="translate(70, 200)"
-                    variants={createFloatVariant(0.8)}
-                    animate={isPasswordFocused ? "scared" : "animate"}
-                    whileHover="hover"
-                    whileTap="tap"
-                >
-                    <path d="M 0 100 C 0 10 150 10 150 100" fill="#ff6d00" />
-                    <rect x="0" y="100" width="150" height="20" fill="#ff6d00" />
-
-                    <DotEye cx={45} cy={70} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} delay={1} />
-                    <DotEye cx={105} cy={70} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} delay={1.2} />
-
-                    {/* Simple geometric decoration instead of dynamic mouth */}
-                    <path d="M 65 90 A 10 10 0 0 0 85 90 Z" fill="#1a1a1a" transform="rotate(10, 75, 90)" />
-                </motion.g>
-
-                {/* 4. Yellow Arch (Front Right) */}
-                <motion.g
-                    transform="translate(240, 180)"
-                    variants={createFloatVariant(2.0)}
-                    animate={isPasswordFocused ? "scared" : "animate"}
-                    whileHover="hover"
-                    whileTap="tap"
-                >
-                    <path d="M 0 60 A 32 32 0 0 1 64 60 L 64 140 L 0 140 Z" fill="#ffd600" />
-                    <rect x="0" y="60" width="64" height="80" fill="#ffd600" />
-
-                    <DotEye cx={25} cy={45} eyeX={eyeX} eyeY={eyeY} isPasswordFocused={isPasswordFocused} showPassword={showPassword} delay={1.5} />
-
-                    <rect x="35" y="60" width="40" height="4" fill="black" rx="1" />
-                </motion.g>
-
             </svg>
         </div>
     );
 }
 
-// Sub-components
-interface EyeProps {
-    cx: number;
-    cy: number;
-    eyeX: MotionValue<number>;
-    eyeY: MotionValue<number>;
-    isPasswordFocused: boolean;
-    showPassword: boolean;
-    delay?: number;
-}
+// --- Sub Components ---
 
-const useBlink = (delay: number = 0) => {
-    const [isBlinking, setIsBlinking] = useState(false);
+const Mouth = ({ isPasswordFocused, showPassword }: any) => {
+    // Idle animation for mouth to make it feel alive
+    const [isBreathing, setIsBreathing] = useState(false);
 
     useEffect(() => {
-        let timeout: ReturnType<typeof setTimeout>;
-        const blink = () => {
-            setIsBlinking(true);
-            setTimeout(() => setIsBlinking(false), 200); // slightly longer blink
-            const nextBlink = Math.random() * 5000 + 3000; // Less frequent
-            timeout = setTimeout(blink, nextBlink);
-        };
-        const initial = setTimeout(blink, delay * 1000 + 1000);
-        return () => {
-            clearTimeout(timeout);
-            clearTimeout(initial);
-        };
-    }, [delay]);
-    return isBlinking;
-};
+        const interval = setInterval(() => {
+            setIsBreathing(prev => !prev);
+        }, 2000);
+        return () => clearInterval(interval);
+    }, []);
 
-const WhiteEye = ({ cx, cy, eyeX, eyeY, isPasswordFocused, showPassword, delay }: EyeProps) => {
-    const x = useTransform(eyeX, (v) => v * 0.8);
-    const y = useTransform(eyeY, (v) => v * 0.8);
+    // Let's use simple variants for states
+    const variants = {
+        idle: { d: "M 170 230 Q 200 245 230 230" },
+        idleBreath: { d: "M 170 230 Q 200 242 230 230" }, // Slightly flatter/different
+        happy: { d: "M 170 230 Q 200 255 230 230" }, // Bigger smile
+        flat: { d: "M 175 235 Q 200 235 225 235" },   // Straight/Nervous
+        o: { d: "M 185 230 Q 200 220 215 230 Q 200 250 185 230" } // O shape (surprised)
+    };
 
-    const isBlinking = useBlink(delay);
-    const isClosed = (isPasswordFocused && !showPassword) || isBlinking;
-    const isPeeking = isPasswordFocused && showPassword;
+    let state = isBreathing ? "idleBreath" : "idle";
+    if (isPasswordFocused && !showPassword) state = "flat";
+    else if (isPasswordFocused && showPassword) state = "happy";
 
     return (
-        <g>
-            <circle cx={cx} cy={cy} r="6" fill="white" />
-            <motion.circle
-                cx={cx} cy={cy} r="2.5" fill="black"
-                style={{ x, y }}
-                initial={false}
-                animate={isClosed ? { scaleY: 0.1, opacity: 0 } : (isPeeking ? { scale: 1.3, opacity: 1 } : { scale: 1, opacity: 1 })}
-                transition={{ duration: 0.1 }}
-            />
-            <motion.path
-                d={`M ${cx - 6} ${cy} Q ${cx} ${cy + 4} ${cx + 6} ${cy}`}
-                stroke="black" strokeWidth="2" fill="none"
-                initial={{ opacity: 0 }}
-                animate={isClosed ? { opacity: 1 } : { opacity: 0 }}
-                transition={{ duration: 0.1 }}
-            />
-        </g>
+        <motion.path
+            stroke="black" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.9"
+            variants={variants}
+            animate={state}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+        />
     );
 };
 
-const DotEye = ({ cx, cy, eyeX, eyeY, isPasswordFocused, showPassword, delay }: EyeProps) => {
-    const x = useTransform(eyeX, (v) => v * 0.5);
-    const y = useTransform(eyeY, (v) => v * 0.5);
-
-    const isBlinking = useBlink(delay);
-    const isClosed = (isPasswordFocused && !showPassword) || isBlinking;
-    const isPeeking = isPasswordFocused && showPassword;
+const Pupil = ({ eyeX, eyeY, isPasswordFocused, showPassword }: any) => {
+    const x = useTransform(eyeX, (v: number) => v * 0.8); // Increased movement multiplier
+    const y = useTransform(eyeY, (v: number) => v * 0.8);
 
     return (
-        <g>
-            <motion.circle
-                cx={cx} cy={cy} r="3.5" fill="black"
-                style={{ x, y }}
-                initial={false}
-                animate={isClosed ? { scaleY: 0.1 } : (isPeeking ? { scale: 1.5, scaleY: 1 } : { scale: 1, scaleY: 1 })}
-                transition={{ duration: 0.1 }}
+        <motion.circle
+            r="8"
+            fill="black"
+            style={{ x, y }}
+            animate={
+                isPasswordFocused && !showPassword
+                    ? { scale: 0.5, opacity: 0.5 } // Dilate/fade when hiding
+                    : { scale: 1, opacity: 1 }
+            }
+        />
+    );
+};
+
+const Eyelid = ({ isPasswordFocused, showPassword }: any) => {
+    // When password focused (and not shown), eyes close/squint
+    // Represented by a path that clips or covers
+    // For simplicity in "sketch" style, we draw a line or fill
+
+    return (
+        <>
+            {/* Squint / Hide Expression */}
+            <motion.path
+                d="M -25 -5 Q 0 -15 25 -5"
+                stroke="black" strokeWidth="4" fill="none"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={
+                    (isPasswordFocused && !showPassword)
+                        ? { pathLength: 1, opacity: 1, y: 10 } // Eyes closed tight
+                        : { pathLength: 0, opacity: 0 }
+                }
             />
+
+            {/* "Peeking" Expression (Show Password) */}
+            <motion.circle
+                r="30" fill="none" stroke="black" strokeWidth="3" strokeDasharray="4 4"
+                initial={{ scale: 1, opacity: 0 }}
+                animate={
+                    (isPasswordFocused && showPassword)
+                        ? { opacity: 1, rotate: 180 }
+                        : { opacity: 0 }
+                }
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            />
+        </>
+    );
+};
+
+const Hands = ({ isPasswordFocused, showPassword }: any) => {
+    // Hands come up to cover eyes when password is focused (and hidden)
+    // Arms start from body (y=300) and move up to face (y=180)
+
+    // Left Arm
+    const leftArmVariants = {
+        rest: { d: "M 140 310 Q 100 340 100 300" }, // Down by side
+        covering: { d: "M 140 310 Q 100 200 160 180" } // Up covering left eye
+    };
+
+    // Right Arm
+    const rightArmVariants = {
+        rest: { d: "M 260 310 Q 300 340 300 300" }, // Down by side
+        covering: { d: "M 260 310 Q 300 200 240 180" } // Up covering right eye
+    };
+
+    const state = (isPasswordFocused && !showPassword) ? "covering" : "rest";
+
+    return (
+        <g stroke="black" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+            <motion.path
+                variants={leftArmVariants}
+                animate={state}
+                transition={{ type: "spring", stiffness: 60 }}
+            />
+            {state === "covering" && (
+                <motion.circle cx="160" cy="180" r="15" fill="#a5b4fc" stroke="black" initial={{ scale: 0 }} animate={{ scale: 1 }} />
+            )}
+
+
+            <motion.path
+                variants={rightArmVariants}
+                animate={state}
+                transition={{ type: "spring", stiffness: 60 }}
+            />
+            {state === "covering" && (
+                <motion.circle cx="240" cy="180" r="15" fill="#a5b4fc" stroke="black" initial={{ scale: 0 }} animate={{ scale: 1 }} />
+            )}
         </g>
     );
 };
