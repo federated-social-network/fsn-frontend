@@ -13,7 +13,7 @@ const AuthPage = () => {
     const location = useLocation();
 
     // Determine mode based on URL
-    const isRegisterMode = location.pathname === "/register";
+    const isRegisterMode = location.pathname === "/auth/register";
 
     // State
     const [showPassword, setShowPassword] = useState(false);
@@ -66,7 +66,7 @@ const AuthPage = () => {
                 if (res.data?.message || res.status === 200) {
                     setSuccessMsg("Registration successful! Logging in...");
                     setTimeout(() => {
-                        navigate("/login");
+                        navigate("/auth/login");
                     }, 1500);
                 } else {
                     setErrorMsg("Registration failed");
@@ -97,7 +97,7 @@ const AuthPage = () => {
 
     const toggleMode = (e: React.MouseEvent) => {
         e.preventDefault();
-        navigate(isRegisterMode ? "/login" : "/register");
+        navigate(isRegisterMode ? "/auth/login" : "/auth/register");
     };
 
     return (
@@ -208,7 +208,7 @@ const AuthPage = () => {
                                                 <input type="checkbox" className="w-5 h-5 border-2 border-black rounded-sm cursor-pointer accent-black" />
                                                 <span className="group-hover:underline text-[var(--ink-secondary)]">Remember me</span>
                                             </label>
-                                            <Link to="#" className="text-[var(--ink-secondary)] hover:underline hover:text-black">Forgot?</Link>
+                                            <Link to="/forgot-password" className="text-[var(--ink-secondary)] hover:underline hover:text-black">Forgot?</Link>
                                         </div>
                                     )}
 

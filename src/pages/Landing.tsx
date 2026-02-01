@@ -5,7 +5,7 @@ export default function Landing() {
 
   const chooseInstance = (url: string) => {
     localStorage.setItem("INSTANCE_BASE_URL", url);
-    navigate("/login");
+    navigate("/auth/login");
   };
 
   return (

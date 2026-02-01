@@ -211,7 +211,7 @@ export default function Dashboard() {
   const performSwitchInstance = () => {
     if (!pendingInstanceUrl) return;
     localStorage.setItem("INSTANCE_BASE_URL", pendingInstanceUrl);
-    window.location.href = "/login"; // Force reload to login on new instance
+    window.location.href = "/auth/login"; // Force reload to login on new instance
   };
 
   return (

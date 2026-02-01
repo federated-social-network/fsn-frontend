@@ -51,10 +51,10 @@ export const getApi = (): AxiosInstance => {
 // Convenience wrappers that use getApi() so callers don't need to create
 // their own axios instances.
 export const registerUser = (username: string, password: string, email?: string) =>
-  getApi().post("/register", null, { params: { username, password, email } });
+  getApi().post("/auth/register", null, { params: { username, password, email } });
 
 export const loginUser = (username: string, password: string) =>
-  getApi().post("/login", null, { params: { username, password } });
+  getApi().post("/auth/login", null, { params: { username, password } });
 
 export const createPost = (
   content: string,
@@ -133,3 +133,12 @@ export const acceptConnection = (connectionId: string | number) =>
 export const getPendingConnections = () => getApi().get("/connections/pending");
 
 export const getFollowedPosts = () => getApi().get("/timeline_connected_users");
+
+export const forgotPassword = (email: string) =>
+  getApi().post("/auth/forgot-password", { email });
+
+export const verifyOtp = (email: string, otp: string) =>
+  getApi().post("/auth/verify-otp", { email, otp });
+
+export const resetPassword = (reset_token: string, new_password: string) =>
+  getApi().post("/auth/reset-password", { reset_token, new_password });

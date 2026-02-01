@@ -65,7 +65,7 @@ export default function Settings() {
     localStorage.removeItem("password");
     localStorage.removeItem("access_token");
     localStorage.removeItem("AUTH_TOKEN");
-    window.location.href = "/login";
+    window.location.href = "/auth/login";
   }
 
   return (
