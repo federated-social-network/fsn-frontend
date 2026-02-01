@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { forgotPassword, verifyOtp, resetPassword } from "../api/api";
 import SketchCard from "../components/SketchCard";
 import Mascot from "../components/Mascot";
-import "./Login.css";
+
 
 const ForgotPassword = () => {
     const navigate = useNavigate();

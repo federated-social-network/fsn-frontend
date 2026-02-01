@@ -6,7 +6,7 @@ import { loginUser, registerUser } from "../api/api";
 import { getInstanceName } from "../config/instances";
 import SketchCard from "../components/SketchCard";
 import Mascot from "../components/Mascot";
-import "./Login.css";
+
 
 const AuthPage = () => {
     const navigate = useNavigate();
@@ -204,11 +204,7 @@ const AuthPage = () => {
 
                                     {!isRegisterMode && (
                                         <div className="flex justify-between items-center text-sm font-hand font-bold px-1">
-                                            <label className="flex items-center gap-2 cursor-pointer group">
-                                                <input type="checkbox" className="w-5 h-5 border-2 border-black rounded-sm cursor-pointer accent-black" />
-                                                <span className="group-hover:underline text-[var(--ink-secondary)]">Remember me</span>
-                                            </label>
-                                            <Link to="/forgot-password" className="text-[var(--ink-secondary)] hover:underline hover:text-black">Forgot?</Link>
+                                            <Link to="/forgot-password" className="text-[var(--ink-secondary)] hover:underline hover:text-black">Password ghosted you?</Link>
                                         </div>
                                     )}
 
