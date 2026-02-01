@@ -1,34 +1,36 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { createPost } from "../api/api";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
-export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => void }) {
+// Helper component for the Modal
+const PostModal = ({
+  isOpen,
+  onClose,
+  username,
+  onPosted
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  username: string;
+  onPosted?: (data: any) => void;
+}) => {
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Focus when opened
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        if (!content.trim()) {
-          setIsExpanded(false);
-        }
-      }
+    if (isOpen) {
+      setTimeout(() => textareaRef.current?.focus(), 100);
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [content]);
+  }, [isOpen]);
 
   const handlePost = async () => {
     setError("");
 
-    const username = localStorage.getItem("username");
     const token = localStorage.getItem("AUTH_TOKEN") || localStorage.getItem("access_token");
-
     if (!username || !token) {
       setError("Log in to post!");
       return;
@@ -45,18 +47,14 @@ export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => v
 
       if (res?.status === 200 || res?.status === 201) {
         setContent("");
-        setIsExpanded(false);
-        try {
-          if (onPosted) onPosted(res.data);
-        } catch (e) {
-          console.warn("onPosted callback threw", e);
-        }
+        if (onPosted) onPosted(res.data);
 
         try {
           window.dispatchEvent(new CustomEvent("post:created", { detail: res.data }));
         } catch (e) {
           // ignore
         }
+        onClose(); // Close modal on success
       } else {
         setError(`Server returned ${res?.status}`);
       }
@@ -69,77 +67,134 @@ export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => v
     }
   };
 
-  const username = localStorage.getItem("username") || "?";
+  const userInitial = username[0]?.toUpperCase();
 
-  return (
-    <motion.div
-      ref={containerRef}
-      layout
-      className="bg-white rounded-xl shadow-md border border-gray-100 mb-8 overflow-hidden relative z-10"
-    >
-      <div className="p-4">
-        {!isExpanded ? (
-          <div
-            onClick={() => setIsExpanded(true)}
-            className="flex items-center gap-4 cursor-text group"
+  return createPortal(
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
           >
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 border border-gray-200 flex-shrink-0 flex items-center justify-center text-indigo-500 font-bold text-lg shadow-inner">
-              {username[0]?.toUpperCase()}
-            </div>
-            <div className="flex-grow">
-              <div className="w-full bg-gray-50 border border-gray-200 rounded-full py-3 px-5 text-gray-500 font-medium group-hover:bg-gray-100 group-hover:border-gray-300 transition-all text-left shadow-sm">
-                What's on your mind, {username}?
+            {/* Modal Container - preventing click bubble */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-sm">
+                    {userInitial}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-800 text-lg leading-tight">{username}</h3>
+                    <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded-full">Anyone</span>
+                  </div>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
               </div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 border border-gray-200 flex-shrink-0 flex items-center justify-center text-indigo-500 font-bold text-lg shadow-inner">
-                {username[0]?.toUpperCase()}
-              </div>
-              <div className="flex-grow">
+
+              {/* Body */}
+              <div className="p-6 overflow-y-auto min-h-[200px]">
                 <textarea
-                  className="w-full min-h-[120px] p-0 text-xl text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
-                  placeholder={`What do you want to talk about, ${username}?`}
-                  autoFocus
+                  ref={textareaRef}
+                  className="w-full h-full text-xl text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
+                  placeholder="What do you want to talk about?"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
+                  style={{ minHeight: '150px' }}
                 />
+
+                {error && (
+                  <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium">
+                    {error}
+                  </div>
+                )}
               </div>
-            </div>
 
-            {error && <div className="text-red-500 text-sm bg-red-50 p-2 rounded px-3">{error}</div>}
-
-            <div className="flex justify-end items-center pt-3 mt-2 border-t border-gray-100">
-              <div className="flex gap-3">
+              {/* Footer */}
+              <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end items-center gap-3">
                 <button
-                  onClick={() => setIsExpanded(false)}
-                  className="px-4 py-2 text-gray-500 font-medium hover:bg-gray-100 rounded-full transition-colors"
+                  onClick={onClose}
+                  className="px-5 py-2 text-gray-600 font-semibold hover:bg-gray-100 rounded-full transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handlePost}
-                  disabled={loading || !content.trim()}
-                  className="bg-black text-white px-6 py-2 rounded-full font-bold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2"
+                  disabled={!content.trim() || loading}
+                  className="bg-indigo-600 text-white px-6 py-2 rounded-full font-bold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2"
                 >
                   {loading ? (
                     <>
                       <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                      Posting...
+                      Posting
                     </>
                   ) : (
-                    <>
-                      Post 📤
-                    </>
+                    "Post"
                   )}
                 </button>
               </div>
-            </div>
+            </motion.div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>,
+    document.body
+  );
+};
+
+export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => void }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const username = localStorage.getItem("username") || "?";
+  const userInitial = username[0]?.toUpperCase();
+
+  return (
+    <>
+      {/* Trigger Bar */}
+      <motion.div
+        className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 p-4"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="flex gap-4 items-center">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-lg shadow-md">
+            {userInitial}
           </div>
-        )}
-      </div>
-    </motion.div>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex-grow h-12 bg-white border border-gray-300 rounded-full px-6 flex items-center text-left hover:bg-gray-50 transition-colors shadow-sm text-gray-500 font-medium hover:text-gray-600 hover:border-gray-400"
+          >
+            Start a post...
+          </button>
+        </div>
+      </motion.div>
+
+      {/* The Modal */}
+      <PostModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        username={username}
+        onPosted={onPosted}
+      />
+    </>
   );
 }
