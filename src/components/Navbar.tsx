@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { getInstanceName } from "../config/instances";
 import { useState } from "react";
 import ConfirmationModal from "./ConfirmationModal";
@@ -7,6 +7,7 @@ import ConfirmationModal from "./ConfirmationModal";
 export default function Navbar() {
     const username = localStorage.getItem("username") || "";
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const handleLogoutClick = () => {
         setShowLogoutConfirm(true);
@@ -61,8 +62,8 @@ export default function Navbar() {
                         </div>
                     </div>
 
-                    {/* USER CONTROLS */}
-                    <div className="flex items-center gap-6">
+                    {/* USER CONTROLS (Desktop) */}
+                    <div className="hidden md:flex items-center gap-6">
                         {/* Profile "Polaroid" */}
                         <Link to={`/profile/${username}`} className="group flex items-center gap-3">
                             <div className="hidden sm:block text-right">
@@ -98,7 +99,72 @@ export default function Navbar() {
                             <span className="font-sketch font-bold text-sm text-[var(--ink-primary)]">Log Out</span>
                         </button>
                     </div>
+
+                    {/* MOBILE MENU TOGGLE */}
+                    <button
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="md:hidden p-2 text-2xl"
+                    >
+                        {isMenuOpen ? "✕" : "🍔"}
+                    </button>
                 </div>
+
+                {/* MOBILE MENU DRAWER */}
+                <AnimatePresence>
+                    {isMenuOpen && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="md:hidden overflow-hidden border-t-2 border-dashed border-gray-200 mt-4 pt-4"
+                        >
+                            <div className="flex flex-col gap-4 font-hand text-lg">
+                                <Link
+                                    to={`/profile/${username}`}
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="flex items-center gap-3 p-2 bg-white/50 rounded hover:bg-white"
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-[var(--pastel-yellow)] border border-black flex items-center justify-center font-sketch text-sm">
+                                        {username ? username[0].toUpperCase() : '?'}
+                                    </div>
+                                    <span>My Profile</span>
+                                </Link>
+
+                                <Link
+                                    to="/"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="p-2 hover:bg-black/5 rounded"
+                                >
+                                    🏠 Home
+                                </Link>
+                                <Link
+                                    to="/settings"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="p-2 hover:bg-black/5 rounded"
+                                >
+                                    ⚙️ Settings
+                                </Link>
+
+                                <div className="border-t border-dashed border-gray-300 my-1"></div>
+
+                                {/* Mobile Instance Badge */}
+                                <div className="p-2 text-sm bg-blue-50 border border-blue-100 rounded text-blue-800">
+                                    Connected to: <strong>{getInstanceName(localStorage.getItem("INSTANCE_BASE_URL"))}</strong>
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        setIsMenuOpen(false);
+                                        handleLogoutClick();
+                                    }}
+                                    className="text-left text-red-600 p-2 hover:bg-red-50 rounded flex items-center gap-2"
+                                >
+                                    <span>🚪</span> Log Out
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
             <ConfirmationModal

@@ -132,8 +132,8 @@ export default function Profile() {
   }
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col md:flex-row">
-      <div className="flex-1 max-w-7xl mx-auto w-full md:grid md:grid-cols-12 h-full">
+    <div className="h-screen overflow-hidden flex flex-col">
+      <div className="flex-1 max-w-7xl mx-auto w-full flex flex-col md:grid md:grid-cols-12 h-full">
 
         {/* --- Delete Confirmation Modal --- */}
         <AnimatePresence>
