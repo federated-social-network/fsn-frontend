@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { getInstanceName } from "../config/instances";
 
 export default function Navbar() {
     const username = localStorage.getItem("username") || "";
@@ -39,7 +40,7 @@ export default function Navbar() {
                             whileHover={{ rotate: -2, scale: 1.05 }}
                             className="text-3xl md:text-4xl font-sketch font-bold text-[var(--ink-primary)] relative z-10"
                         >
-                            HeliX... 
+                            HeliX...
                         </motion.div>
                         {/* Highlight effect behind logo */}
                         <div className="absolute -inset-2 bg-[var(--highlighter-yellow)] rotate-2 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity -z-0"></div>
@@ -49,7 +50,7 @@ export default function Navbar() {
                     <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 transform -rotate-1">
                         <div className="bg-[var(--pastel-blue)] px-4 py-1.5 border-2 border-[var(--ink-primary)] shadow-[2px_2px_0px_rgba(0,0,0,0.2)] rounded-sm font-hand text-sm flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            Connected to <strong>Instance A</strong>
+                            Connected to <strong>{getInstanceName(localStorage.getItem("INSTANCE_BASE_URL"))}</strong>
                         </div>
                     </div>
 
