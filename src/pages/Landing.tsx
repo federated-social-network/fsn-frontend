@@ -66,17 +66,17 @@ export default function Landing() {
         {/* Travel Card 1 - Beach/Luggage - Top Left */}
         <g className="travel-item" style={{ animationDelay: '0.5s' }}>
           {/* Pin */}
-          <circle cx="120" cy="80" r="7" fill="#FF6B6B" stroke="#000" strokeWidth="1" />
-          <circle cx="120" cy="80" r="5" fill="#FF8C8C" opacity="0.9" />
+          <circle cx="120" cy="100" r="7" fill="#FF6B6B" stroke="#000" strokeWidth="1" />
+          <circle cx="120" cy="10344s0" r="5" fill="#FF8C8C" opacity="0.9" />
 
           {/* Luggage */}
-          <rect x="90" y="100" width="60" height="45" rx="4" fill="#FFB347" stroke="#000" strokeWidth="1.5" opacity="0.85" />
-          <rect x="95" y="105" width="50" height="35" fill="#FFC857" opacity="0.7" />
+          <rect x="90" y="120" width="60" height="45" rx="4" fill="#FFB347" stroke="#000" strokeWidth="1.5" opacity="0.85" />
+          <rect x="95" y="125" width="50" height="35" fill="#FFC857" opacity="0.7" />
           {/* Handle */}
-          <path d="M 100 100 Q 120 85 140 100" stroke="#000" strokeWidth="2" fill="none" />
+          <path d="M 100 120 Q 120 105 140 120" stroke="#000" strokeWidth="2" fill="none" />
           {/* Wheels */}
-          <circle cx="100" cy="148" r="3" fill="#000" />
-          <circle cx="140" cy="148" r="3" fill="#000" />
+          <circle cx="100" cy="158" r="3" fill="#000" />
+          <circle cx="140" cy="158" r="3" fill="#000" />
         </g>
 
         {/* Travel Card 2 - Mountain/Binoculars - Bottom Right */}
@@ -116,25 +116,25 @@ export default function Landing() {
         {/* Sticky Note 1 - Top Right Side (minimal) */}
         <g style={{ animationDelay: '2.5s' }} className="travel-item">
           {/* Pin */}
-          <circle cx="1100" cy="250" r="6" fill="#FF1493" stroke="#000" strokeWidth="1" />
+          <circle cx="1000" cy="250" r="6" fill="#FF1493" stroke="#000" strokeWidth="1" />
 
           {/* Sticky note */}
-          <rect x="1070" y="270" width="60" height="50" fill="#FFFF99" stroke="#000" strokeWidth="1" opacity="0.9" style={{ transform: 'rotate(-8deg)', transformOrigin: '1100px 250px' }} />
-          <text x="1100" y="292" fontSize="10" fontFamily="cursive" fill="#333" textAnchor="middle" fontWeight="bold">Share</text>
-          <text x="1100" y="307" fontSize="9" fontFamily="cursive" fill="#666" textAnchor="middle">globally</text>
+          <rect x="970" y="260" width="60" height="50" fill="#FFFF99" stroke="#000" strokeWidth="1" opacity="0.9" style={{ transform: 'rotate(-8deg)', transformOrigin: '1100px 250px' }} />
+          <text x="1000" y="292" fontSize="10" fontFamily="cursive" fill="#333" textAnchor="middle" fontWeight="bold">Share</text>
+          <text x="1000" y="307" fontSize="9" fontFamily="cursive" fill="#666" textAnchor="middle">globally</text>
         </g>
 
         {/* Passport/Map icon - Middle Right */}
         <g className="luggage" style={{ animationDelay: '0.8s' }}>
           {/* Pin */}
-          <circle cx="1030" cy="400" r="7" fill="#FF9800" stroke="#000" strokeWidth="1" />
-          <circle cx="1030" cy="400" r="5" fill="#FFB74D" opacity="0.9" />
+          <circle cx="1130" cy="400" r="7" fill="#FF9800" stroke="#000" strokeWidth="1" />
+          <circle cx="1130" cy="400" r="5" fill="#FFB74D" opacity="0.9" />
 
           {/* Passport/Map */}
-          <rect x="1000" y="420" width="60" height="80" rx="2" fill="#C41C3B" stroke="#000" strokeWidth="1.5" opacity="0.85" />
-          <rect x="1005" y="425" width="50" height="70" fill="#E53935" opacity="0.9" />
-          <text x="1030" y="455" fontSize="12" fontFamily="serif" fill="#fff" textAnchor="middle" fontWeight="bold">✓</text>
-          <text x="1030" y="485" fontSize="8" fontFamily="serif" fill="#fff" textAnchor="middle">TRAVEL</text>
+          <rect x="1100" y="420" width="60" height="80" rx="2" fill="#C41C3B" stroke="#000" strokeWidth="1.5" opacity="0.85" />
+          <rect x="1105" y="425" width="50" height="70" fill="#E53935" opacity="0.9" />
+          <text x="1130" y="455" fontSize="12" fontFamily="serif" fill="#fff" textAnchor="middle" fontWeight="bold">✓</text>
+          <text x="1130" y="485" fontSize="8" fontFamily="serif" fill="#fff" textAnchor="middle">TRAVEL</text>
         </g>
 
         {/* Sticky Note 2 - Left Side (minimal) */}
@@ -151,17 +151,17 @@ export default function Landing() {
         {/* Compass - Center Left */}
         <g className="plane" style={{ animationDelay: '1s' }}>
           {/* Outer circle */}
-          <circle cx="200" cy="400" r="25" fill="none" stroke="#000" strokeWidth="2" opacity="0.7" />
+          <circle cx="180" cy="300" r="25" fill="none" stroke="#000" strokeWidth="2" opacity="0.7" />
           {/* Inner circle */}
-          <circle cx="200" cy="400" r="20" fill="#FFF8DC" stroke="#000" strokeWidth="1" opacity="0.8" />
+          <circle cx="180" cy="300" r="20" fill="#FFF8DC" stroke="#000" strokeWidth="1" opacity="0.8" />
           {/* N marker */}
-          <text x="200" y="385" fontSize="14" fontFamily="serif" fill="#000" textAnchor="middle" fontWeight="bold">N</text>
+          <text x="180" y="285" fontSize="14" fontFamily="serif" fill="#000" textAnchor="middle" fontWeight="bold">N</text>
           {/* Cardinal points */}
-          <text x="220" y="403" fontSize="10" fontFamily="serif" fill="#999" textAnchor="middle">E</text>
-          <text x="200" y="420" fontSize="10" fontFamily="serif" fill="#999" textAnchor="middle">S</text>
-          <text x="180" y="403" fontSize="10" fontFamily="serif" fill="#999" textAnchor="middle">W</text>
+          <text x="200" y="303" fontSize="10" fontFamily="serif" fill="#999" textAnchor="middle">E</text>
+          <text x="180" y="320" fontSize="10" fontFamily="serif" fill="#999" textAnchor="middle">S</text>
+          <text x="160" y="303" fontSize="10" fontFamily="serif" fill="#999" textAnchor="middle">W</text>
           {/* Needle */}
-          <line x1="200" y1="400" x2="200" y2="378" stroke="#FF6B6B" strokeWidth="2" />
+          <line x1="180" y1="300" x2="180" y2="280" stroke="#FF6B6B" strokeWidth="2" />
         </g>
 
       </svg>
