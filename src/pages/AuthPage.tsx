@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 import { loginUser, registerUser } from "../api/api";
+import { getInstanceName } from "../config/instances";
 import SketchCard from "../components/SketchCard";
 import Mascot from "../components/Mascot";
 import "./Login.css";
@@ -143,6 +144,16 @@ const AuthPage = () => {
                                         {errorMsg}
                                     </div>
                                 )}
+
+                                {/* Instance Badge */}
+                                <div className="mb-6 flex justify-center">
+                                    <div className={`px-4 py-1.5 rounded-full border-2 border-black font-hand font-bold text-sm flex items-center gap-2 bg-gradient-to-r from-pink-100 via-yellow-100 to-cyan-100 shadow-sm animate-pulse`}>
+
+                                        <span>Joining <span className="font-sketch text-lg text-[var(--ink-blue)]">{getInstanceName(localStorage.getItem("INSTANCE_BASE_URL")) || "Instance A"}</span></span>
+
+                                    </div>
+                                </div>
+
                                 {successMsg && (
                                     <div className="mb-6 font-hand text-green-600 text-center border-2 border-dashed border-green-400 p-3 bg-green-50 rounded transform -rotate-1">
                                         {successMsg}
@@ -227,7 +238,7 @@ const AuthPage = () => {
                     </AnimatePresence>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
