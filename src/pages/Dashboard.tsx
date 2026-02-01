@@ -593,7 +593,6 @@ export default function Dashboard() {
         message="You will be logged out first and redirected to the new instance. Are you sure you want to proceed?"
         confirmText="Yes, Switch"
         confirmColor="bg-blue-600"
-        icon="🔄"
       />
     </div>
   );

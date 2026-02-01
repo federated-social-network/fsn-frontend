@@ -109,7 +109,6 @@ export default function Navbar() {
                 message="Are you sure you want to log out? You'll need to sign in again to access your scribbles."
                 confirmText="Yes, Log Out"
                 confirmColor="bg-red-500"
-                icon="👋"
             />
         </div>
     );

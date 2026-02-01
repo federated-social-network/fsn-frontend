@@ -10,7 +10,6 @@ interface ConfirmationModalProps {
     confirmText?: string;
     cancelText?: string;
     confirmColor?: string; // e.g. "bg-red-500" or "bg-black"
-    icon?: string; // Emoji or simple text icon
 }
 
 export default function ConfirmationModal({
@@ -21,8 +20,7 @@ export default function ConfirmationModal({
     message,
     confirmText = "Confirm",
     cancelText = "Cancel",
-    confirmColor = "bg-black",
-    icon = "⚠️"
+    confirmColor = "bg-black"
 }: ConfirmationModalProps) {
     return (
         <AnimatePresence>
@@ -39,22 +37,20 @@ export default function ConfirmationModal({
 
                     {/* Modal Card */}
                     <motion.div
-                        initial={{ scale: 0.9, opacity: 0, rotate: -2 }}
-                        animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                        exit={{ scale: 0.9, opacity: 0 }}
+                        initial={{ scale: 0.8, rotate: -5, opacity: 0 }}
+                        animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                        exit={{ scale: 0.8, rotate: 5, opacity: 0 }}
                         className="relative z-10 w-full max-w-sm"
                     >
-                        <SketchCard variant="paper" className="p-6 bg-white shadow-2xl border-2 border-black">
-                            <div className="text-center mb-4">
-                                <div className="text-4xl mb-2">{icon}</div>
-                                <h3 className="font-sketch text-2xl font-bold mb-2 leading-tight">{title}</h3>
-                                <p className="font-hand text-lg text-gray-600 leading-snug">{message}</p>
+                        <SketchCard variant="sticky" className="max-w-md w-full p-6 text-center border-2 border-red-500 shadow-xl bg-[#fffec8]">
+                            <h3 className="font-sketch text-3xl font-bold text-red-600 mb-4">{title}</h3>
+                            <div className="font-hand text-xl mb-8 text-[var(--ink-secondary)]">
+                                {message}
                             </div>
-
-                            <div className="flex gap-3 justify-center mt-6">
+                            <div className="flex justify-center gap-4 font-heading">
                                 <button
                                     onClick={onClose}
-                                    className="px-5 py-2 font-bold font-hand rounded-full border-2 border-transparent hover:bg-gray-100 transition-colors text-gray-600"
+                                    className="px-6 py-2 bg-white border-2 border-[var(--ink-secondary)] text-[var(--ink-secondary)] rounded shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-y-px transition-all"
                                 >
                                     {cancelText}
                                 </button>
@@ -63,7 +59,7 @@ export default function ConfirmationModal({
                                         onConfirm();
                                         onClose();
                                     }}
-                                    className={`px-6 py-2 font-bold font-sketch text-white rounded-full shadow-[2px_2px_0px_rgba(0,0,0,1)] border-2 border-black hover:-translate-y-0.5 active:translate-y-0 transition-transform ${confirmColor}`}
+                                    className={`px-6 py-2 border-2 border-black text-white rounded shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-px transition-all ${confirmColor}`}
                                 >
                                     {confirmText}
                                 </button>
