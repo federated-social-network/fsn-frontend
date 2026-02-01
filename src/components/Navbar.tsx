@@ -39,7 +39,7 @@ export default function Navbar() {
                             whileHover={{ rotate: -2, scale: 1.05 }}
                             className="text-3xl md:text-4xl font-sketch font-bold text-[var(--ink-primary)] relative z-10"
                         >
-                            Federated Social
+                            HeliX
                         </motion.div>
                         {/* Highlight effect behind logo */}
                         <div className="absolute -inset-2 bg-[var(--highlighter-yellow)] rotate-2 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity -z-0"></div>
