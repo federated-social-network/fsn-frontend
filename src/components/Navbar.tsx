@@ -21,6 +21,7 @@ export default function Navbar() {
         window.location.href = "/";
     };
 
+    
     return (
         <div className="relative z-50">
             {/* Creative Background with Wavy Edge */}
