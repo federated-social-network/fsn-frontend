@@ -113,7 +113,7 @@ export default function Dashboard() {
     fetchUsers();
   }, []);
 
-  // Fetch Pending Invites
+  // Fetch Pending Invites (with Polling)
   useEffect(() => {
     const fetchInvites = async () => {
       try {
@@ -123,7 +123,11 @@ export default function Dashboard() {
         console.error("Failed to fetch pending invites", e);
       }
     };
-    fetchInvites();
+
+    fetchInvites(); // Initial fetch
+    const interval = setInterval(fetchInvites, 1000); // Poll every 1 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   // Fetch Following Feed
