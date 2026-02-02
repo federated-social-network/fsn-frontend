@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getUser, updateUser, uploadAvatar, deletePost, initiateConnection } from "../api/api";
+import { getUser, updateUser, uploadAvatar, deletePost, initiateConnection, getConnectionCount } from "../api/api";
 import SketchCard from "../components/SketchCard";
 import { timeAgo } from "../utils/time";
 import { parseUsername } from "../utils/user";
@@ -19,6 +19,7 @@ export default function Profile() {
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [connectionCount, setConnectionCount] = useState<number | null>(null);
 
   // Edit mode state
   const [editMode, setEditMode] = useState(false);
@@ -62,6 +63,16 @@ export default function Profile() {
         }));
 
         setPosts(userPosts);
+
+        // Fetch connection count if it's my own profile
+        if (isOwnProfile) {
+          try {
+            const connRes = await getConnectionCount();
+            setConnectionCount(connRes.data.connection_count);
+          } catch (e) {
+            console.error("Failed to fetch connection count", e);
+          }
+        }
 
       } catch (err: any) {
         console.error("Failed to load profile data", err);
@@ -270,14 +281,13 @@ export default function Profile() {
                     <div className="text-2xl font-sketch">{posts.length || user.post_count || 0}</div>
                     <div className="text-sm font-hand text-[var(--ink-secondary)]">Posts</div>
                   </div>
-                  <div className="text-center border-l border-dashed border-gray-400">
-                    <div className="text-2xl font-sketch">{user.followers_count || 0}</div>
-                    <div className="text-sm font-hand text-[var(--ink-secondary)]">Followers</div>
-                  </div>
-                  <div className="text-center border-l border-dashed border-gray-400">
-                    <div className="text-2xl font-sketch">{user.following_count || 0}</div>
-                    <div className="text-sm font-hand text-[var(--ink-secondary)]">Following</div>
-                  </div>
+
+                  {isOwnProfile && (
+                    <div className="text-center border-l border-dashed border-gray-400">
+                      <div className="text-2xl font-sketch">{connectionCount ?? "-"}</div>
+                      <div className="text-sm font-hand text-[var(--ink-secondary)]">Connections</div>
+                    </div>
+                  )}
                 </div>
 
                 {user.bio && (

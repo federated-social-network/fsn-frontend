@@ -142,3 +142,5 @@ export const verifyOtp = (email: string, otp: string) =>
 
 export const resetPassword = (reset_token: string, new_password: string) =>
   getApi().post("/auth/reset-password", { reset_token, new_password });
+
+export const getConnectionCount = () => getApi().get("/count_connections");
