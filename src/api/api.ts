@@ -12,6 +12,8 @@ export const getApi = (): AxiosInstance => {
     throw new Error("No instance selected. Please choose an instance first.");
   }
 
+
+
   const api = axios.create({
     baseURL,
     headers: {
@@ -47,6 +49,7 @@ export const getApi = (): AxiosInstance => {
 
   return api;
 };
+
 
 // Convenience wrappers that use getApi() so callers don't need to create
 // their own axios instances.
