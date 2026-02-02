@@ -309,15 +309,15 @@ export default function Dashboard() {
               <div className="relative flex justify-center items-center h-12">
 
                 {/* Toggle Switch - Centered & Fixed Width for perfect alignment */}
-                <div className="bg-white border border-gray-200 p-1 rounded-full grid grid-cols-2 relative w-[280px] shadow-sm">
+                <div className="bg-white border border-gray-200 p-1 rounded-full grid grid-cols-2 gap-2 relative w-[280px] shadow-sm">
                   {/* Sliding Background */}
                   <motion.div
                     layout
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     className="absolute top-1 bottom-1 rounded-full bg-black shadow-sm"
                     style={{
-                      left: activeTab === 'global' ? '4px' : '50%',
-                      width: 'calc(50% - 4px)'
+                      left: activeTab === 'global' ? '4px' : 'calc(50% + 4px)',
+                      width: 'calc(50% - 8px)'
                     }}
                   />
 
