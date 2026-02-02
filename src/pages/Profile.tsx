@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getUser, updateUser, uploadAvatar, deletePost, initiateConnection, getConnectionCount } from "../api/api";
+import { getUser, updateUser, uploadAvatar, deletePost, initiateConnection, getConnectionCount, getConnectionsList, removeConnection } from "../api/api";
 import SketchCard from "../components/SketchCard";
 import { timeAgo } from "../utils/time";
 import { parseUsername } from "../utils/user";
@@ -20,6 +20,9 @@ export default function Profile() {
   const [user, setUser] = useState<any>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [connectionCount, setConnectionCount] = useState<number | null>(null);
+  const [showConnectionsModal, setShowConnectionsModal] = useState(false);
+  const [connectionsList, setConnectionsList] = useState<any[]>([]);
+  const [loadingConnections, setLoadingConnections] = useState(false);
 
   // Edit mode state
   const [editMode, setEditMode] = useState(false);
@@ -138,6 +141,35 @@ export default function Profile() {
     }
   };
 
+  const fetchConnectionsList = async () => {
+    setLoadingConnections(true);
+    try {
+      const res = await getConnectionsList();
+      setConnectionsList(res.data);
+    } catch (e) {
+      console.error("Failed to fetch connections", e);
+    } finally {
+      setLoadingConnections(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showConnectionsModal) {
+      fetchConnectionsList();
+    }
+  }, [showConnectionsModal]);
+
+  const handleRemoveConnection = async (targetUsername: string) => {
+    if (!confirm(`Are you sure you want to disconnect from ${targetUsername}?`)) return;
+    try {
+      await removeConnection(targetUsername);
+      setConnectionsList(prev => prev.filter(c => c.username !== targetUsername));
+      setConnectionCount(prev => (prev ? prev - 1 : 0));
+    } catch (e: any) {
+      alert("Failed to remove connection: " + (e?.response?.data?.detail || "Unknown error"));
+    }
+  };
+
   if (!rawUsername) {
     return <div className="p-8 text-center text-red-400 font-marker">Invalid profile URL</div>;
   }
@@ -174,6 +206,59 @@ export default function Profile() {
                     >
                       Yes, trash it!
                     </button>
+                  </div>
+                </SketchCard>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+
+
+        {/* --- Connections List Modal --- */}
+        <AnimatePresence>
+          {showConnectionsModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm" onClick={() => setShowConnectionsModal(false)}>
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="max-w-md w-full"
+              >
+                <SketchCard variant="paper" className="p-0 overflow-hidden bg-white max-h-[80vh] flex flex-col">
+                  <div className="p-4 border-b border-dashed border-gray-300 flex justify-between items-center bg-[var(--pastel-blue)]">
+                    <h3 className="font-sketch text-xl">Connections</h3>
+                    <button onClick={() => setShowConnectionsModal(false)} className="hover:bg-black/10 rounded-full w-8 h-8 flex items-center justify-center">✕</button>
+                  </div>
+
+                  <div className="p-4 overflow-y-auto min-h-[200px]">
+                    {loadingConnections ? (
+                      <div className="text-center py-8 font-hand text-gray-500">Loading...</div>
+                    ) : connectionsList.length > 0 ? (
+                      <div className="space-y-3">
+                        {connectionsList.map((conn) => (
+                          <div key={conn.username} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded border border-transparent hover:border-gray-200 transition-colors">
+                            <Link to={`/profile/${conn.username}`} onClick={() => setShowConnectionsModal(false)} className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-lg">
+                                {conn.username[0].toUpperCase()}
+                              </div>
+                              <span className="font-hand font-bold text-lg">{conn.username}</span>
+                            </Link>
+                            <button
+                              onClick={() => handleRemoveConnection(conn.username)}
+                              className="text-xs font-bold text-red-500 hover:bg-red-50 px-2 py-1 rounded border border-transparent hover:border-red-200 transition-colors"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 font-hand text-gray-500 italic">
+                        No connections yet. Go make some friends!
+                      </div>
+                    )}
                   </div>
                 </SketchCard>
               </motion.div>
@@ -283,7 +368,10 @@ export default function Profile() {
                   </div>
 
                   {isOwnProfile && (
-                    <div className="text-center border-l border-dashed border-gray-400">
+                    <div
+                      className="text-center border-l border-dashed border-gray-400 cursor-pointer hover:bg-black/5 transition-colors rounded"
+                      onClick={() => setShowConnectionsModal(true)}
+                    >
                       <div className="text-2xl font-sketch">{connectionCount ?? "-"}</div>
                       <div className="text-sm font-hand text-[var(--ink-secondary)]">Connections</div>
                     </div>
@@ -408,7 +496,7 @@ export default function Profile() {
           )}
         </main>
 
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }
