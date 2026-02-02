@@ -214,7 +214,7 @@ const AuthPage = () => {
                                         <span className="relative z-10">
                                             {isLoading
                                                 ? (isRegisterMode ? "Scribbling..." : "Checking...")
-                                                : (isRegisterMode ? "Sign Up ->" : "Log In ->")
+                                                : (isRegisterMode ? "Sign Up" : "Log In")
                                             }
                                         </span>
                                     </button>

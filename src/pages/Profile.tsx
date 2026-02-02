@@ -85,6 +85,7 @@ export default function Profile() {
         if (mounted) setLoading(false);
       }
     };
+    setRequestSent(false); // Reset state when profile changes
     load();
     return () => { mounted = false; };
   }, [rawUsername]);
@@ -132,12 +133,20 @@ export default function Profile() {
     }
   };
 
+  // Request Sent State
+  const [requestSent, setRequestSent] = useState(false);
+
   const handleConnect = async () => {
     try {
       await initiateConnection(rawUsername);
-      alert(`Request sent to ${username}!`);
+      setRequestSent(true);
+      // alert(`Request sent to ${username}!`); // Removed alert in favor of button state
     } catch (err: any) {
-      alert("Failed to connect: " + (err?.response?.data?.detail || "Unknown error"));
+      if (err?.response?.status === 400 && err?.response?.data?.detail === "Request already sent") {
+        setRequestSent(true);
+      } else {
+        alert("Failed to connect: " + (err?.response?.data?.detail || "Unknown error"));
+      }
     }
   };
 
@@ -153,11 +162,34 @@ export default function Profile() {
     }
   };
 
+  // Check if we are already connected
+  const [isConnected, setIsConnected] = useState(false);
+
   useEffect(() => {
     if (showConnectionsModal) {
       fetchConnectionsList();
     }
   }, [showConnectionsModal]);
+
+  // Initial check for connection status
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (!isOwnProfile && myUsername) {
+        try {
+          const res = await getConnectionsList(); // This returns all accepted connections
+          const connectedUsernames = res.data.map((c: any) => c.username);
+          if (connectedUsernames.includes(username)) {
+            setIsConnected(true);
+          } else {
+            setIsConnected(false);
+          }
+        } catch (e) {
+          console.error("Failed to check connection status", e);
+        }
+      }
+    };
+    checkConnection();
+  }, [username, isOwnProfile, myUsername]);
 
   // Connection Removal Confirmation State
   const [connectionToRemove, setConnectionToRemove] = useState<string | null>(null);
@@ -177,6 +209,9 @@ export default function Profile() {
       await removeConnection(target);
       setConnectionsList(prev => prev.filter(c => c.username !== target));
       setConnectionCount(prev => (prev ? prev - 1 : 0));
+      if (target === username) {
+        setIsConnected(false);
+      }
     } catch (e: any) {
       alert("Failed to remove connection: " + (e?.response?.data?.detail || "Unknown error"));
       // potentially re-fetch if optimistic failed, but here we just deleted it from view 
@@ -295,7 +330,7 @@ export default function Profile() {
                               onClick={() => handleRemoveClick(conn.username)}
                               className="text-xs font-bold text-red-500 hover:bg-red-50 px-2 py-1 rounded border border-transparent hover:border-red-200 transition-colors"
                             >
-                              Remove
+                              Unfriend
                             </button>
                           </div>
                         ))}
@@ -380,12 +415,30 @@ export default function Profile() {
 
               {/* Connect Button for Others */}
               {!isOwnProfile && !loading && (
-                <button
-                  onClick={handleConnect}
-                  className="mt-6 px-6 py-2 bg-[var(--ink-blue)] text-white border-2 border-black font-heading rounded transition-colors shadow-sketch w-full hover:scale-[1.02] hover:shadow-none"
-                >
-                  Connect +
-                </button>
+                isConnected ? (
+                  <button
+                    onClick={() => handleRemoveClick(username || rawUsername)}
+                    className="mt-6 px-6 py-2 bg-white text-red-500 border-2 border-red-500 font-heading rounded transition-colors shadow-sketch w-full hover:bg-red-50"
+                  >
+                    Unfriend
+                  </button>
+                ) : (
+                  requestSent ? (
+                    <button
+                      disabled
+                      className="mt-6 px-6 py-2 bg-gray-200 text-gray-500 border-2 border-gray-300 font-heading rounded cursor-not-allowed shadow-none w-full"
+                    >
+                      Request Sent
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleConnect}
+                      className="mt-6 px-6 py-2 bg-[var(--ink-blue)] text-white border-2 border-black font-heading rounded transition-colors shadow-sketch w-full hover:scale-[1.02] hover:shadow-none"
+                    >
+                      Connect +
+                    </button>
+                  )
+                )
               )}
             </div>
 
