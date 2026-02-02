@@ -298,7 +298,7 @@ export default function Dashboard() {
           className="md:col-span-6 h-full overflow-y-auto px-2 pb-20 no-scrollbar relative"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          <div className="space-y-8">
+          <div className="space-y-4">
             {/* Create Post Card */}
             <div className="relative z-10">
               <PostForm onPosted={() => loadPosts()} />
@@ -413,7 +413,7 @@ export default function Dashboard() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ type: 'spring', bounce: 0.3 }}
-                      className="mb-8"
+                      className="mb-1"
                     >
                       <SketchCard className="group transition-transform bg-white relative">
                         {/* Tape effect removed from top center for straight look */}
@@ -478,7 +478,7 @@ export default function Dashboard() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ type: 'spring', bounce: 0.3 }}
-                      className="mb-8"
+                      className="mb-2"
                     >
                       <SketchCard className="group transition-transform bg-white relative">
                         {/* Tape effect removed */}
