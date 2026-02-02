@@ -148,8 +148,8 @@ export const resetPassword = (reset_token: string, new_password: string) =>
 
 export const getConnectionCount = () => getApi().get("/count_connections");
 
-export const getConnectionsList = () => getApi().get("/list_connections");
+export const getConnectionsList = () => getApi().get("/list_connections"); // end point for list of connections
 
 export const removeConnection = (username: string) =>
-  getApi().delete(`/connect/${username}`); // Best guess, will verify with user
+  getApi().post(`/remove_connection/${username}`);
 

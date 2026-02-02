@@ -159,14 +159,29 @@ export default function Profile() {
     }
   }, [showConnectionsModal]);
 
-  const handleRemoveConnection = async (targetUsername: string) => {
-    if (!confirm(`Are you sure you want to disconnect from ${targetUsername}?`)) return;
+  // Connection Removal Confirmation State
+  const [connectionToRemove, setConnectionToRemove] = useState<string | null>(null);
+
+  const handleRemoveClick = (targetUsername: string) => {
+    setConnectionToRemove(targetUsername);
+  };
+
+  const confirmRemoveConnection = async () => {
+    if (!connectionToRemove) return;
+
+    // Optimistic UI update or wait for API? Let's wait for API to be safe, but we can close modal 
+    const target = connectionToRemove;
+    setConnectionToRemove(null); // Close modal
+
     try {
-      await removeConnection(targetUsername);
-      setConnectionsList(prev => prev.filter(c => c.username !== targetUsername));
+      await removeConnection(target);
+      setConnectionsList(prev => prev.filter(c => c.username !== target));
       setConnectionCount(prev => (prev ? prev - 1 : 0));
     } catch (e: any) {
       alert("Failed to remove connection: " + (e?.response?.data?.detail || "Unknown error"));
+      // potentially re-fetch if optimistic failed, but here we just deleted it from view 
+      // if it failed, we might want to reload the list? 
+      fetchConnectionsList();
     }
   };
 
@@ -178,7 +193,7 @@ export default function Profile() {
     <div className="h-screen overflow-hidden flex flex-col">
       <div className="flex-1 max-w-7xl mx-auto w-full flex flex-col md:grid md:grid-cols-12 h-full">
 
-        {/* --- Delete Confirmation Modal --- */}
+        {/* --- Delete Post Confirmation Modal --- */}
         <AnimatePresence>
           {postToDelete && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
@@ -198,7 +213,6 @@ export default function Profile() {
                       className="px-6 py-2 bg-white border-2 border-[var(--ink-secondary)] text-[var(--ink-secondary)] rounded shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-y-px transition-all"
                     >
                       Nah, keep it
-
                     </button>
                     <button
                       onClick={confirmDelete}
@@ -213,7 +227,39 @@ export default function Profile() {
           )}
         </AnimatePresence>
 
-
+        {/* --- Remove Connection Confirmation Modal --- */}
+        <AnimatePresence>
+          {connectionToRemove && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm" style={{ zIndex: 60 }}>
+              <motion.div
+                initial={{ scale: 0.8, rotate: 5, opacity: 0 }}
+                animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                exit={{ scale: 0.8, rotate: -5, opacity: 0 }}
+              >
+                <SketchCard variant="sticky" className="max-w-md w-full p-6 text-center border-2 border-orange-500 shadow-xl bg-[#fff0f0]">
+                  <h3 className="font-sketch text-3xl font-bold text-orange-600 mb-4">Unfriend?</h3>
+                  <div className="font-hand text-xl mb-8 text-[var(--ink-secondary)]">
+                    Are you sure you want to cut ties with <strong>{connectionToRemove}</strong>?
+                  </div>
+                  <div className="flex justify-center gap-4 font-heading">
+                    <button
+                      onClick={() => setConnectionToRemove(null)}
+                      className="px-6 py-2 bg-white border-2 border-[var(--ink-secondary)] text-[var(--ink-secondary)] rounded shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-y-px transition-all"
+                    >
+                      No, stay friends
+                    </button>
+                    <button
+                      onClick={confirmRemoveConnection}
+                      className="px-6 py-2 bg-orange-500 border-2 border-black text-white rounded shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-px transition-all"
+                    >
+                      Yes, disconnect
+                    </button>
+                  </div>
+                </SketchCard>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         {/* --- Connections List Modal --- */}
         <AnimatePresence>
@@ -246,7 +292,7 @@ export default function Profile() {
                               <span className="font-hand font-bold text-lg">{conn.username}</span>
                             </Link>
                             <button
-                              onClick={() => handleRemoveConnection(conn.username)}
+                              onClick={() => handleRemoveClick(conn.username)}
                               className="text-xs font-bold text-red-500 hover:bg-red-50 px-2 py-1 rounded border border-transparent hover:border-red-200 transition-colors"
                             >
                               Remove
