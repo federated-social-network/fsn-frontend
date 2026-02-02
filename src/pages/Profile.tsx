@@ -276,7 +276,7 @@ export default function Profile() {
 
             {!loading && !error && !editMode && user && (
               <div className="mt-8 space-y-6">
-                <div className="grid grid-cols-3 gap-2 py-4 border-y-2 border-dashed border-[var(--ink-secondary)]">
+                <div className={`grid ${isOwnProfile ? "grid-cols-2" : "grid-cols-1"} gap-2 py-4 border-y-2 border-dashed border-[var(--ink-secondary)]`}>
                   <div className="text-center">
                     <div className="text-2xl font-sketch">{posts.length || user.post_count || 0}</div>
                     <div className="text-sm font-hand text-[var(--ink-secondary)]">Posts</div>
