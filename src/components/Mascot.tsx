@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 interface MascotProps {
     isPasswordFocused: boolean;
@@ -33,7 +33,7 @@ export default function Mascot({ isPasswordFocused, showPassword = false }: Masc
 
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist > 1) { // Avoid divide by zero
-                const factor = Math.min(dist, 100) / dist; // Soft clamp logic
+
                 const finalLimit = limit * (Math.min(dist, 300) / 300); // Scale based on distance
 
                 mouseX.set(dx * (finalLimit / (dist || 1)));
