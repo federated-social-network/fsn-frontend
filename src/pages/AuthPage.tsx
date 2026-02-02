@@ -211,10 +211,20 @@ const AuthPage = () => {
                                     <button type="submit" disabled={isLoading}
                                         className="w-full py-3 bg-[var(--primary)] text-white text-2xl font-bold font-sketch tracking-widest hover:bg-black transition-all hover:scale-[1.02] active:scale-95 shadow-lg border-2 border-transparent hover:border-black/20 rounded-lg mt-2 relative overflow-hidden"
                                     >
-                                        <span className="relative z-10">
+                                        <span className="relative z-10 flex items-center justify-center gap-3">
                                             {isLoading
                                                 ? (isRegisterMode ? "Scribbling..." : "Checking...")
-                                                : (isRegisterMode ? "Sign Up" : "Log In")
+                                                : (
+                                                    <>
+                                                        <span>{isRegisterMode ? "Sign Up" : "Log In"}</span>
+                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-current stroke-[3]">
+                                                            <path d="M10 20C15.5228 20 20 15.5228 20 10C20 4.47715 15.5228 0 10 0" transform="translate(2 2)" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'none' }} />
+                                                            {/* Custom C-shape and Arrow */}
+                                                            <path d="M 9 20 A 9 9 0 1 0 9 4" strokeLinecap="round" strokeLinejoin="round" />
+                                                            <path d="M 2 12 L 14 12 M 10 8 L 14 12 L 10 16" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                    </>
+                                                )
                                             }
                                         </span>
                                     </button>
