@@ -181,7 +181,7 @@ export default function Landing() {
 
           {/* Instance A Card */}
           <div
-            onClick={() => chooseInstance("https://fsn-backend-1094866630955.us-central1.run.app")}
+            onClick={() => chooseInstance("https://instance-a-1094866630955.us-central1.run.app")}
             className="group cursor-pointer relative bg-white p-8 transition-transform duration-300 hover:-translate-y-2 hover:rotate-1 flex flex-col justify-between h-80"
             style={{
               border: '3px solid black',
@@ -207,7 +207,7 @@ export default function Landing() {
 
           {/* Instance B Card */}
           <div
-            onClick={() => chooseInstance("https://instance-b.onrender.com")}
+            onClick={() => chooseInstance("https://instance-b-1094866630955.us-central1.run.app")}
             className="group cursor-pointer relative bg-white p-8 transition-transform duration-300 hover:-translate-y-2 hover:-rotate-1 flex flex-col justify-between h-80"
             style={{
               border: '3px solid black',

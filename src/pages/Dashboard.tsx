@@ -577,7 +577,7 @@ export default function Dashboard() {
                       <div className="font-bold font-sketch text-md">{inst.name}</div>
                       {isCurrent && <span className="text-[10px] font-bold bg-black/10 px-1.5 rounded-full text-black/60">CURRENT</span>}
                     </div>
-                    
+
                     {!isCurrent ? (
                       <button
                         onClick={() => handleSwitchInstance(inst.url)}

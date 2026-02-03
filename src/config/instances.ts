@@ -1,6 +1,6 @@
 export const INSTANCES = [
-    { name: "Instance A", url: "https://fsn-backend-1094866630955.us-central1.run.app", color: "bg-cyan-100 border-cyan-300" },
-    { name: "Instance B", url: "https://instance-b.onrender.com", color: "bg-purple-100 border-purple-300" }
+    { name: "Instance A", url: "https://instance-a-1094866630955.us-central1.run.app", color: "bg-cyan-100 border-cyan-300" },
+    { name: "Instance B", url: "https://instance-b-1094866630955.us-central1.run.app", color: "bg-purple-100 border-purple-300" }
 ];
 
 export const getInstanceName = (urlObj: string | null) => {
