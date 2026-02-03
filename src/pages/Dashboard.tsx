@@ -126,7 +126,7 @@ export default function Dashboard() {
     };
 
     fetchInvites(); // Initial fetch
-    const interval = setInterval(fetchInvites, 1000); // Poll every 1 seconds
+    const interval = setInterval(fetchInvites, 10000); // Poll every 10 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -577,8 +577,7 @@ export default function Dashboard() {
                       <div className="font-bold font-sketch text-md">{inst.name}</div>
                       {isCurrent && <span className="text-[10px] font-bold bg-black/10 px-1.5 rounded-full text-black/60">CURRENT</span>}
                     </div>
-                    <div className="text-xs font-hand break-all opacity-70">{inst.url}</div>
-
+                    
                     {!isCurrent ? (
                       <button
                         onClick={() => handleSwitchInstance(inst.url)}
