@@ -6,7 +6,7 @@ import { getInstanceName } from "../config/instances";
  * 
  * Example:
  * "Harish1604" -> { username: "Harish1604", instance: null }
- * "https://instance-a.onrender.com/users/Harish1604" -> { username: "Harish1604", instance: "Instance A" }
+ * "https://fsn-backend-1094866630955.us-central1.run.app/users/Harish1604" -> { username: "Harish1604", instance: "Instance A" }
  */
 export const parseUsername = (input: string | undefined | null) => {
     if (!input) return { username: "Unknown", instance: null };
