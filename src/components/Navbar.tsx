@@ -21,25 +21,10 @@ export default function Navbar() {
         window.location.href = "/";
     };
 
-    
+
     return (
         <div className="relative z-50">
-            {/* Creative Background with Wavy Edge */}
-            <div className="bg-[var(--paper-white)] pt-4 pb-6 px-6 relative shadow-sm">
-                {/* Wavy bottom border effect using CSS clip-path or SVG */}
-                <div
-                    className="absolute bottom-0 left-0 w-full h-3 bg-[var(--paper-white)] translate-y-full"
-                    style={{
-                        maskImage: "url(\"data:image/svg+xml,%3Csvg width='20' height='10' viewBox='0 0 20 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 Q 5 10 10 0 T 20 0 V 10 H 0 Z' fill='black'/%3E%3C/svg%3E\")",
-                        maskSize: "20px 10px",
-                        WebkitMaskImage: "url(\"data:image/svg+xml,%3Csvg width='20' height='10' viewBox='0 0 20 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 Q 5 10 10 0 T 20 0 V 10 H 0 Z' fill='black'/%3E%3C/svg%3E\")",
-                        WebkitMaskSize: "20px 10px",
-                        background: "var(--paper-white)"
-                    }}
-                ></div>
-
-                {/* Dashed border line just above the wave */}
-                <div className="absolute bottom-0 left-0 w-full border-b-2 border-dashed border-[var(--ink-primary)] opacity-20"></div>
+            <div className="relative bg-gradient-to-b from-[var(--paper-white)] to-gray-50 pt-5 pb-7 px-6 shadow-lg">
 
                 <div className="max-w-7xl mx-auto flex items-center justify-between relative">
 
@@ -167,6 +152,37 @@ export default function Navbar() {
                     )}
                 </AnimatePresence>
             </div>
+
+            {/* Pipe-like structure with marquee effect at the end of navbar */}
+            <div className="w-full h-12 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 overflow-hidden border-t-2 border-gray-900 border-b-2 shadow-inner">
+                <div className="relative flex items-center h-full">
+                    <div className="animate-marquee whitespace-nowrap flex items-center gap-8 text-white font-medium text-base">
+                        <span>Connect by consent, not algorithms — a truly federated social network.</span>
+                        <span className="text-blue-400">✦</span>
+                        <span>Decentralized communities, mutual connections, and privacy-first social networking done right.</span>
+                        <span className="text-purple-400">✦</span>
+                        <span>Independent instances, trusted connections, and social networking without central control</span>
+                        <span className="text-pink-400">✦</span>
+                        <span>Connect by consent, not algorithms — a truly federated social network.</span>
+                        <span className="text-blue-400">✦</span>
+                        <span>Decentralized communities, mutual connections, and privacy-first social networking done right.</span>
+                        <span className="text-purple-400">✦</span>
+                        <span>Independent instances, trusted connections, and social networking without central control</span>
+                        <span className="text-pink-400">✦</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Add marquee animation styles */}
+            <style>{`
+                @keyframes marquee {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(-50%); }
+                }
+                .animate-marquee {
+                    animation: marquee 25s linear infinite;
+                }
+            `}</style>
 
             <ConfirmationModal
                 isOpen={showLogoutConfirm}
