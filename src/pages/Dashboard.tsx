@@ -74,15 +74,26 @@ export default function Dashboard() {
   const handleConnect = async (e: React.MouseEvent, targetUsername: string) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Optimistic Update: Assume success immediately
+    setSentRequests(prev => {
+      const next = new Set(prev);
+      next.add(targetUsername);
+      return next;
+    });
+
     try {
       await initiateConnection(targetUsername);
-      setSentRequests(prev => {
-        const next = new Set(prev);
-        next.add(targetUsername);
-        return next;
-      });
     } catch (err) {
       console.error("Failed to connect", err);
+      // Revert if failed
+      setSentRequests(prev => {
+        const next = new Set(prev);
+        next.delete(targetUsername);
+        return next;
+      });
+      // Optional: You could add a toast notification here
+      setError("Failed to connect. Please try again.");
     }
   };
 
@@ -238,35 +249,42 @@ export default function Dashboard() {
           </SketchCard>
 
           <SketchCard variant="paper" className="p-4 bg-[var(--pastel-yellow)]">
-            <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Available Users</h3>
-            <div className="space-y-3">
+            <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2 flex justify-between items-center">
+              Available Users
+            </h3>
+            <div className="space-y-2">
               {suggestedUsers.length > 0 ? (
                 <>
                   {suggestedUsers.slice(0, showAllUsers ? undefined : 3).map((u: any) => (
-                    <Link key={u.username} to={`/profile/${u.username}`} className="block group relative">
-                      <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-black/5 transition-colors border border-transparent hover:border-black/10">
-                        <div className="w-10 h-10 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-lg shrink-0">
+                    <Link key={u.username} to={`/profile/${u.username}`} className="block group">
+                      <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-black/5 bg-white/30">
+                        {/* Avatar */}
+                        <div className="w-9 h-9 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-md shrink-0 shadow-sm">
                           {u.username[0].toUpperCase()}
                         </div>
-                        <div className="overflow-hidden flex-1">
-                          <div className="font-bold font-hand truncate">{u.username}</div>
-                          <div className="text-xs bg-black/10 px-1.5 rounded-full inline-block truncate max-w-full">
+
+                        {/* Name & Instance */}
+                        <div className="overflow-hidden flex-1 min-w-0 flex flex-col justify-center">
+                          <div className="font-bold font-hand truncate text-sm leading-tight text-gray-800">
+                            {u.username}
+                          </div>
+                          <div className="text-[10px] bg-black/5 px-1.5 py-0.5 rounded-full inline-block truncate w-fit max-w-full text-gray-600 mt-0.5 border border-black/5">
                             {u.instance || 'local'}
                           </div>
                         </div>
 
-                        {/* Connect Button */}
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2">
+                        {/* Connect Button (Always visible, no overlap) */}
+                        <div className="shrink-0 ml-1">
                           {sentRequests.has(u.username) ? (
-                            <span className="text-xs font-hand text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200">
-                              Sent ✓
+                            <span className="text-[10px] font-hand text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200 block text-center min-w-[50px]">
+                              Sent
                             </span>
                           ) : (
                             <button
                               onClick={(e) => handleConnect(e, u.username)}
-                              className="bg-[var(--ink-blue)] text-white text-xs px-2 py-1.5 rounded font-hand shadow-sm hover:scale-105 hover:shadow-md transition-all flex items-center gap-1"
+                              className="bg-[var(--ink-blue)] text-white text-[11px] px-2.5 py-1 rounded-md font-hand shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all flex items-center gap-1 active:scale-95"
                             >
-                              <span>+</span> Connect
+                              Connect
                             </button>
                           )}
                         </div>
@@ -277,14 +295,17 @@ export default function Dashboard() {
                   {suggestedUsers.length > 3 && (
                     <button
                       onClick={() => setShowAllUsers(!showAllUsers)}
-                      className="w-full text-center text-sm font-hand text-[var(--ink-blue)] hover:underline mt-1 bg-transparent border-none shadow-none"
+                      className="w-full text-center text-xs font-bold font-hand text-gray-500 hover:text-black mt-2 uppercase tracking-wide transition-colors"
                     >
                       {showAllUsers ? "Show Less" : "Show More"}
                     </button>
                   )}
                 </>
               ) : (
-                <div className="text-center py-4 font-hand opacity-50">Searching for signs...</div>
+                <div className="text-center py-6 font-hand opacity-50 text-sm">
+                  <div>🔭</div>
+                  Searching for signs...
+                </div>
               )}
             </div>
           </SketchCard>
@@ -671,29 +692,29 @@ export default function Dashboard() {
                 {/* Mobile: Available Users */}
                 <SketchCard variant="paper" className="p-4 bg-[var(--pastel-yellow)]">
                   <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Available Users</h3>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {suggestedUsers.slice(0, 5).map((u: any) => (
-                      <Link key={u.username} to={`/profile/${u.username}`} onClick={() => setShowMobileExtras(false)} className="block group relative">
-                        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-black/5 transition-colors border border-transparent hover:border-black/10">
-                          <div className="w-8 h-8 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-sm shrink-0">
+                      <Link key={u.username} to={`/profile/${u.username}`} onClick={() => setShowMobileExtras(false)} className="block group">
+                        <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-black/5 bg-white/30">
+                          <div className="w-8 h-8 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-sm shrink-0 shadow-sm">
                             {u.username[0].toUpperCase()}
                           </div>
-                          <div className="overflow-hidden flex-1">
-                            <div className="font-bold font-hand truncate text-sm">{u.username}</div>
-                            <div className="text-[10px] bg-black/10 px-1.5 rounded-full inline-block truncate max-w-full">
+                          <div className="overflow-hidden flex-1 min-w-0 flex flex-col justify-center">
+                            <div className="font-bold font-hand truncate text-sm leading-tight text-gray-800">{u.username}</div>
+                            <div className="text-[10px] bg-black/5 px-1.5 py-0.5 rounded-full inline-block truncate w-fit max-w-full text-gray-600 mt-0.5 border border-black/5">
                               {u.instance || 'local'}
                             </div>
                           </div>
                           {/* Connect Button */}
-                          <div className="opacity-100 transition-opacity absolute right-2">
+                          <div className="shrink-0 ml-1">
                             {sentRequests.has(u.username) ? (
-                              <span className="text-[10px] font-hand text-green-600">✓</span>
+                              <span className="text-[10px] font-hand text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200 block text-center min-w-[30px]">✓</span>
                             ) : (
                               <button
                                 onClick={(e) => handleConnect(e, u.username)}
-                                className="bg-[var(--ink-blue)] text-white text-[10px] px-1.5 py-1 rounded font-hand shadow-sm"
+                                className="bg-[var(--ink-blue)] text-white text-[10px] px-2 py-1 rounded-md font-hand shadow-sm active:scale-95"
                               >
-                                +
+                                Connect
                               </button>
                             )}
                           </div>
