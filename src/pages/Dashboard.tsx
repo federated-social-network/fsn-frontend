@@ -9,13 +9,16 @@ import { INSTANCES, getInstanceName, getInstanceColor } from "../config/instance
 import type { Post } from "../types/post";
 import SketchCard from "../components/SketchCard";
 import SkeletonPost from "../components/SkeletonPost";
-import { motion, AnimatePresence } from "framer-motion";
+import UserSearchModal from "../components/UserSearchModal";
+import { AnimatePresence, motion } from "framer-motion";
+import { FiSearch } from "react-icons/fi";
 import ConfirmationModal from "../components/ConfirmationModal";
 
 export default function Dashboard() {
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const [pendingInstanceUrl, setPendingInstanceUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -251,6 +254,13 @@ export default function Dashboard() {
           <SketchCard variant="paper" className="p-4 bg-[var(--pastel-yellow)]">
             <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2 flex justify-between items-center">
               Available Users
+              <button
+                onClick={() => setShowSearchModal(true)}
+                className="text-gray-400 hover:text-black hover:scale-110 active:scale-95 transition-all p-1"
+                title="Find users"
+              >
+                <FiSearch className="text-xl" />
+              </button>
             </h3>
             <div className="space-y-2">
               {suggestedUsers.length > 0 ? (
@@ -284,7 +294,7 @@ export default function Dashboard() {
                               onClick={(e) => handleConnect(e, u.username)}
                               className="bg-[var(--ink-blue)] text-white text-[11px] px-2.5 py-1 rounded-md font-hand shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all flex items-center gap-1 active:scale-95"
                             >
-                              Connect
+                              Connect+
                             </button>
                           )}
                         </div>
@@ -714,7 +724,7 @@ export default function Dashboard() {
                                 onClick={(e) => handleConnect(e, u.username)}
                                 className="bg-[var(--ink-blue)] text-white text-[10px] px-2 py-1 rounded-md font-hand shadow-sm active:scale-95"
                               >
-                                Connect
+                                Connect+
                               </button>
                             )}
                           </div>
@@ -757,6 +767,8 @@ export default function Dashboard() {
           </>
         )}
       </AnimatePresence>
+
+      <UserSearchModal isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
 
     </div>
   );
