@@ -355,7 +355,7 @@ export default function Profile() {
             </Link>
           </div>
 
-          <SketchCard variant="paper" pinned pinColor="#ef4444" className="p-6">
+          <SketchCard variant="paper" pinned pinColor="#ef4444" className="p-6 bg-[var(--pastel-blue)]">
             {/* Avatar & Name */}
             <div className="flex flex-col items-center text-center relative">
               <div className="w-32 h-32 rounded-full bg-[var(--bg-surface)] p-1.5 shadow-xl border-2 border-[var(--ink-primary)] mb-4">
@@ -544,19 +544,23 @@ export default function Profile() {
           </h2>
 
           {!loading && !error && posts.length > 0 && (
-            <div className="space-y-8 pb-20">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20">
               <AnimatePresence mode="popLayout">
-                {posts.map((p) => (
+                {posts.map((p, index) => (
                   <motion.div
                     layout
                     key={p.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: 200, transition: { duration: 0.3 } }}
-                    transition={{ type: "tween", ease: "easeOut", duration: 0.3 }}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    className="h-full"
                   >
-                    <SketchCard className="p-6 relative group hover:scale-[1.01] transition-transform">
-                      <div className="absolute -left-2 top-4 w-1 h-12 bg-[var(--ink-blue)] rounded-r opacity-50"></div>
+                    <SketchCard
+                      variant="paper"
+                      className={`p-4 relative group h-full flex flex-col hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ${index % 2 === 0 ? '-rotate-1' : 'rotate-1'}`}
+                    >
+                      {/* Decorative Tape Removed */}
 
                       {/* Delete Button for Owner */}
                       {isOwnProfile && (
@@ -565,19 +569,25 @@ export default function Profile() {
                             e.stopPropagation(); // Prevent modal or other clicks
                             handleDeleteClick(p.id);
                           }}
-                          className="absolute top-2 right-2 flex items-center justify-center w-8 h-8 text-rose-500 hover:text-white hover:bg-rose-500 font-bold text-xl rounded-full opacity-0 group-hover:opacity-100 transition-all z-10"
+                          className="absolute -top-2 -right-2 flex items-center justify-center w-8 h-8 bg-white text-rose-500 hover:text-white hover:bg-rose-500 border-2 border-rose-100 hover:border-rose-600 font-bold text-lg rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all z-20"
                           title="Delete Scribble"
                         >
                           ✕
                         </button>
                       )}
 
-                      <div className="flex justify-between items-start mb-3 border-b border-dashed border-gray-300 pb-2">
-                        <span className="font-hand text-sm text-[var(--ink-secondary)]">{timeAgo(p.created_at)}</span>
-                        {p.origin_instance && <span className="font-marker text-xs bg-[var(--highlighter-yellow)] px-1 -rotate-1">@{p.origin_instance}</span>}
+                      <div className="flex justify-between items-start mb-2 border-b border-dashed border-gray-300 pb-2">
+                        <span className="font-hand text-xs text-[var(--ink-secondary)]">{timeAgo(p.created_at)}</span>
+                        {p.origin_instance && <span className="font-marker text-[10px] bg-[var(--highlighter-yellow)] px-1 rounded-sm">@{p.origin_instance}</span>}
                       </div>
-                      <div className="font-hand text-xl whitespace-pre-wrap leading-relaxed">
+
+                      <div className="font-hand text-base whitespace-pre-wrap leading-snug flex-grow">
                         {p.content}
+                      </div>
+
+                      {/* Optional Footer/Action Area */}
+                      <div className="mt-3 pt-2 border-t border-dotted border-gray-200 flex justify-end opacity-50 group-hover:opacity-100 transition-opacity">
+                        <span className="text-[10px] font-heading text-gray-400">#{p.id}</span>
                       </div>
                     </SketchCard>
                   </motion.div>
