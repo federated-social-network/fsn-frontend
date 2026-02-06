@@ -9,21 +9,21 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen relative bg-white text-black flex flex-col items-center justify-center px-6 overflow-hidden font-hand">
+    <div className="min-h-screen relative bg-white text-black flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden font-hand">
 
-      {/* Grid Background */}
+      {/* Grid Background - Hidden on mobile */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-20"
+        className="absolute inset-0 pointer-events-none opacity-20 hidden sm:block"
         style={{
           backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
           backgroundSize: '40px 40px'
         }}
       />
 
-      {/* Travel & Federated Network SVG Background */}
+      {/* Travel & Federated Network SVG Background - Hidden on mobile for cleaner look */}
       <svg
         aria-hidden="true"
-        className="absolute inset-0 w-full h-full pointer-events-none"
+        className="absolute inset-0 w-full h-full pointer-events-none hidden md:block"
         width="100%"
         height="100vh"
         viewBox="0 0 1200 800"
@@ -167,38 +167,38 @@ export default function Landing() {
       </svg>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-5xl">
+      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-5xl py-8 sm:py-0">
 
-        <h1 className="text-6xl md:text-8xl font-bold text-center mb-4 text-black font-sketch tracking-wider drop-shadow-[2px_2px_0_rgba(0,0,0,0.2)]">
+        <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-center mb-4 text-black font-sketch tracking-wider drop-shadow-[2px_2px_0_rgba(0,0,0,0.2)] leading-tight">
           Decentralized. Private. Yours.
         </h1>
 
-        <p className="text-gray-700 max-w-2xl text-center mb-16 text-2xl font-hand leading-relaxed transform -rotate-1">
+        <p className="text-gray-700 max-w-2xl text-center mb-8 sm:mb-12 md:mb-16 text-lg sm:text-xl md:text-2xl font-hand leading-relaxed sm:transform sm:-rotate-1 px-2">
           Join an instance, keep control of your data, and follow people across servers.
         </p>
 
-        <div className="grid md:grid-cols-2 gap-10 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 w-full">
 
           {/* Instance A Card */}
           <div
             onClick={() => chooseInstance("https://instance-a-1094866630955.us-central1.run.app")}
-            className="group cursor-pointer relative bg-white p-8 transition-transform duration-300 hover:-translate-y-2 hover:rotate-1 flex flex-col justify-between h-80"
+            className="group cursor-pointer relative bg-white p-6 sm:p-8 transition-transform duration-300 hover:-translate-y-2 hover:rotate-1 flex flex-col justify-between min-h-[200px] sm:min-h-[250px] md:h-80 active:scale-[0.98]"
             style={{
               border: '3px solid black',
               borderRadius: '2% 96% 2% 98% / 98% 2% 95% 4%', // Rough sketch shape
-              boxShadow: '8px 8px 0px rgba(0,0,0,0.8)'
+              boxShadow: '6px 6px 0px rgba(0,0,0,0.8)'
             }}
           >
-            <div className="absolute top-4 right-4 w-8 h-8 rounded-full border-2 border-black bg-cyan-300 group-hover:bg-cyan-400 transition-colors" />
+            <div className="absolute top-3 sm:top-4 right-3 sm:right-4 w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-black bg-cyan-300 group-hover:bg-cyan-400 transition-colors" />
 
             <div>
-              <h2 className="text-4xl font-bold mb-4 font-sketch text-cyan-600">Instance A</h2>
-              <p className="text-xl text-gray-800 font-hand">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 font-sketch text-cyan-600">Instance A</h2>
+              <p className="text-base sm:text-lg md:text-xl text-gray-800 font-hand">
                 General community instance for everyone.
               </p>
             </div>
 
-            <button className="w-full py-3 mt-6 border-2 border-black bg-cyan-100 hover:bg-cyan-200 font-bold text-xl font-sketch transform transition-transform group-hover:scale-105"
+            <button className="w-full py-2.5 sm:py-3 mt-4 sm:mt-6 border-2 border-black bg-cyan-100 hover:bg-cyan-200 active:bg-cyan-300 font-bold text-lg sm:text-xl font-sketch transform transition-transform group-hover:scale-105"
               style={{ borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px' }}
             >
               Join Now &rarr;
@@ -208,23 +208,23 @@ export default function Landing() {
           {/* Instance B Card */}
           <div
             onClick={() => chooseInstance("https://instance-b-1094866630955.us-central1.run.app")}
-            className="group cursor-pointer relative bg-white p-8 transition-transform duration-300 hover:-translate-y-2 hover:-rotate-1 flex flex-col justify-between h-80"
+            className="group cursor-pointer relative bg-white p-6 sm:p-8 transition-transform duration-300 hover:-translate-y-2 hover:-rotate-1 flex flex-col justify-between min-h-[200px] sm:min-h-[250px] md:h-80 active:scale-[0.98]"
             style={{
               border: '3px solid black',
               borderRadius: '95% 4% 97% 5% / 4% 97% 3% 98%', // Different rough shape
-              boxShadow: '8px 8px 0px rgba(0,0,0,0.8)'
+              boxShadow: '6px 6px 0px rgba(0,0,0,0.8)'
             }}
           >
-            <div className="absolute top-4 right-4 w-8 h-8 rounded-full border-2 border-black bg-purple-300 group-hover:bg-purple-400 transition-colors" />
+            <div className="absolute top-3 sm:top-4 right-3 sm:right-4 w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-black bg-purple-300 group-hover:bg-purple-400 transition-colors" />
 
             <div>
-              <h2 className="text-4xl font-bold mb-4 font-sketch text-purple-600">Instance B</h2>
-              <p className="text-xl text-gray-800 font-hand">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 font-sketch text-purple-600">Instance B</h2>
+              <p className="text-base sm:text-lg md:text-xl text-gray-800 font-hand">
                 Alternate community instance with unique features.
               </p>
             </div>
 
-            <button className="w-full py-3 mt-6 border-2 border-black bg-purple-100 hover:bg-purple-200 font-bold text-xl font-sketch transform transition-transform group-hover:scale-105"
+            <button className="w-full py-2.5 sm:py-3 mt-4 sm:mt-6 border-2 border-black bg-purple-100 hover:bg-purple-200 active:bg-purple-300 font-bold text-lg sm:text-xl font-sketch transform transition-transform group-hover:scale-105"
               style={{ borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px' }}
             >
               Join Now &rarr;
@@ -237,3 +237,4 @@ export default function Landing() {
     </div>
   );
 }
+

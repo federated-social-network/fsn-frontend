@@ -42,15 +42,15 @@ export default function ConfirmationModal({
                         exit={{ scale: 0.8, rotate: 5, opacity: 0 }}
                         className="relative z-10 w-full max-w-sm"
                     >
-                        <SketchCard variant="sticky" className="max-w-md w-full p-6 text-center border-2 border-red-500 shadow-xl bg-[#fffec8]">
-                            <h3 className="font-sketch text-3xl font-bold text-red-600 mb-4">{title}</h3>
-                            <div className="font-hand text-xl mb-8 text-[var(--ink-secondary)]">
+                        <SketchCard variant="sticky" className="max-w-md w-full p-4 sm:p-6 text-center border-2 border-red-500 shadow-xl bg-[#fffec8] mx-2">
+                            <h3 className="font-sketch text-2xl sm:text-3xl font-bold text-red-600 mb-3 sm:mb-4">{title}</h3>
+                            <div className="font-hand text-lg sm:text-xl mb-6 sm:mb-8 text-[var(--ink-secondary)]">
                                 {message}
                             </div>
-                            <div className="flex justify-center gap-4 font-heading">
+                            <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 font-heading">
                                 <button
                                     onClick={onClose}
-                                    className="px-6 py-2 bg-white border-2 border-[var(--ink-secondary)] text-[var(--ink-secondary)] rounded shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-y-px transition-all"
+                                    className="px-6 py-2.5 sm:py-2 bg-white border-2 border-[var(--ink-secondary)] text-[var(--ink-secondary)] rounded shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-y-px active:translate-y-px transition-all text-sm sm:text-base order-2 sm:order-1"
                                 >
                                     {cancelText}
                                 </button>
@@ -59,7 +59,7 @@ export default function ConfirmationModal({
                                         onConfirm();
                                         onClose();
                                     }}
-                                    className={`px-6 py-2 border-2 border-black text-white rounded shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-px transition-all ${confirmColor}`}
+                                    className={`px-6 py-2.5 sm:py-2 border-2 border-black text-white rounded shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-px active:translate-y-px transition-all text-sm sm:text-base order-1 sm:order-2 ${confirmColor}`}
                                 >
                                     {confirmText}
                                 </button>

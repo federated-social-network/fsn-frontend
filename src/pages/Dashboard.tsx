@@ -11,7 +11,7 @@ import SketchCard from "../components/SketchCard";
 import SkeletonPost from "../components/SkeletonPost";
 import UserSearchModal from "../components/UserSearchModal";
 import { AnimatePresence, motion } from "framer-motion";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiRefreshCw, FiArrowUp, FiInfo, FiUsers, FiX, FiAlertTriangle } from "react-icons/fi";
 import ConfirmationModal from "../components/ConfirmationModal";
 
 export default function Dashboard() {
@@ -241,7 +241,7 @@ export default function Dashboard() {
       <Navbar />
 
       {/* --- Main Content Grid --- */}
-      <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 md:grid-cols-12 gap-8 h-full">
+      <div className="flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 h-full">
 
         {/* --- LEFT SIDEBAR: Available Users --- */}
         <aside className="md:col-span-3 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-6">
@@ -307,7 +307,7 @@ export default function Dashboard() {
                 </>
               ) : (
                 <div className="text-center py-6 font-hand opacity-50 text-sm">
-                  <div>🔭</div>
+                  <FiSearch className="text-2xl mx-auto mb-1" />
                   Searching for signs...
                 </div>
               )}
@@ -320,7 +320,7 @@ export default function Dashboard() {
         <main
           ref={mainRef}
           onScroll={handleScroll}
-          className="md:col-span-6 h-full overflow-y-auto px-2 pb-20 no-scrollbar relative"
+          className="col-span-1 md:col-span-6 h-full overflow-y-auto px-1 sm:px-2 pb-24 sm:pb-20 no-scrollbar relative mobile-scroll"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           <div className="space-y-4">
@@ -330,11 +330,11 @@ export default function Dashboard() {
             </div>
 
             {/* Refresh / Feed Header (Aligned Professional Toggle) */}
-            <div className="flex flex-col gap-4 relative z-20 mt-2 px-1">
+            <div className="flex flex-col gap-3 sm:gap-4 relative z-20 mt-2 px-1">
               <div className="relative flex justify-center items-center h-12">
 
-                {/* Toggle Switch - Centered & Fixed Width for perfect alignment */}
-                <div className="bg-white border border-gray-200 p-1 rounded-full grid grid-cols-2 gap-2 relative w-[280px] shadow-sm">
+                {/* Toggle Switch - Responsive width */}
+                <div className="bg-white border border-gray-200 p-1 rounded-full grid grid-cols-2 gap-1 sm:gap-2 relative w-[220px] sm:w-[280px] shadow-sm">
                   {/* Sliding Background */}
                   <motion.div
                     layout
@@ -348,13 +348,13 @@ export default function Dashboard() {
 
                   <button
                     onClick={() => setActiveTab('global')}
-                    className={`relative z-10 py-1.5 rounded-full font-bold text-sm transition-colors duration-200 flex justify-center items-center ${activeTab === 'global' ? 'text-white' : 'text-gray-500 hover:text-black'}`}
+                    className={`relative z-10 py-1.5 rounded-full font-bold text-xs sm:text-sm transition-colors duration-200 flex justify-center items-center ${activeTab === 'global' ? 'text-white' : 'text-gray-500 hover:text-black'}`}
                   >
                     Global
                   </button>
                   <button
                     onClick={() => setActiveTab('following')}
-                    className={`relative z-10 py-1.5 rounded-full font-bold text-sm transition-colors duration-200 flex justify-center items-center ${activeTab === 'following' ? 'text-white' : 'text-gray-500 hover:text-black'}`}
+                    className={`relative z-10 py-1.5 rounded-full font-bold text-xs sm:text-sm transition-colors duration-200 flex justify-center items-center ${activeTab === 'following' ? 'text-white' : 'text-gray-500 hover:text-black'}`}
                   >
                     Following
                   </button>
@@ -363,22 +363,22 @@ export default function Dashboard() {
                 {/* Extras Toggle (Mobile Only) */}
                 <button
                   onClick={() => setShowMobileExtras(true)}
-                  className="md:hidden w-10 h-10 ml-2 rounded-full bg-[var(--pastel-yellow)] border border-black flex items-center justify-center hover:scale-105 transition-transform font-bold text-xl relative"
+                  className="md:hidden w-11 h-11 ml-2 rounded-full bg-[var(--pastel-yellow)] border-2 border-black flex items-center justify-center hover:scale-105 active:scale-95 transition-transform font-bold text-lg relative shadow-sm"
                   title="Show Info"
                 >
-                  ℹ️
+                  <FiInfo className="text-xl" />
                   {pendingInvites.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border border-white animate-pulse"></span>
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white animate-pulse flex items-center justify-center text-[10px] text-white font-bold">{pendingInvites.length}</span>
                   )}
                 </button>
 
-                {/* Refresh Button - Absolute Right (Desktop) or next to toggle */}
+                {/* Refresh Button */}
                 <button
                   onClick={loadPosts}
-                  className="w-10 h-10 ml-2 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-black hover:text-white transition-colors shadow-sm"
+                  className="w-10 h-10 sm:w-10 sm:h-10 ml-2 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-black hover:text-white active:scale-95 transition-all shadow-sm text-lg"
                   title="Refresh Feed"
                 >
-                  ↻
+                  <FiRefreshCw className="text-base" />
                 </button>
               </div>
             </div>
@@ -393,7 +393,7 @@ export default function Dashboard() {
                   onClick={handleRefreshClick}
                   className="sticky top-4 left-1/2 -translate-x-1/2 z-30 bg-[var(--pastel-blue)] text-black font-sketch px-5 py-2 rounded-full shadow-lg border-2 border-black flex items-center gap-2 hover:scale-105 transition-transform mx-auto"
                 >
-                  <span className="text-xl">↑</span> New Notes!
+                  <FiArrowUp className="text-lg" /> New Notes!
                 </motion.button>
               )}
             </AnimatePresence>
@@ -406,17 +406,17 @@ export default function Dashboard() {
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
                   onClick={handleScrollToTop}
-                  className="sticky bottom-6 left-[90%] z-30 bg-black text-white w-10 h-10 rounded-full shadow-xl flex items-center justify-center hover:bg-[var(--ink-blue)] transition-colors"
+                  className="fixed bottom-20 sm:bottom-8 right-4 sm:right-8 z-30 bg-black text-white w-12 h-12 sm:w-10 sm:h-10 rounded-full shadow-xl flex items-center justify-center hover:bg-[var(--ink-blue)] active:scale-95 transition-all text-lg"
                 >
-                  ↑
+                  <FiArrowUp />
                 </motion.button>
               )}
             </AnimatePresence>
 
             {/* ERROR */}
             {error && (
-              <div className="bg-[var(--pastel-pink)] border-2 border-red-400 p-4 rounded text-center font-hand text-red-800">
-                ⚠️ {String(error)}
+              <div className="bg-[var(--pastel-pink)] border-2 border-red-400 p-4 rounded text-center font-hand text-red-800 flex items-center justify-center gap-2">
+                <FiAlertTriangle /> {String(error)}
               </div>
             )}
 
@@ -443,33 +443,33 @@ export default function Dashboard() {
                       <SketchCard className="group transition-transform bg-white relative">
                         {/* Tape effect removed from top center for straight look */}
 
-                        <div className="p-5">
+                        <div className="p-4 sm:p-5">
                           {/* Header */}
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="flex items-center gap-3">
+                          <div className="flex justify-between items-start mb-3 gap-2">
+                            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                               <Link to={`/profile/${parseUsername(p.author).username}`}>
-                                <div className="w-10 h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-sm">
+                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-xs sm:text-sm shrink-0">
                                   {parseUsername(p.author).username[0].toUpperCase()}
                                 </div>
                               </Link>
-                              <div>
-                                <div className="font-bold font-sketch text-lg leading-none">
+                              <div className="min-w-0">
+                                <div className="font-bold font-sketch text-base sm:text-lg leading-none truncate">
                                   <Link to={`/profile/${parseUsername(p.author).username}`} className="hover:underline">
                                     {parseUsername(p.author).username}
                                   </Link>
                                 </div>
-                                <div className="text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
+                                <div className="text-[10px] sm:text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
                               </div>
                             </div>
                             {(p.origin_instance || parseUsername(p.author).instance) && (
-                              <span className={`px-2 py-0.5 rounded text-xs border font-hand ${getInstanceColor(p.origin_instance || parseUsername(p.author).instance)}`}>
+                              <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs border font-hand shrink-0 ${getInstanceColor(p.origin_instance || parseUsername(p.author).instance)}`}>
                                 {getInstanceName(p.origin_instance || parseUsername(p.author).instance)}
                               </span>
                             )}
                           </div>
 
                           {/* Content */}
-                          <div className="font-hand text-xl leading-relaxed whitespace-pre-wrap pl-1">
+                          <div className="font-hand text-lg sm:text-xl leading-relaxed whitespace-pre-wrap pl-0 sm:pl-1">
                             {p.content}
                           </div>
                         </div>
@@ -508,33 +508,33 @@ export default function Dashboard() {
                       <SketchCard className="group transition-transform bg-white relative">
                         {/* Tape effect removed */}
 
-                        <div className="p-5">
+                        <div className="p-4 sm:p-5">
                           {/* Header */}
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="flex items-center gap-3">
+                          <div className="flex justify-between items-start mb-3 gap-2">
+                            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                               <Link to={`/profile/${parseUsername(p.author).username}`}>
-                                <div className="w-10 h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-sm">
+                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-xs sm:text-sm shrink-0">
                                   {parseUsername(p.author).username[0].toUpperCase()}
                                 </div>
                               </Link>
-                              <div>
-                                <div className="font-bold font-sketch text-lg leading-none">
+                              <div className="min-w-0">
+                                <div className="font-bold font-sketch text-base sm:text-lg leading-none truncate">
                                   <Link to={`/profile/${parseUsername(p.author).username}`} className="hover:underline">
                                     {parseUsername(p.author).username}
                                   </Link>
                                 </div>
-                                <div className="text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
+                                <div className="text-[10px] sm:text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
                               </div>
                             </div>
                             {(p.origin_instance || parseUsername(p.author).instance) && (
-                              <span className={`px-2 py-0.5 rounded text-xs border font-hand ${getInstanceColor(p.origin_instance || parseUsername(p.author).instance)}`}>
+                              <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs border font-hand shrink-0 ${getInstanceColor(p.origin_instance || parseUsername(p.author).instance)}`}>
                                 {getInstanceName(p.origin_instance || parseUsername(p.author).instance)}
                               </span>
                             )}
                           </div>
 
                           {/* Content */}
-                          <div className="font-hand text-xl leading-relaxed whitespace-pre-wrap pl-1">
+                          <div className="font-hand text-lg sm:text-xl leading-relaxed whitespace-pre-wrap pl-0 sm:pl-1">
                             {p.content}
                           </div>
                         </div>
@@ -545,7 +545,7 @@ export default function Dashboard() {
 
                 {!loadingFollowing && followedPosts.length === 0 && (
                   <div className="text-center py-20 opacity-60">
-                    <div className="text-6xl mb-4">👥</div>
+                    <FiUsers className="text-5xl mx-auto mb-4" />
                     <div className="font-sketch text-2xl">Following Feed</div>
                     <p className="font-hand text-lg mt-2">No posts from your circle yet.</p>
                     <p className="font-hand text-sm text-gray-500">Connect with people to see their scribbles here!</p>
@@ -654,15 +654,15 @@ export default function Dashboard() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="md:hidden fixed top-0 right-0 h-full w-4/5 max-w-sm bg-[var(--paper-white)] z-50 shadow-2xl overflow-y-auto p-4 border-l-2 border-black"
+              className="md:hidden fixed top-0 right-0 h-full w-[85%] max-w-sm bg-[var(--paper-white)] z-50 shadow-2xl overflow-y-auto p-4 sm:p-5 border-l-2 border-black safe-bottom"
             >
-              <div className="flex justify-between items-center mb-6 border-b-2 border-dashed border-gray-300 pb-4">
-                <h2 className="font-sketch text-2xl">Extras</h2>
+              <div className="flex justify-between items-center mb-5 sm:mb-6 border-b-2 border-dashed border-gray-300 pb-4">
+                <h2 className="font-sketch text-xl sm:text-2xl">Quick Access</h2>
                 <button
                   onClick={() => setShowMobileExtras(false)}
-                  className="w-10 h-10 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center text-xl"
+                  className="w-11 h-11 rounded-full bg-black/5 hover:bg-black/10 active:bg-black/20 flex items-center justify-center text-xl transition-colors"
                 >
-                  ✕
+                  <FiX className="text-xl" />
                 </button>
               </div>
 

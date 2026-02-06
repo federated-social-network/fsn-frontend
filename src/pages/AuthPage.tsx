@@ -101,15 +101,15 @@ const AuthPage = () => {
     };
 
     return (
-        <div className="min-h-screen relative flex items-center justify-center p-6 overflow-hidden">
+        <div className="min-h-screen relative flex items-center justify-center p-4 sm:p-6 overflow-hidden">
 
             {/* Container for the Two Cards */}
-            <div className="relative z-10 w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch h-full">
+            <div className="relative z-10 w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 items-stretch h-full">
 
-                {/* Left Side: Mascot Card */}
+                {/* Left Side: Mascot Card - Hidden on mobile */}
                 <div className="hidden md:block h-full">
                     <SketchCard variant="paper" className="h-full flex flex-col items-center justify-center p-8 bg-sky-50 transform -rotate-1">
-                        <h2 className="text-4xl font-bold text-center mb-8 font-sketch tracking-wider">
+                        <h2 className="text-3xl lg:text-4xl font-bold text-center mb-8 font-sketch tracking-wider">
                             {isRegisterMode ? "Join the Crew!" : "Welcome Back!"}
                         </h2>
                         <div className="w-full max-w-xs scale-110">
@@ -129,45 +129,49 @@ const AuthPage = () => {
                             transition={{ duration: 0.3 }}
                             className="h-full"
                         >
-                            <SketchCard variant="paper" className="h-full p-8 md:p-12 flex flex-col justify-center bg-white transform rotate-1">
-                                <div className="flex flex-col items-center mb-8">
-                                    <h1 className="text-5xl font-bold font-sketch tracking-wider text-center mb-2">
+                            <SketchCard variant="paper" className="h-full p-6 sm:p-8 md:p-12 flex flex-col justify-center bg-white transform md:rotate-1">
+                                <div className="flex flex-col items-center mb-6 sm:mb-8">
+                                    {/* Mobile Welcome Message */}
+                                    <div className="md:hidden text-center mb-4">
+                                        <span className="text-4xl">{isRegisterMode ? "✨" : "👋"}</span>
+                                    </div>
+                                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-sketch tracking-wider text-center mb-2">
                                         {isRegisterMode ? "Sign Up" : "Log In"}
                                     </h1>
-                                    <p className="text-center text-xl font-hand text-[var(--ink-secondary)]">
+                                    <p className="text-center text-base sm:text-lg md:text-xl font-hand text-[var(--ink-secondary)]">
                                         {isRegisterMode ? "Start your sketched journey." : "Enter your secret credentials."}
                                     </p>
                                 </div>
 
                                 {errorMsg && (
-                                    <div className="mb-6 font-hand text-red-600 text-center border-2 border-dashed border-red-400 p-3 bg-red-50 rounded transform rotate-1">
+                                    <div className="mb-4 sm:mb-6 font-hand text-red-600 text-center border-2 border-dashed border-red-400 p-3 bg-red-50 rounded text-sm sm:text-base">
                                         {errorMsg}
                                     </div>
                                 )}
 
                                 {/* Instance Badge */}
-                                <div className="mb-6 flex justify-center">
-                                    <div className={`px-4 py-1.5 rounded-full border-2 border-black font-hand font-bold text-sm flex items-center gap-2 bg-gradient-to-r from-pink-100 via-yellow-100 to-cyan-100 shadow-sm animate-pulse`}>
+                                <div className="mb-4 sm:mb-6 flex justify-center">
+                                    <div className={`px-3 sm:px-4 py-1.5 rounded-full border-2 border-black font-hand font-bold text-xs sm:text-sm flex items-center gap-2 bg-gradient-to-r from-pink-100 via-yellow-100 to-cyan-100 shadow-sm animate-pulse`}>
 
-                                        <span>Joining <span className="font-sketch text-lg text-[var(--ink-blue)]">{getInstanceName(localStorage.getItem("INSTANCE_BASE_URL")) || "Instance A"}</span></span>
+                                        <span>Joining <span className="font-sketch text-base sm:text-lg text-[var(--ink-blue)]">{getInstanceName(localStorage.getItem("INSTANCE_BASE_URL")) || "Instance A"}</span></span>
 
                                     </div>
                                 </div>
 
                                 {successMsg && (
-                                    <div className="mb-6 font-hand text-green-600 text-center border-2 border-dashed border-green-400 p-3 bg-green-50 rounded transform -rotate-1">
+                                    <div className="mb-4 sm:mb-6 font-hand text-green-600 text-center border-2 border-dashed border-green-400 p-3 bg-green-50 rounded text-sm sm:text-base">
                                         {successMsg}
                                     </div>
                                 )}
 
-                                <form onSubmit={handleSubmit} className="space-y-5 w-full max-w-sm mx-auto">
+                                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 w-full max-w-sm mx-auto">
                                     <div className="group">
                                         <input
                                             type="text"
                                             placeholder="Username"
                                             value={username}
                                             onChange={(e) => setUsername(e.target.value)}
-                                            className="w-full bg-white border-2 border-black/80 p-3 text-xl outline-none focus:ring-4 focus:ring-black/5 focus:border-black transition-all font-hand text-black placeholder:text-gray-400 rounded-md"
+                                            className="w-full bg-white border-2 border-black/80 p-3 sm:p-3.5 text-lg sm:text-xl outline-none focus:ring-4 focus:ring-black/5 focus:border-black transition-all font-hand text-black placeholder:text-gray-400 rounded-md"
                                         />
                                     </div>
 
@@ -178,7 +182,7 @@ const AuthPage = () => {
                                                 placeholder="Email"
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
-                                                className="w-full bg-white border-2 border-black/80 p-3 text-xl outline-none focus:ring-4 focus:ring-black/5 focus:border-black transition-all font-hand text-black placeholder:text-gray-400 rounded-md"
+                                                className="w-full bg-white border-2 border-black/80 p-3 sm:p-3.5 text-lg sm:text-xl outline-none focus:ring-4 focus:ring-black/5 focus:border-black transition-all font-hand text-black placeholder:text-gray-400 rounded-md"
                                             />
                                         </div>
                                     )}
@@ -191,9 +195,9 @@ const AuthPage = () => {
                                             onChange={(e) => setPassword(e.target.value)}
                                             onFocus={() => setIsPasswordFocused(true)}
                                             onBlur={() => setIsPasswordFocused(false)}
-                                            className="w-full bg-white border-2 border-black/80 p-3 text-xl outline-none focus:ring-4 focus:ring-black/5 focus:border-black transition-all font-hand text-black placeholder:text-gray-400 rounded-md"
+                                            className="w-full bg-white border-2 border-black/80 p-3 sm:p-3.5 text-lg sm:text-xl outline-none focus:ring-4 focus:ring-black/5 focus:border-black transition-all font-hand text-black placeholder:text-gray-400 rounded-md pr-12"
                                         />
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-xl hover:scale-110 transition-transform text-black/60 hover:text-black">
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-xl hover:scale-110 transition-transform text-black/60 hover:text-black p-1">
                                             {showPassword ? (
                                                 <FaEyeSlash onClick={() => setShowPassword(!showPassword)} />
                                             ) : (
@@ -209,7 +213,7 @@ const AuthPage = () => {
                                     )}
 
                                     <button type="submit" disabled={isLoading}
-                                        className="w-full py-3 bg-[var(--primary)] text-white text-2xl font-bold font-sketch tracking-widest hover:bg-black transition-all hover:scale-[1.02] active:scale-95 shadow-lg border-2 border-transparent hover:border-black/20 rounded-lg mt-2 relative overflow-hidden"
+                                        className="w-full py-3 sm:py-3.5 bg-[var(--primary)] text-white text-xl sm:text-2xl font-bold font-sketch tracking-widest hover:bg-black transition-all hover:scale-[1.02] active:scale-95 shadow-lg border-2 border-transparent hover:border-black/20 rounded-lg mt-2 relative overflow-hidden"
                                     >
                                         <span className="relative z-10 flex items-center justify-center gap-3">
                                             {isLoading
@@ -230,8 +234,8 @@ const AuthPage = () => {
                                     </button>
                                 </form>
 
-                                <div className="mt-8 text-center pt-6 border-t-2 border-dashed border-gray-200">
-                                    <p className="text-lg font-hand text-[var(--ink-secondary)]">
+                                <div className="mt-6 sm:mt-8 text-center pt-4 sm:pt-6 border-t-2 border-dashed border-gray-200">
+                                    <p className="text-base sm:text-lg font-hand text-[var(--ink-secondary)]">
                                         {isRegisterMode ? "Got an account?" : "Need an account?"}
                                         <a href="#" onClick={toggleMode} className="ml-2 font-bold underline decoration-2 underline-offset-4 hover:text-black text-black">
                                             {isRegisterMode ? "Log In Here" : "Sign Up Here"}
@@ -249,3 +253,4 @@ const AuthPage = () => {
 };
 
 export default AuthPage;
+

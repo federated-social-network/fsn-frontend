@@ -131,21 +131,21 @@ export default function UserSearchModal({ isOpen, onClose }: UserSearchModalProp
                         className="relative w-full max-w-md z-10"
                     >
                         {/* Theme: Sketch/Pastel - Matching Dashboard */}
-                        <SketchCard variant="paper" className="bg-[var(--paper-white)] p-0 overflow-hidden shadow-2xl border-2 border-black max-h-[80vh] flex flex-col">
+                        <SketchCard variant="paper" className="bg-[var(--paper-white)] p-0 overflow-hidden shadow-2xl border-2 border-black h-[100vh] sm:h-auto sm:max-h-[80vh] flex flex-col rounded-none sm:rounded-lg">
                             {/* Header */}
-                            <div className="bg-[var(--pastel-yellow)] px-4 py-3 border-b-2 border-black flex justify-between items-center shrink-0">
-                                <h2 className="font-sketch text-xl flex items-center gap-2 text-black">
-                                    <FiSearch className="text-xl" /> Find Friends
+                            <div className="bg-[var(--pastel-yellow)] px-4 py-3 sm:py-3 border-b-2 border-black flex justify-between items-center shrink-0">
+                                <h2 className="font-sketch text-lg sm:text-xl flex items-center gap-2 text-black">
+                                    <FiSearch className="text-lg sm:text-xl" /> Find Friends
                                 </h2>
                                 <button
                                     onClick={onClose}
-                                    className="w-8 h-8 rounded-full border border-black/20 hover:bg-black hover:text-white flex items-center justify-center transition-colors text-black"
+                                    className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-black/20 hover:bg-black hover:text-white active:bg-gray-800 flex items-center justify-center transition-colors text-black"
                                 >
                                     <FiX className="text-xl" />
                                 </button>
                             </div>
 
-                            <div className="p-5 space-y-5 flex flex-col min-h-0 bg-white/50">
+                            <div className="p-4 sm:p-5 space-y-4 sm:space-y-5 flex flex-col flex-1 min-h-0 bg-white/50">
                                 {/* Search Bar */}
                                 <div className="relative shrink-0">
                                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-500">
@@ -156,13 +156,14 @@ export default function UserSearchModal({ isOpen, onClose }: UserSearchModalProp
                                         placeholder="Type a username..."
                                         value={query}
                                         onChange={(e) => setQuery(e.target.value)}
-                                        className="w-full pl-10 pr-3 py-2.5 bg-white border-2 border-black rounded-lg font-hand text-xl focus:ring-4 focus:ring-black/5 outline-none transition-all placeholder:text-gray-400 text-black shadow-sm"
+                                        className="w-full pl-10 pr-3 py-3 sm:py-2.5 bg-white border-2 border-black rounded-lg font-hand text-lg sm:text-xl focus:ring-4 focus:ring-black/5 outline-none transition-all placeholder:text-gray-400 text-black shadow-sm"
+                                        style={{ fontSize: '16px' }}
                                         autoFocus
                                     />
                                 </div>
 
                                 {/* Results List */}
-                                <div className="flex-1 overflow-y-auto min-h-[150px] max-h-[350px] -mx-2 px-2 custom-scrollbar">
+                                <div className="flex-1 overflow-y-auto min-h-[150px] sm:max-h-[350px] -mx-2 px-2 custom-scrollbar">
                                     {loading ? (
                                         <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-3">
                                             <div className="w-8 h-8 border-4 border-black/10 border-t-black rounded-full animate-spin" />
@@ -181,10 +182,10 @@ export default function UserSearchModal({ isOpen, onClose }: UserSearchModalProp
                                                     layout
                                                     initial={{ opacity: 0, y: 5 }}
                                                     animate={{ opacity: 1, y: 0 }}
-                                                    className="w-full p-3 border-2 border-black/5 hover:border-black rounded-xl bg-white flex items-center gap-3 relative group transition-all hover:shadow-md"
+                                                    className="w-full p-3 border-2 border-black/5 hover:border-black active:border-black rounded-xl bg-white flex items-center gap-2 sm:gap-3 relative group transition-all hover:shadow-md"
                                                 >
                                                     {/* Avatar */}
-                                                    <div className="w-10 h-10 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-lg shrink-0 text-black shadow-sm">
+                                                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-base sm:text-lg shrink-0 text-black shadow-sm">
                                                         {user.username.charAt(0).toUpperCase()}
                                                     </div>
 
@@ -194,11 +195,11 @@ export default function UserSearchModal({ isOpen, onClose }: UserSearchModalProp
                                                             onClick={onClose}
                                                             className="block"
                                                         >
-                                                            <h3 className="font-bold font-hand text-xl truncate text-black leading-none mb-1 group-hover:underline decoration-2 decoration-[var(--pastel-blue)]">
+                                                            <h3 className="font-bold font-hand text-base sm:text-xl truncate text-black leading-none mb-1 group-hover:underline decoration-2 decoration-[var(--pastel-blue)]">
                                                                 {user.username}
                                                             </h3>
                                                         </Link>
-                                                        <p className="text-xs font-hand text-gray-500 truncate font-bold">
+                                                        <p className="text-[10px] sm:text-xs font-hand text-gray-500 truncate font-bold">
                                                             {user.email}
                                                         </p>
                                                     </div>
@@ -241,10 +242,10 @@ export default function UserSearchModal({ isOpen, onClose }: UserSearchModalProp
                                         </div>
                                     ) : (
                                         <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-4">
-                                            <div className="w-20 h-20 rounded-full bg-white border-2 border-black/10 flex items-center justify-center mb-1">
-                                                <span className="text-4xl">🔍</span>
+                                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border-2 border-black/10 flex items-center justify-center mb-1">
+                                                <FiSearch className="text-3xl sm:text-4xl text-gray-300" />
                                             </div>
-                                            <p className="font-hand text-center text-xl text-gray-500">Search for fellow<br />sketchers...</p>
+                                            <p className="font-hand text-center text-lg sm:text-xl text-gray-500">Search for fellow<br />sketchers...</p>
                                         </div>
                                     )}
                                 </div>

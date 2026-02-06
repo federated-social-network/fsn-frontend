@@ -24,7 +24,7 @@ export default function Navbar() {
 
     return (
         <div className="relative z-50">
-            <div className="relative bg-gradient-to-b from-[var(--paper-white)] to-gray-50 pt-5 pb-7 px-6 shadow-lg">
+            <div className="relative bg-gradient-to-b from-[var(--paper-white)] to-gray-50 pt-3 sm:pt-5 pb-4 sm:pb-7 px-4 sm:px-6 shadow-lg">
 
                 <div className="max-w-7xl mx-auto flex items-center justify-between relative">
 
@@ -32,7 +32,7 @@ export default function Navbar() {
                     <Link to="/" className="group relative">
                         <motion.div
                             whileHover={{ rotate: -2, scale: 1.05 }}
-                            className="text-3xl md:text-4xl font-sketch font-bold text-[var(--ink-primary)] relative z-10"
+                            className="text-2xl sm:text-3xl md:text-4xl font-sketch font-bold text-[var(--ink-primary)] relative z-10"
                         >
                             HeliX...
                         </motion.div>
@@ -40,8 +40,8 @@ export default function Navbar() {
                         <div className="absolute -inset-2 bg-[var(--highlighter-yellow)] rotate-2 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity -z-0"></div>
                     </Link>
 
-                    {/* INSTANCE BADGE */}
-                    <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 transform -rotate-1">
+                    {/* INSTANCE BADGE - Hidden on mobile */}
+                    <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 transform -rotate-1">
                         <div className="bg-[var(--pastel-blue)] px-4 py-1.5 border-2 border-[var(--ink-primary)] shadow-[2px_2px_0px_rgba(0,0,0,0.2)] rounded-sm font-hand text-sm flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                             Connected to <strong>{getInstanceName(localStorage.getItem("INSTANCE_BASE_URL"))}</strong>
@@ -49,10 +49,10 @@ export default function Navbar() {
                     </div>
 
                     {/* USER CONTROLS (Desktop) */}
-                    <div className="hidden md:flex items-center gap-6">
+                    <div className="hidden md:flex items-center gap-4 lg:gap-6">
                         {/* Profile "Polaroid" */}
                         <Link to={`/profile/${username}`} className="group flex items-center gap-3">
-                            <div className="hidden sm:block text-right">
+                            <div className="hidden lg:block text-right">
                                 <div className="font-hand font-bold text-lg leading-none group-hover:text-[var(--primary)] transition-colors">
                                     {username}
                                 </div>
@@ -64,34 +64,35 @@ export default function Navbar() {
                             <div className="relative">
                                 <motion.div
                                     whileHover={{ rotate: 3, scale: 1.1 }}
-                                    className="w-12 h-12 bg-white p-1 border border-gray-200 shadow-md rotate-[-2deg] transition-all"
+                                    className="w-10 h-10 md:w-12 md:h-12 bg-white p-1 border border-gray-200 shadow-md rotate-[-2deg] transition-all"
                                 >
-                                    <div className="w-full h-full bg-[var(--pastel-yellow)] border border-black/10 flex items-center justify-center font-sketch text-xl overflow-hidden">
+                                    <div className="w-full h-full bg-[var(--pastel-yellow)] border border-black/10 flex items-center justify-center font-sketch text-lg md:text-xl overflow-hidden">
                                         {username ? username[0].toUpperCase() : '?'}
                                     </div>
                                 </motion.div>
                                 {/* Tape on photo */}
-                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-3 bg-white/40 border-l border-r border-white/60 rotate-2 shadow-sm pointer-events-none"></div>
+                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 md:w-8 h-2 md:h-3 bg-white/40 border-l border-r border-white/60 rotate-2 shadow-sm pointer-events-none"></div>
                             </div>
                         </Link>
 
                         {/* Logout Button */}
                         <button
                             onClick={handleLogoutClick}
-                            className="bg-black/5 hover:bg-black/10 border-2 border-transparent hover:border-black/5 rounded-full px-4 py-2 flex items-center gap-2 transition-all"
+                            className="bg-black/5 hover:bg-black/10 border-2 border-transparent hover:border-black/5 rounded-full px-3 md:px-4 py-2 flex items-center gap-2 transition-all"
                             title="Sign Out"
                         >
-                            <span className="text-xl">🚪</span>
-                            <span className="font-sketch font-bold text-sm text-[var(--ink-primary)]">Log Out</span>
+                            <span className="text-lg md:text-xl">🚪</span>
+                            <span className="font-sketch font-bold text-xs md:text-sm text-[var(--ink-primary)] hidden lg:inline">Log Out</span>
                         </button>
                     </div>
 
                     {/* MOBILE MENU TOGGLE */}
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="md:hidden p-2 text-2xl"
+                        className="md:hidden w-12 h-12 flex items-center justify-center text-2xl rounded-lg hover:bg-black/5 active:bg-black/10 transition-colors"
+                        aria-label="Toggle menu"
                     >
-                        {isMenuOpen ? "✕" : "🍔"}
+                        {isMenuOpen ? "✕" : "☰"}
                     </button>
                 </div>
 
@@ -104,30 +105,35 @@ export default function Navbar() {
                             exit={{ height: 0, opacity: 0 }}
                             className="md:hidden overflow-hidden border-t-2 border-dashed border-gray-200 mt-4 pt-4"
                         >
-                            <div className="flex flex-col gap-4 font-hand text-lg">
+                            <div className="flex flex-col gap-3 font-hand text-lg">
                                 <Link
                                     to={`/profile/${username}`}
                                     onClick={() => setIsMenuOpen(false)}
-                                    className="flex items-center gap-3 p-2 bg-white/50 rounded hover:bg-white"
+                                    className="flex items-center gap-3 p-3 bg-white/50 rounded-lg hover:bg-white active:bg-gray-100 transition-colors"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-[var(--pastel-yellow)] border border-black flex items-center justify-center font-sketch text-sm">
+                                    <div className="w-10 h-10 rounded-full bg-[var(--pastel-yellow)] border border-black flex items-center justify-center font-sketch text-lg">
                                         {username ? username[0].toUpperCase() : '?'}
                                     </div>
-                                    <span>My Profile</span>
+                                    <div>
+                                        <span className="font-bold block">{username}</span>
+                                        <span className="text-sm text-gray-500">View Profile</span>
+                                    </div>
                                 </Link>
 
                                 <Link
-                                    to="/"
+                                    to="/dashboard"
                                     onClick={() => setIsMenuOpen(false)}
-                                    className="p-2 hover:bg-black/5 rounded"
+                                    className="p-3 hover:bg-black/5 active:bg-black/10 rounded-lg flex items-center gap-3 transition-colors"
                                 >
-                                    🏠 Home
+                                    <span className="text-xl">📰</span>
+                                    <span>Feed</span>
                                 </Link>
 
                                 <div className="border-t border-dashed border-gray-300 my-1"></div>
 
                                 {/* Mobile Instance Badge */}
-                                <div className="p-2 text-sm bg-blue-50 border border-blue-100 rounded text-blue-800">
+                                <div className="p-3 text-sm bg-blue-50 border border-blue-100 rounded-lg text-blue-800 flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                                     Connected to: <strong>{getInstanceName(localStorage.getItem("INSTANCE_BASE_URL"))}</strong>
                                 </div>
 
@@ -136,9 +142,10 @@ export default function Navbar() {
                                         setIsMenuOpen(false);
                                         handleLogoutClick();
                                     }}
-                                    className="text-left text-red-600 p-2 hover:bg-red-50 rounded flex items-center gap-2"
+                                    className="text-left text-red-600 p-3 hover:bg-red-50 active:bg-red-100 rounded-lg flex items-center gap-3 transition-colors"
                                 >
-                                    <span>🚪</span> Log Out
+                                    <span className="text-xl">🚪</span>
+                                    <span>Log Out</span>
                                 </button>
                             </div>
                         </motion.div>
@@ -146,10 +153,10 @@ export default function Navbar() {
                 </AnimatePresence>
             </div>
 
-            {/* Pipe-like structure with marquee effect at the end of navbar */}
-            <div className="w-full h-12 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 overflow-hidden border-t-2 border-gray-900 border-b-2 shadow-inner">
+            {/* Pipe-like structure with marquee effect - Hidden on mobile */}
+            <div className="hidden sm:block w-full h-10 md:h-12 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 overflow-hidden border-t-2 border-gray-900 border-b-2 shadow-inner">
                 <div className="relative flex items-center h-full">
-                    <div className="animate-marquee whitespace-nowrap flex items-center gap-8 text-white font-medium text-base">
+                    <div className="animate-marquee whitespace-nowrap flex items-center gap-8 text-white font-medium text-sm md:text-base">
                         <span>Connect by consent, not algorithms — a truly federated social network.</span>
                         <span className="text-blue-400">✦</span>
                         <span>Decentralized communities, mutual connections, and privacy-first social networking done right.</span>

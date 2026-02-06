@@ -81,28 +81,28 @@ const PostModal = ({
             onClick={onClose}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
           >
-            {/* Modal Container - preventing click bubble */}
+            {/* Modal Container - Full-screen on mobile, centered modal on desktop */}
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
-            >
+              className="bg-white w-full max-w-xl rounded-none sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-full sm:h-auto sm:max-h-[90vh] fixed inset-0 sm:relative sm:inset-auto">
+
               {/* Header */}
-              <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-sm">
+              <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-sm text-sm sm:text-base">
                     {userInitial}
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800 text-lg leading-tight">{username}</h3>
-                    <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded-full">Anyone</span>
+                    <h3 className="font-bold text-gray-800 text-base sm:text-lg leading-tight">{username}</h3>
+                    <span className="text-[10px] sm:text-xs text-gray-500 font-medium bg-gray-100 px-1.5 sm:px-2 py-0.5 rounded-full">Anyone</span>
                   </div>
                 </div>
                 <button
                   onClick={onClose}
-                  className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors"
+                  className="w-10 h-10 sm:w-8 sm:h-8 rounded-full hover:bg-gray-100 active:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -112,14 +112,14 @@ const PostModal = ({
               </div>
 
               {/* Body */}
-              <div className="p-6 overflow-y-auto min-h-[200px]">
+              <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-[200px]">
                 <textarea
                   ref={textareaRef}
-                  className="w-full h-full text-xl text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
+                  className="w-full h-full text-lg sm:text-xl text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
                   placeholder="What do you want to talk about?"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  style={{ minHeight: '150px' }}
+                  style={{ minHeight: '150px', fontSize: '16px' }}
                 />
 
                 {error && (
@@ -130,17 +130,17 @@ const PostModal = ({
               </div>
 
               {/* Footer */}
-              <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end items-center gap-3">
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end items-center gap-2 sm:gap-3 safe-bottom">
                 <button
                   onClick={onClose}
-                  className="px-5 py-2 text-gray-600 font-semibold hover:bg-gray-100 rounded-full transition-colors"
+                  className="px-4 sm:px-5 py-2 text-gray-600 font-semibold hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors text-sm sm:text-base"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handlePost}
                   disabled={!content.trim() || loading}
-                  className="bg-indigo-600 text-white px-6 py-2 rounded-full font-bold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2"
+                  className="bg-indigo-600 text-white px-5 sm:px-6 py-2 rounded-full font-bold hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center gap-2 text-sm sm:text-base"
                 >
                   {loading ? (
                     <>
@@ -170,18 +170,18 @@ export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => v
     <>
       {/* Trigger Bar */}
       <motion.div
-        className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 p-4"
+        className="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 sm:mb-8 p-3 sm:p-4"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="flex gap-4 items-center">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-lg shadow-md">
+        <div className="flex gap-3 sm:gap-4 items-center">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md">
             {userInitial}
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex-grow h-12 bg-white border border-gray-300 rounded-full px-6 flex items-center text-left hover:bg-gray-50 transition-colors shadow-sm text-gray-500 font-medium hover:text-gray-600 hover:border-gray-400"
+            className="flex-grow h-10 sm:h-12 bg-white border border-gray-300 rounded-full px-4 sm:px-6 flex items-center text-left hover:bg-gray-50 active:bg-gray-100 transition-colors shadow-sm text-gray-500 font-medium hover:text-gray-600 hover:border-gray-400 text-sm sm:text-base"
           >
             Start a post...
           </button>

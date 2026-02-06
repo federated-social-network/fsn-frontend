@@ -7,6 +7,7 @@ import { parseUsername } from "../utils/user";
 import { getInstanceName, getInstanceColor } from "../config/instances";
 import type { Post } from "../types/post";
 import { motion, AnimatePresence } from "framer-motion";
+import { FiArrowLeft, FiEdit2, FiUserPlus, FiUserMinus, FiX, FiGrid, FiFileText, FiAlertCircle } from "react-icons/fi";
 
 export default function Profile() {
   const { identifier } = useParams<{ identifier: string }>();
@@ -225,7 +226,14 @@ export default function Profile() {
   }
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[var(--bg-surface)]">
+      {/* Mobile: Back button at very top */}
+      <div className="md:hidden sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-200 px-4 py-3">
+        <Link to="/dashboard" className="font-hand text-lg hover:text-[var(--primary)] transition-colors inline-flex items-center gap-2">
+          <FiArrowLeft className="text-xl" /> Back to Feed
+        </Link>
+      </div>
+
       <div className="flex-1 max-w-7xl mx-auto w-full flex flex-col md:grid md:grid-cols-12 h-full">
 
         {/* --- Delete Post Confirmation Modal --- */}
@@ -347,32 +355,34 @@ export default function Profile() {
           )}
         </AnimatePresence>
 
-        {/* --- Left Sidebar: Profile Info (Static on JS, Scrollable if content too long) --- */}
-        <aside className="md:col-span-4 lg:col-span-3 h-full overflow-y-auto p-4 border-r border-dashed border-gray-300 bg-white/30 backdrop-blur-sm">
-          <div className="mb-6">
-            <Link to="/dashboard" className="font-hand text-xl hover:text-[var(--primary)] transition-colors inline-flex items-center gap-2">
-              ← Back
+        {/* --- Left Sidebar (Desktop) / Top Profile Card (Mobile) --- */}
+        <aside className="md:col-span-4 lg:col-span-3 md:h-full md:overflow-y-auto p-3 sm:p-4 md:border-r border-dashed border-gray-300 bg-white/30 backdrop-blur-sm">
+          {/* Back button - Desktop only */}
+          <div className="mb-4 sm:mb-6 hidden md:block">
+            <Link to="/dashboard" className="font-hand text-lg sm:text-xl hover:text-[var(--primary)] transition-colors inline-flex items-center gap-2">
+              <FiArrowLeft /> Back
             </Link>
           </div>
 
-          <SketchCard variant="paper" pinned pinColor="#ef4444" className="p-6 bg-[var(--pastel-blue)]">
-            {/* Avatar & Name */}
-            <div className="flex flex-col items-center text-center relative">
-              <div className="w-32 h-32 rounded-full bg-[var(--bg-surface)] p-1.5 shadow-xl border-2 border-[var(--ink-primary)] mb-4">
+          <SketchCard variant="paper" pinned pinColor="#ef4444" className="p-4 sm:p-6 bg-[var(--pastel-blue)] mobile-flat">
+            {/* Avatar & Name - Instagram Style on Mobile */}
+            <div className="flex flex-row md:flex-col items-center md:items-center gap-4 md:gap-0 md:text-center relative">
+              {/* Avatar */}
+              <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-[var(--bg-surface)] p-1 sm:p-1.5 shadow-xl border-2 border-[var(--ink-primary)] md:mb-4 shrink-0">
                 {editMode && avatarPreview ? (
                   <img src={avatarPreview} alt="avatar preview" className="w-full h-full object-cover rounded-full" />
                 ) : (
                   user?.avatar_url ? (
                     <img src={user.avatar_url} alt="avatar" className="w-full h-full object-cover rounded-full" />
                   ) : (
-                    <div className="w-full h-full rounded-full bg-[var(--bg-muted)] flex items-center justify-center text-[var(--primary)] text-5xl font-sketch">
+                    <div className="w-full h-full rounded-full bg-[var(--bg-muted)] flex items-center justify-center text-[var(--primary)] text-3xl sm:text-4xl md:text-5xl font-sketch">
                       {(user?.username || username)[0].toUpperCase()}
                     </div>
                   )
                 )}
                 {editMode && (
-                  <label className="absolute bottom-0 right-0 bg-[var(--primary)] text-white p-2 rounded-full cursor-pointer shadow-sketch hover:scale-105 transition-transform text-xs font-bold font-heading border-2 border-black">
-                    EDIT
+                  <label className="absolute bottom-0 right-0 bg-[var(--primary)] text-white p-1.5 sm:p-2 rounded-full cursor-pointer shadow-sketch hover:scale-105 transition-transform text-xs font-bold font-heading border-2 border-black">
+                    <FiEdit2 className="text-sm" />
                     <input type="file" className="hidden" accept="image/*" onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f) {
@@ -386,15 +396,20 @@ export default function Profile() {
                 )}
               </div>
 
-              <h1 className="text-3xl font-bold font-sketch mb-1 break-all">{parseUsername(user?.username).username || username}</h1>
-              <p className="text-lg font-hand text-[var(--ink-secondary)]">@{parseUsername(user?.username).username || username}</p>
-              {(user?.instance || instance) && (
-                <span className={`px-2 py-0.5 mt-2 inline-block font-hand rounded text-xs border ${getInstanceColor(user?.instance || instance)}`}>
-                  instance: {getInstanceName(user?.instance || instance)}
-                </span>
-              )}
+              {/* Name & Handle - Right of avatar on mobile, Below on desktop */}
+              <div className="flex-1 md:flex-none text-left md:text-center min-w-0">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold font-sketch mb-0.5 sm:mb-1 truncate md:break-all">{parseUsername(user?.username).username || username}</h1>
+                <p className="text-sm sm:text-base md:text-lg font-hand text-[var(--ink-secondary)] truncate">@{parseUsername(user?.username).username || username}</p>
+                {(user?.instance || instance) && (
+                  <span className={`px-2 py-0.5 mt-1 sm:mt-2 inline-block font-hand rounded text-[10px] sm:text-xs border ${getInstanceColor(user?.instance || instance)}`}>
+                    {getInstanceName(user?.instance || instance)}
+                  </span>
+                )}
+              </div>
+            </div>
 
-
+            {/* Action Buttons - Compact on mobile */}
+            <div className="w-full mt-4 sm:mt-6 flex flex-col sm:flex-row gap-2">
               {/* Edit Button */}
               {isOwnProfile && !editMode && !loading && (
                 <button
@@ -407,9 +422,9 @@ export default function Profile() {
                     });
                     setAvatarPreview(user?.avatar_url);
                   }}
-                  className="mt-6 px-6 py-2 bg-white hover:bg-[var(--highlighter-yellow)] text-black border-2 border-black font-heading rounded transition-colors shadow-sketch w-full"
+                  className="flex-1 px-4 sm:px-6 py-2 bg-white hover:bg-[var(--highlighter-yellow)] text-black border-2 border-black font-heading rounded transition-colors shadow-sketch flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
-                  Edit Profile
+                  <FiEdit2 /> Edit Profile
                 </button>
               )}
 
@@ -418,68 +433,70 @@ export default function Profile() {
                 isConnected ? (
                   <button
                     onClick={() => handleRemoveClick(username || rawUsername)}
-                    className="mt-6 px-6 py-2 bg-white text-red-500 border-2 border-red-500 font-heading rounded transition-colors shadow-sketch w-full hover:bg-red-50"
+                    className="flex-1 px-4 sm:px-6 py-2 bg-white text-red-500 border-2 border-red-500 font-heading rounded transition-colors shadow-sketch hover:bg-red-50 flex items-center justify-center gap-2 text-sm sm:text-base"
                   >
-                    Unfriend
+                    <FiUserMinus /> Unfriend
                   </button>
                 ) : (
                   requestSent ? (
                     <button
                       disabled
-                      className="mt-6 px-6 py-2 bg-gray-200 text-gray-500 border-2 border-gray-300 font-heading rounded cursor-not-allowed shadow-none w-full"
+                      className="flex-1 px-4 sm:px-6 py-2 bg-gray-200 text-gray-500 border-2 border-gray-300 font-heading rounded cursor-not-allowed shadow-none text-sm sm:text-base"
                     >
                       Request Sent
                     </button>
                   ) : (
                     <button
                       onClick={handleConnect}
-                      className="mt-6 px-6 py-2 bg-[var(--ink-blue)] text-white border-2 border-black font-heading rounded transition-colors shadow-sketch w-full hover:scale-[1.02] hover:shadow-none"
+                      className="flex-1 px-4 sm:px-6 py-2 bg-[var(--ink-blue)] text-white border-2 border-black font-heading rounded transition-colors shadow-sketch hover:scale-[1.02] hover:shadow-none flex items-center justify-center gap-2 text-sm sm:text-base"
                     >
-                      Connect +
+                      <FiUserPlus /> Connect
                     </button>
                   )
                 )
               )}
             </div>
 
-            {loading && <div className="text-center py-8 font-hand text-lg">Loading info...</div>}
+            {loading && <div className="text-center py-6 sm:py-8 font-hand text-base sm:text-lg">Loading info...</div>}
             {error && (
-              <div className="py-8 px-4 text-center">
-                <div className="text-5xl mb-3">😵‍💫</div>
-                <h3 className="font-sketch text-xl font-bold text-red-500 mb-2">Whoops!</h3>
-                <div className="font-hand text-lg text-[var(--ink-secondary)] bg-red-50 border-2 border-dashed border-red-300 p-3 rounded transform -rotate-1">
+              <div className="py-6 sm:py-8 px-3 sm:px-4 text-center">
+                <FiAlertCircle className="text-4xl sm:text-5xl mx-auto mb-3 text-red-400" />
+                <h3 className="font-sketch text-lg sm:text-xl font-bold text-red-500 mb-2">Whoops!</h3>
+                <div className="font-hand text-base sm:text-lg text-[var(--ink-secondary)] bg-red-50 border-2 border-dashed border-red-300 p-3 rounded">
                   {error}
                 </div>
-                <p className="mt-4 font-hand text-sm text-gray-500">
+                <p className="mt-4 font-hand text-xs sm:text-sm text-gray-500">
                   We couldn't find this scribbler. They might be on another instance!
                 </p>
               </div>
             )}
 
-            {/* Stats & Bio */}
+            {/* Stats & Bio - Horizontal on mobile like Instagram */}
 
             {!loading && !error && !editMode && user && (
-              <div className="mt-8 space-y-6">
-                <div className={`grid ${isOwnProfile ? "grid-cols-2" : "grid-cols-1"} gap-2 py-4 border-y-2 border-dashed border-[var(--ink-secondary)]`}>
-                  <div className="text-center">
-                    <div className="text-2xl font-sketch">{posts.length || user.post_count || 0}</div>
-                    <div className="text-sm font-hand text-[var(--ink-secondary)]">Posts</div>
+              <div className="mt-4 sm:mt-8 space-y-4 sm:space-y-6">
+                {/* Stats Row - Always horizontal */}
+                <div className="flex justify-around py-3 sm:py-4 border-y-2 border-dashed border-[var(--ink-secondary)]">
+                  <div className="text-center flex-1">
+                    <div className="text-lg sm:text-2xl font-sketch">{posts.length || user.post_count || 0}</div>
+                    <div className="text-xs sm:text-sm font-hand text-[var(--ink-secondary)]">Posts</div>
                   </div>
 
                   {isOwnProfile && (
                     <div
-                      className="text-center border-l border-dashed border-gray-400 cursor-pointer hover:bg-black/5 transition-colors rounded"
+                      className="text-center flex-1 border-l border-dashed border-gray-400 cursor-pointer hover:bg-black/5 active:bg-black/10 transition-colors rounded"
                       onClick={() => setShowConnectionsModal(true)}
                     >
-                      <div className="text-2xl font-sketch">{connectionCount ?? "-"}</div>
-                      <div className="text-sm font-hand text-[var(--ink-secondary)]">Connections</div>
+                      <div className="text-lg sm:text-2xl font-sketch">{connectionCount ?? "-"}</div>
+                      <div className="text-xs sm:text-sm font-hand text-[var(--ink-secondary)]">Connections</div>
                     </div>
                   )}
                 </div>
 
+                {/* Bio - Compact on mobile */}
                 {user.bio && (
-                  <div className="font-hand text-lg leading-relaxed bg-[#fff] p-3 border border-dashed border-gray-300 shadow-sm relative">
-                    <span className="absolute -top-3 left-2 bg-white px-1 text-xs font-marker text-gray-400">BIO</span>
+                  <div className="font-hand text-sm sm:text-lg leading-relaxed bg-[#fff] p-2.5 sm:p-3 border border-dashed border-gray-300 shadow-sm relative">
+                    <span className="absolute -top-2.5 sm:-top-3 left-2 bg-white px-1 text-[10px] sm:text-xs font-marker text-gray-400">BIO</span>
                     {user.bio}
                   </div>
                 )}
@@ -537,14 +554,14 @@ export default function Profile() {
         </aside>
 
         {/* --- Right Main: User Posts (Scrollable) --- */}
-        <main className="md:col-span-8 lg:col-span-9 h-full overflow-y-auto px-4 md:px-8 py-6 no-scrollbar" style={{ scrollbarWidth: 'none' }}>
-          <h2 className="font-sketch text-3xl font-bold mb-8 flex items-center gap-2">
-            <span className="text-4xl">📝</span>
+        <main className="md:col-span-8 lg:col-span-9 flex-1 md:h-full overflow-y-auto px-3 sm:px-4 md:px-8 py-4 sm:py-6 no-scrollbar" style={{ scrollbarWidth: 'none' }}>
+          <h2 className="font-sketch text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 md:mb-8 flex items-center gap-2">
+            <FiGrid className="text-xl sm:text-2xl md:text-4xl" />
             {isOwnProfile ? "My Scribbles" : `${username}'s Scribbles`}
           </h2>
 
           {!loading && !error && posts.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 pb-20">
               <AnimatePresence mode="popLayout">
                 {posts.map((p, index) => (
                   <motion.div
@@ -558,7 +575,7 @@ export default function Profile() {
                   >
                     <SketchCard
                       variant="paper"
-                      className={`p-4 relative group h-full flex flex-col hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ${index % 2 === 0 ? '-rotate-1' : 'rotate-1'}`}
+                      className={`p-3 sm:p-4 relative group h-full flex flex-col hover:-translate-y-1 hover:shadow-lg transition-all duration-300 mobile-flat ${index % 2 === 0 ? 'md:-rotate-1' : 'md:rotate-1'}`}
                     >
                       {/* Decorative Tape Removed */}
 
@@ -566,13 +583,13 @@ export default function Profile() {
                       {isOwnProfile && (
                         <button
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent modal or other clicks
+                            e.stopPropagation();
                             handleDeleteClick(p.id);
                           }}
-                          className="absolute -top-2 -right-2 flex items-center justify-center w-8 h-8 bg-white text-rose-500 hover:text-white hover:bg-rose-500 border-2 border-rose-100 hover:border-rose-600 font-bold text-lg rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all z-20"
+                          className="absolute -top-2 -right-2 flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 bg-white text-rose-500 hover:text-white hover:bg-rose-500 active:bg-rose-600 border-2 border-rose-100 hover:border-rose-600 font-bold text-sm sm:text-lg rounded-full shadow-sm md:opacity-0 md:group-hover:opacity-100 transition-all z-20"
                           title="Delete Scribble"
                         >
-                          ✕
+                          <FiX />
                         </button>
                       )}
 
@@ -597,10 +614,10 @@ export default function Profile() {
           )}
 
           {!loading && !error && posts.length === 0 && (
-            <div className="text-center py-20 opacity-60">
-              <div className="text-6xl mb-4">📄</div>
-              <div className="font-sketch text-2xl">Blank Page</div>
-              <p className="font-hand text-lg mt-2">No scribbles found for this user.</p>
+            <div className="text-center py-12 sm:py-20 opacity-60">
+              <FiFileText className="text-4xl sm:text-6xl mx-auto mb-4" />
+              <div className="font-sketch text-xl sm:text-2xl">Blank Page</div>
+              <p className="font-hand text-base sm:text-lg mt-2">No scribbles found for this user.</p>
             </div>
           )}
         </main>
