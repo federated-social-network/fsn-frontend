@@ -320,7 +320,7 @@ export default function Dashboard() {
         <main
           ref={mainRef}
           onScroll={handleScroll}
-          className="col-span-1 md:col-span-6 h-full overflow-y-auto px-1 sm:px-2 pb-24 sm:pb-20 no-scrollbar relative mobile-scroll"
+          className="col-span-1 md:col-span-6 h-full overflow-y-auto px-1 sm:px-2 pb-36 sm:pb-32 no-scrollbar relative mobile-scroll"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           <div className="space-y-4">
@@ -554,6 +554,8 @@ export default function Dashboard() {
               </>
             )}
           </div>
+          {/* Spacer for bottom safe area */}
+          <div className="h-20 sm:h-16" />
         </main>
 
 
