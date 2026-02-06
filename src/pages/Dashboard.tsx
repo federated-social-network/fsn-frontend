@@ -224,8 +224,14 @@ export default function Dashboard() {
 
   const performSwitchInstance = () => {
     if (!pendingInstanceUrl) return;
+    // Clear auth tokens before switching instance
+    localStorage.removeItem("AUTH_TOKEN");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("username");
+    // Set the new instance URL
     localStorage.setItem("INSTANCE_BASE_URL", pendingInstanceUrl);
-    window.location.href = "/"; // Force reload to landing page on new instance
+    // Redirect to login page for the new instance
+    window.location.href = "/auth/login";
   };
 
   return (
