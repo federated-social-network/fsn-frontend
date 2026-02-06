@@ -123,13 +123,6 @@ export default function Navbar() {
                                 >
                                     🏠 Home
                                 </Link>
-                                <Link
-                                    to="/settings"
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="p-2 hover:bg-black/5 rounded"
-                                >
-                                    ⚙️ Settings
-                                </Link>
 
                                 <div className="border-t border-dashed border-gray-300 my-1"></div>
 
