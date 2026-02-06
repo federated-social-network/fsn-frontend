@@ -1,73 +1,70 @@
-# React + TypeScript + Vite
+# Heliix - Frontend Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The responsive React-based user interface for the Heliix federated social network. This Client allows users to interact with multiple backend instances, creating a seamless federated experience.
 
-Currently, two official plugins are available:
+## Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Federated Instance Connectivity**: Connects to multiple backend instances (Instance A, Instance B) dynamically.
+- **Modern UI**: A cyber-futuristic aesthetic featuring the unique "Doodle Bot" mascot and glassmorphism elements.
+- **Interactive Elements**:
+    - Animated post creation with smooth transitions.
+    - Real-time feed updates.
+    - Interactive user search and connection management.
+- **Responsiveness**: Fully optimized layouts for both mobile devices (with drawer navigation) and desktop views.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Framework**: React 19
+- **Language**: TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **API Communication**: Axios
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js (v18+ recommended)
+- npm
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1.  Navigate to the frontend directory:
+    ```bash
+    cd fsn-frontend
+    ```
+
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+
+### Running Locally
+
+Start the development server:
+```bash
+npm run dev
 ```
+The application will be available at `http://localhost:5173`.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Building for Production
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+To build the application for deployment:
+```bash
+npm run build
 ```
+The build artifacts will be generated in the `dist` directory.
+
+## Configuration
+
+- **Instances**: Backend instances are configured in `src/config/instances.ts`. You can add or modify instance URLs and branding colors here.
+- **API Connection**: `src/api/api.ts` handles the API logic. It dynamically connects to the instance selected by the user on the landing page (stored in `localStorage`).
+
+## Project Structure
+
+- `src/components`: Reusable UI components (Buttons, Modals, Mascot, etc.).
+- `src/pages`: Main application views (Dashboard, Login, Profile, etc.).
+- `src/api`: API definition and Axios configuration.
+- `src/config`: Static configuration for instances and app constants.
+- `src/utils`: Helper functions and hooks.
