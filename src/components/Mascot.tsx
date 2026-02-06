@@ -8,6 +8,7 @@ interface MascotProps {
 
 
 
+
 export default function Mascot({ isPasswordFocused, showPassword = false }: MascotProps) {
     const ref = useRef<HTMLDivElement>(null);
     const mouseX = useMotionValue(0);
