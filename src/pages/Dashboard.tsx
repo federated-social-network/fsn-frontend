@@ -243,20 +243,8 @@ export default function Dashboard() {
       {/* --- Main Content Grid --- */}
       <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 md:grid-cols-12 gap-8 h-full">
 
-        {/* --- LEFT SIDEBAR: Available Users & Nav --- */}
+        {/* --- LEFT SIDEBAR: Available Users --- */}
         <aside className="md:col-span-3 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-6">
-          {/* Navigation Links */}
-          <SketchCard variant="paper" className="p-3 bg-white">
-            <nav className="flex flex-col gap-2 font-hand text-lg">
-              <Link to="/" className="flex items-center gap-3 px-3 py-2 hover:bg-black/5 rounded-lg transition-colors">
-                <span>🏠</span> Home
-              </Link>
-              <Link to="/settings" className="flex items-center gap-3 px-3 py-2 hover:bg-black/5 rounded-lg transition-colors">
-                <span>⚙️</span> Settings
-              </Link>
-            </nav>
-          </SketchCard>
-
           <SketchCard variant="paper" className="p-4 bg-[var(--pastel-yellow)]">
             <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2 flex justify-between items-center">
               Available Users
