@@ -193,6 +193,7 @@ html {
 
 /* Touch-Friendly Interactions */
 @media (hover: none) and (pointer: coarse) {
+
   /* Larger tap targets for touch devices */
   button,
   a,
@@ -306,10 +307,12 @@ body.modal-open {
 
 /* Mobile Input Styles */
 @media (max-width: 640px) {
+
   input,
   textarea,
   select {
-    font-size: 16px !important; /* Prevent zoom on iOS */
+    font-size: 16px !important;
+    /* Prevent zoom on iOS */
   }
 
   input[type="text"],

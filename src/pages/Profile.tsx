@@ -226,7 +226,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-surface)]">
+    <div className="min-h-screen flex flex-col">
       {/* Mobile: Back button at very top */}
       <div className="md:hidden sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-200 px-4 py-3">
         <Link to="/dashboard" className="font-hand text-lg hover:text-[var(--primary)] transition-colors inline-flex items-center gap-2">
