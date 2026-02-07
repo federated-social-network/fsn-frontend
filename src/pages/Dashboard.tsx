@@ -14,6 +14,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FiSearch, FiRefreshCw, FiArrowUp, FiInfo, FiUsers, FiX, FiAlertTriangle } from "react-icons/fi";
 import ConfirmationModal from "../components/ConfirmationModal";
 
+
 export default function Dashboard() {
 
   const [posts, setPosts] = useState<Post[]>([]);
