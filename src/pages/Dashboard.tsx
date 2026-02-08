@@ -668,7 +668,7 @@ export default function Dashboard() {
                   <FiX className="text-xl" />
                 </button>
               </div>
-            
+
               <div className="space-y-6">
                 {/* Mobile: Pending Invites */}
                 <SketchCard variant="paper" className="p-4 bg-[var(--pastel-pink)]">
