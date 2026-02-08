@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { INSTANCES } from "../config/instances";
+import SketchCard from "../components/SketchCard";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -177,59 +179,31 @@ export default function Landing() {
           Join an instance, keep control of your data, and follow people across servers.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 w-full px-4">
 
-          {/* Instance A Card */}
-          <div
-            onClick={() => chooseInstance("https://instance-a-1094866630955.us-central1.run.app")}
-            className="group cursor-pointer relative bg-white p-6 sm:p-8 transition-transform duration-300 hover:-translate-y-2 hover:rotate-1 flex flex-col justify-between min-h-[200px] sm:min-h-[250px] md:h-80 active:scale-[0.98]"
-            style={{
-              border: '3px solid black',
-              borderRadius: '2% 96% 2% 98% / 98% 2% 95% 4%', // Rough sketch shape
-              boxShadow: '6px 6px 0px rgba(0,0,0,0.8)'
-            }}
-          >
-            <div className="absolute top-3 sm:top-4 right-3 sm:right-4 w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-black bg-cyan-300 group-hover:bg-cyan-400 transition-colors" />
+          {INSTANCES.map((inst, index) => (
+            <div onClick={() => chooseInstance(inst.url)} key={index} className="h-full">
+              <SketchCard
+                variant="paper"
+                className={`h-full flex flex-col justify-between cursor-pointer transition-transform hover:-translate-y-2 active:scale-[0.98] ${inst.color} border-2 border-black`}
+              >
+                <div className="p-6 sm:p-8 flex flex-col h-full">
+                  <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold font-sketch">{inst.name}</h2>
+                    <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-black ${inst.name.includes('A') ? 'bg-cyan-400' : 'bg-purple-400'}`} />
+                  </div>
 
-            <div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 font-sketch text-cyan-600">Instance A</h2>
-              <p className="text-base sm:text-lg md:text-xl text-gray-800 font-hand">
-                General community instance for everyone.
-              </p>
+                  <p className="text-base sm:text-lg text-gray-800 font-hand flex-grow">
+                    {inst.description}
+                  </p>
+
+                  <button className="w-full py-2.5 sm:py-3 mt-6 border-2 border-black bg-white hover:bg-black hover:text-white transition-colors font-bold text-lg font-sketch rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-x-0 hover:translate-x-[2px] hover:translate-y-[2px]">
+                    Join Now &rarr;
+                  </button>
+                </div>
+              </SketchCard>
             </div>
-
-            <button className="w-full py-2.5 sm:py-3 mt-4 sm:mt-6 border-2 border-black bg-cyan-100 hover:bg-cyan-200 active:bg-cyan-300 font-bold text-lg sm:text-xl font-sketch transform transition-transform group-hover:scale-105"
-              style={{ borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px' }}
-            >
-              Join Now &rarr;
-            </button>
-          </div>
-
-          {/* Instance B Card */}
-          <div
-            onClick={() => chooseInstance("https://instance-b-1094866630955.us-central1.run.app")}
-            className="group cursor-pointer relative bg-white p-6 sm:p-8 transition-transform duration-300 hover:-translate-y-2 hover:-rotate-1 flex flex-col justify-between min-h-[200px] sm:min-h-[250px] md:h-80 active:scale-[0.98]"
-            style={{
-              border: '3px solid black',
-              borderRadius: '95% 4% 97% 5% / 4% 97% 3% 98%', // Different rough shape
-              boxShadow: '6px 6px 0px rgba(0,0,0,0.8)'
-            }}
-          >
-            <div className="absolute top-3 sm:top-4 right-3 sm:right-4 w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-black bg-purple-300 group-hover:bg-purple-400 transition-colors" />
-
-            <div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 font-sketch text-purple-600">Instance B</h2>
-              <p className="text-base sm:text-lg md:text-xl text-gray-800 font-hand">
-                Alternate community instance with unique features.
-              </p>
-            </div>
-
-            <button className="w-full py-2.5 sm:py-3 mt-4 sm:mt-6 border-2 border-black bg-purple-100 hover:bg-purple-200 active:bg-purple-300 font-bold text-lg sm:text-xl font-sketch transform transition-transform group-hover:scale-105"
-              style={{ borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px' }}
-            >
-              Join Now &rarr;
-            </button>
-          </div>
+          ))}
 
         </div>
 
