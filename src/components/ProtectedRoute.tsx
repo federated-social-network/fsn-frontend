@@ -13,7 +13,7 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (!username || !token) {
     // Not logged in -> send to login
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/auth/login" replace />;
   }
 
   return <>{children}</>;

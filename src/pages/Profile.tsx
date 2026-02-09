@@ -602,10 +602,7 @@ export default function Profile() {
                         {p.content}
                       </div>
 
-                      {/* Optional Footer/Action Area */}
-                      <div className="mt-3 pt-2 border-t border-dotted border-gray-200 flex justify-end opacity-50 group-hover:opacity-100 transition-opacity">
-                        <span className="text-[10px] font-heading text-gray-400">#{p.id}</span>
-                      </div>
+                     
                     </SketchCard>
                   </motion.div>
                 ))}
