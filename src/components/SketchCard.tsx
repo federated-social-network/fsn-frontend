@@ -4,13 +4,25 @@ import type { ReactNode } from "react";
 interface SketchCardProps {
     children: ReactNode;
     className?: string;
+    /** Visual style variant of the card */
     variant?: "paper" | "sticky" | "polaroid";
-    rotate?: number; // Kept for API compatibility but ignored for visuals
+    /** Rotation angle (ignored for visuals but kept for API compat) */
+    rotate?: number;
+    /** Whether to show a tape effect */
     taped?: boolean;
+    /** Whether to show a pin effect */
     pinned?: boolean;
+    /** Color of the pin if pinned */
     pinColor?: string;
 }
 
+/**
+ * A stylized card component with sketch-like aesthetics.
+ * Supports multiple variants like 'paper', 'sticky' note, and 'polaroid'.
+ *
+ * @param {SketchCardProps} props - The component props.
+ * @returns {JSX.Element} The rendered SketchCard.
+ */
 export default function SketchCard({
     children,
     className = "",

@@ -8,6 +8,12 @@ import SketchCard from "../components/SketchCard";
 import Mascot from "../components/Mascot";
 
 
+/**
+ * Authentication page component handling both Login and Registration.
+ * Toggles between modes based on the URL path.
+ *
+ * @returns {JSX.Element} The rendered AuthPage.
+ */
 const AuthPage = () => {
     const navigate = useNavigate();
     const location = useLocation();

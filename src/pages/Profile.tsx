@@ -9,6 +9,12 @@ import type { Post } from "../types/post";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiArrowLeft, FiEdit2, FiUserPlus, FiUserMinus, FiX, FiGrid, FiFileText, FiAlertCircle } from "react-icons/fi";
 
+/**
+ * User profile page displaying user details, posts, and connection status.
+ * Allows editing own profile, connecting with others, and viewing friends.
+ *
+ * @returns {JSX.Element} The rendered Profile page.
+ */
 export default function Profile() {
   const { identifier } = useParams<{ identifier: string }>();
   // Ensure we work with the clean username for logic, but might need the raw one for API calls?
@@ -602,7 +608,7 @@ export default function Profile() {
                         {p.content}
                       </div>
 
-                     
+
                     </SketchCard>
                   </motion.div>
                 ))}

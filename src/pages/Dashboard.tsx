@@ -15,6 +15,12 @@ import { FiSearch, FiRefreshCw, FiArrowUp, FiInfo, FiUsers, FiX, FiAlertTriangle
 import ConfirmationModal from "../components/ConfirmationModal";
 
 
+/**
+ * The main dashboard page displaying the post feed and user suggestions.
+ * Handles fetching posts, user suggestions, and managing connection requests.
+ *
+ * @returns {JSX.Element} The rendered Dashboard page.
+ */
 export default function Dashboard() {
 
   const [posts, setPosts] = useState<Post[]>([]);

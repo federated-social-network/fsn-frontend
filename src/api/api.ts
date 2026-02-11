@@ -53,12 +53,32 @@ export const getApi = (): AxiosInstance => {
 
 // Convenience wrappers that use getApi() so callers don't need to create
 // their own axios instances.
+
+/**
+ * Registers a new user.
+ * @param {string} username - The desired username.
+ * @param {string} password - The password.
+ * @param {string} [email] - Optional email address.
+ * @returns {Promise<AxiosResponse>} The API response.
+ */
 export const registerUser = (username: string, password: string, email?: string) =>
   getApi().post("/auth/register", null, { params: { username, password, email } });
 
+/**
+ * Logs in a user.
+ * @param {string} username - The username.
+ * @param {string} password - The password.
+ * @returns {Promise<AxiosResponse>} The API response containing the access token.
+ */
 export const loginUser = (username: string, password: string) =>
   getApi().post("/auth/login", null, { params: { username, password } });
 
+/**
+ * Creates a new post.
+ * @param {string} content - The content of the post.
+ * @param {string} [username] - Optional username for server-side attribution.
+ * @returns {Promise<AxiosResponse>} The API response.
+ */
 export const createPost = (
   content: string,
   username?: string
@@ -77,12 +97,24 @@ export const createPost = (
 };
 
 // Fetch posts from the instance. Returns an array of posts.
+/**
+ * Fetches posts from the server.
+ * @param {number} [limit=50] - The maximum number of posts to fetch.
+ * @param {string} [username] - Optional username to filter posts.
+ * @returns {Promise<AxiosResponse>} The API response containing the list of posts.
+ */
 export const getPosts = (limit = 50, username?: string) => {
   return getApi().get("/get_posts", { params: { limit, username } });
 };
 
 // Fetch user details. Try several common endpoint shapes to be robust
 // across different instance implementations.
+/**
+ * Fetches user details by username.
+ * @param {string} username - The username to fetch details for.
+ * @param {string} [token] - Optional auth token.
+ * @returns {Promise<AxiosResponse>} The API response containing user details.
+ */
 export const getUser = async (username: string, token?: string) => {
   const api = getApi();
   if (!username || String(username).trim() === "") {

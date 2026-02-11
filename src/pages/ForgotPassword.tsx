@@ -7,6 +7,12 @@ import SketchCard from "../components/SketchCard";
 import Mascot from "../components/Mascot";
 
 
+/**
+ * Forgot Password page component handling the password reset flow.
+ * Steps: 1. Input Email -> 2. Verify OTP -> 3. Reset Password.
+ *
+ * @returns {JSX.Element} The rendered ForgotPassword page.
+ */
 const ForgotPassword = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);

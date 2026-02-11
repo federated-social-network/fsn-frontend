@@ -1,3 +1,8 @@
+/**
+ * Formats a date into a "time ago" string (e.g., "5 mins ago").
+ * @param {string | Date | number | null} [input] - The date to format.
+ * @returns {string} The formatted time string or "unknown".
+ */
 export function timeAgo(input?: string | Date | number | null): string {
   if (!input) return "unknown";
   const date = typeof input === 'string' || typeof input === 'number' ? new Date(input) : input;

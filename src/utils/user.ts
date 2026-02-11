@@ -7,6 +7,9 @@ import { getInstanceName } from "../config/instances";
  * Example:
  * "Harish1604" -> { username: "Harish1604", instance: null }
  * "https://instance-a-1094866630955.us-central1.run.app/users/Harish1604" -> { username: "Harish1604", instance: "Instance A" }
+ *
+ * @param {string | undefined | null} input - The username or URL to parse.
+ * @returns {{ username: string, instance: string | null }} The parsed username and instance.
  */
 export const parseUsername = (input: string | undefined | null) => {
     if (!input) return { username: "Unknown", instance: null };

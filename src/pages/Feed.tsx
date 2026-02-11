@@ -1,5 +1,10 @@
 import PostForm from "../components/PostForm";
 
+/**
+ * Simple feed component displaying a welcome message and the post form.
+ *
+ * @returns {JSX.Element} The rendered Feed component.
+ */
 export default function Feed() {
   const username = localStorage.getItem("username") || "";
 

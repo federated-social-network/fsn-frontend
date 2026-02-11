@@ -4,6 +4,12 @@ import { getInstanceName } from "../config/instances";
 import { useState } from "react";
 import ConfirmationModal from "./ConfirmationModal";
 
+/**
+ * Navigation bar component displayed at the top of the application.
+ * Handles user logout and mobile menu toggling.
+ *
+ * @returns {JSX.Element} The rendered Navbar component.
+ */
 export default function Navbar() {
     const username = localStorage.getItem("username") || "";
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -22,6 +28,7 @@ export default function Navbar() {
     };
 
 
+    
     return (
         <div className="relative z-50">
             <div className="relative bg-gradient-to-b from-[var(--paper-white)] to-gray-50 pt-3 sm:pt-5 pb-4 sm:pb-7 px-4 sm:px-6 shadow-lg">

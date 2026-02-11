@@ -2,13 +2,22 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 interface MascotProps {
+    /** Whether the password input field is focused */
     isPasswordFocused: boolean;
+    /** Whether the password visibility is toggled on */
     showPassword?: boolean;
 }
 
 
 
 
+/**
+ * Interactive Mascot component that reacts to mouse movement and password input state.
+ * Follows the cursor with its eyes and covers them when password is hidden.
+ *
+ * @param {MascotProps} props - The component props.
+ * @returns {JSX.Element} The rendered Mascot SVG.
+ */
 export default function Mascot({ isPasswordFocused, showPassword = false }: MascotProps) {
     const ref = useRef<HTMLDivElement>(null);
     const mouseX = useMotionValue(0);
