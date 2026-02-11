@@ -236,7 +236,7 @@ export default function Landing() {
               { icon: FiGlobe, title: "Decentralized", desc: "No single company owns your data. Each server is independent, yet connected to the whole network." },
               { icon: FiCode, title: "Open Source", desc: "Built on transparent code. You have the right to inspect, copy, and modify the software." },
               { icon: FiShield, title: "Not for Sale", desc: "We respect your agency. No algorithms manipulating your feed, no ads tracking your every move." },
-              { icon: FiShare2, title: "Interoperable", desc: "Built on ActivityPub. Follow and interact with anyone on Mastodon, PixelFed, and more." }
+              { icon: FiShare2, title: "Interoperable", desc: "Built on ActivityPub. Connect and interact with anyone on HeliiX." }
             ].map((feature, i) => (
               <motion.div
                 key={i}
@@ -320,7 +320,7 @@ export default function Landing() {
             <h3 className="text-xl font-bold mb-4 text-gray-300">Project</h3>
             <ul className="space-y-2 text-gray-400">
               <li><a href="#" className="hover:text-white hover:underline decoration-wavy">About</a></li>
-              <li><a href="#" className="hover:text-white hover:underline decoration-wavy">Source Code</a></li>
+              <li><a href="https://github.com/federated-social-network" className="hover:text-white hover:underline decoration-wavy">Source Code</a></li>
               <li><a href="#" className="hover:text-white hover:underline decoration-wavy">Instances</a></li>
             </ul>
           </div>
@@ -336,7 +336,7 @@ export default function Landing() {
         </div>
 
         <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
-          © {new Date().getFullYear()} Heliix Project. Built with ❤️ and ☕.
+          © {new Date().getFullYear()} Heliix Project.
         </div>
       </footer>
 
