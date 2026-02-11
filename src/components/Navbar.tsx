@@ -61,6 +61,7 @@ export default function Navbar() {
                                 </div>
                             </div>
 
+
                             <div className="relative">
                                 <motion.div
                                     whileHover={{ rotate: 3, scale: 1.1 }}
@@ -74,6 +75,7 @@ export default function Navbar() {
                                 <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 md:w-8 h-2 md:h-3 bg-white/40 border-l border-r border-white/60 rotate-2 shadow-sm pointer-events-none"></div>
                             </div>
                         </Link>
+                        
 
                         {/* Logout Button */}
                         <button
