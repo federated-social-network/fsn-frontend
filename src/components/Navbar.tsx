@@ -28,7 +28,7 @@ export default function Navbar() {
     };
 
 
-    
+
     return (
         <div className="relative z-50">
             <div className="relative bg-gradient-to-b from-[var(--paper-white)] to-gray-50 pt-3 sm:pt-5 pb-4 sm:pb-7 px-4 sm:px-6 shadow-lg">
@@ -67,6 +67,7 @@ export default function Navbar() {
                                     Me
                                 </div>
                             </div>
+                            
 
                             <div className="relative">
                                 <motion.div
