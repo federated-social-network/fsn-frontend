@@ -29,7 +29,7 @@ export default function Navbar() {
                 <div className="max-w-7xl mx-auto flex items-center justify-between relative">
 
                     {/* LOGO */}
-                    <Link to="/" className="group relative">
+                    <div className="group relative select-none">
                         <motion.div
                             whileHover={{ rotate: -2, scale: 1.05 }}
                             className="text-2xl sm:text-3xl md:text-4xl font-sketch font-bold text-[var(--ink-primary)] relative z-10"
@@ -38,7 +38,7 @@ export default function Navbar() {
                         </motion.div>
                         {/* Highlight effect behind logo */}
                         <div className="absolute -inset-2 bg-[var(--highlighter-yellow)] rotate-2 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity -z-0"></div>
-                    </Link>
+                    </div>
 
                     {/* INSTANCE BADGE - Hidden on mobile */}
                     <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 transform -rotate-1">
@@ -75,7 +75,7 @@ export default function Navbar() {
                                 <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 md:w-8 h-2 md:h-3 bg-white/40 border-l border-r border-white/60 rotate-2 shadow-sm pointer-events-none"></div>
                             </div>
                         </Link>
-                        
+
 
                         {/* Logout Button */}
                         <button
