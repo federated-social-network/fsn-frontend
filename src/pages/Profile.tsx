@@ -48,7 +48,14 @@ export default function Profile() {
       try {
         // Fetch User (which now includes access to their posts)
         // Pass the raw username (identifier) to the API as it might need the full URL for remote lookup
-        const userRes = await getUser(rawUsername);
+        // Parallelize data fetching
+        const [userRes, connRes] = await Promise.all([
+          getUser(rawUsername),
+          isOwnProfile ? getConnectionCount().catch((e) => {
+            console.error("Failed to fetch connection count", e);
+            return null;
+          }) : Promise.resolve(null)
+        ]);
 
         if (!mounted) return;
         const userData = userRes.data;
@@ -68,14 +75,8 @@ export default function Profile() {
 
         setPosts(userPosts);
 
-        // Fetch connection count if it's my own profile
-        if (isOwnProfile) {
-          try {
-            const connRes = await getConnectionCount();
-            setConnectionCount(connRes.data.connection_count);
-          } catch (e) {
-            console.error("Failed to fetch connection count", e);
-          }
+        if (connRes && connRes.data) {
+          setConnectionCount(connRes.data.connection_count);
         }
 
       } catch (err: any) {
@@ -602,7 +603,7 @@ export default function Profile() {
                         {p.content}
                       </div>
 
-                     
+
                     </SketchCard>
                   </motion.div>
                 ))}
