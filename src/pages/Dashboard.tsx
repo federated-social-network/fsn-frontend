@@ -261,42 +261,44 @@ export default function Dashboard() {
             <div className="space-y-2">
               {suggestedUsers.length > 0 ? (
                 <>
-                  {suggestedUsers.slice(0, showAllUsers ? undefined : 3).map((u: any) => (
-                    <Link key={u.username} to={`/profile/${u.username}`} className="block group">
-                      <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-black/5 bg-white/30">
-                        {/* Avatar */}
-                        <div className="w-9 h-9 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-md shrink-0 shadow-sm">
-                          {u.username[0].toUpperCase()}
-                        </div>
-
-                        {/* Name & Instance */}
-                        <div className="overflow-hidden flex-1 min-w-0 flex flex-col justify-center">
-                          <div className="font-bold font-hand truncate text-sm leading-tight text-gray-800">
-                            {u.username}
+                  <div className={`space-y-2 ${showAllUsers ? 'max-h-[300px] overflow-y-auto pr-1 custom-scrollbar' : ''}`}>
+                    {suggestedUsers.slice(0, showAllUsers ? undefined : 3).map((u: any) => (
+                      <Link key={u.username} to={`/profile/${u.username}`} className="block group">
+                        <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-black/5 bg-white/30">
+                          {/* Avatar */}
+                          <div className="w-9 h-9 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-md shrink-0 shadow-sm">
+                            {u.username[0].toUpperCase()}
                           </div>
-                          <div className="text-[10px] bg-black/5 px-1.5 py-0.5 rounded-full inline-block truncate w-fit max-w-full text-gray-600 mt-0.5 border border-black/5">
-                            {u.instance || 'local'}
+
+                          {/* Name & Instance */}
+                          <div className="overflow-hidden flex-1 min-w-0 flex flex-col justify-center">
+                            <div className="font-bold font-hand truncate text-sm leading-tight text-gray-800">
+                              {u.username}
+                            </div>
+                            <div className="text-[10px] bg-black/5 px-1.5 py-0.5 rounded-full inline-block truncate w-fit max-w-full text-gray-600 mt-0.5 border border-black/5">
+                              {u.instance || 'local'}
+                            </div>
+                          </div>
+
+                          {/* Connect Button (Always visible, no overlap) */}
+                          <div className="shrink-0 ml-1">
+                            {sentRequests.has(u.username) ? (
+                              <span className="text-[10px] font-hand text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200 block text-center min-w-[50px]">
+                                Sent
+                              </span>
+                            ) : (
+                              <button
+                                onClick={(e) => handleConnect(e, u.username)}
+                                className="bg-[var(--ink-blue)] text-white text-[11px] px-2.5 py-1 rounded-md font-hand shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all flex items-center gap-1 active:scale-95"
+                              >
+                                Connect+
+                              </button>
+                            )}
                           </div>
                         </div>
-
-                        {/* Connect Button (Always visible, no overlap) */}
-                        <div className="shrink-0 ml-1">
-                          {sentRequests.has(u.username) ? (
-                            <span className="text-[10px] font-hand text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200 block text-center min-w-[50px]">
-                              Sent
-                            </span>
-                          ) : (
-                            <button
-                              onClick={(e) => handleConnect(e, u.username)}
-                              className="bg-[var(--ink-blue)] text-white text-[11px] px-2.5 py-1 rounded-md font-hand shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all flex items-center gap-1 active:scale-95"
-                            >
-                              Connect+
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    ))}
+                  </div>
 
                   {suggestedUsers.length > 3 && (
                     <button
