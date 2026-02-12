@@ -15,6 +15,7 @@ import { FiSearch, FiRefreshCw, FiArrowUp, FiInfo, FiUsers, FiX, FiAlertTriangle
 import ConfirmationModal from "../components/ConfirmationModal";
 
 
+
 export default function Dashboard() {
 
   const [posts, setPosts] = useState<Post[]>([]);
