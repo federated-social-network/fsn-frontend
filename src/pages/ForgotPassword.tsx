@@ -7,6 +7,7 @@ import SketchCard from "../components/SketchCard";
 import Mascot from "../components/Mascot";
 
 
+
 const ForgotPassword = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
