@@ -120,6 +120,12 @@ const PostModal = ({
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   style={{ minHeight: '150px', fontSize: '16px' }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handlePost();
+                    }
+                  }}
                 />
 
                 {error && (
