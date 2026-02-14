@@ -27,7 +27,7 @@ export default function Profile() {
 
   // Edit mode state
   const [editMode, setEditMode] = useState(false);
-  const [form, setForm] = useState({ display_name: "", bio: "", email: "" });
+  const [form, setForm] = useState({ display_name: "", bio: "", email: "", username: "" });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -99,11 +99,29 @@ export default function Profile() {
       if (avatarFile) {
         await uploadAvatar(rawUsername, avatarFile);
       }
-      await updateUser(rawUsername, form);
-      const res = await getUser(rawUsername);
+
+      // We pass the form which now includes 'username'
+      const response = await updateUser(rawUsername, form);
+
+      // Check if username changed by comparing the requested username (form.username) 
+      // with the original username.
+      // Or better, check the response if it returns the new user object, which likely has the new username.
+      // The backend returns: { id, username, email }
+      const newUsername = response.data.username;
+
+      if (newUsername && newUsername !== username) {
+        // Redirect to new profile URL
+        // We can't just setUser because the URL is wrong now.
+        // Force a page reload or navigation to the new URL.
+        window.location.href = `/profile/${newUsername}`;
+        return;
+      }
+
+      const res = await getUser(newUsername || rawUsername); // Use new username if available
       setUser(res.data);
       setEditMode(false);
     } catch (err: any) {
+      console.error("Save error:", err);
       setSaveError(err?.response?.data?.detail || err?.message || "Failed to save profile");
     } finally {
       setSaving(false);
@@ -419,7 +437,8 @@ export default function Profile() {
                     setForm({
                       display_name: user?.display_name || "",
                       bio: user?.bio || "",
-                      email: user?.email || ""
+                      email: user?.email || "",
+                      username: user?.username || username // Initialize with current username
                     });
                     setAvatarPreview(user?.avatar_url);
                   }}
@@ -508,16 +527,27 @@ export default function Profile() {
             {editMode && (
               <div className="mt-6 space-y-4 border-t-2 border-dashed border-black pt-4">
                 <div>
-                  <label className="block text-sm font-heading mb-1">Display Name</label>
+                  <label htmlFor="username" className="block text-sm font-heading mb-1">Username</label>
                   <input
+                    id="username"
+                    value={form.username}
+                    onChange={e => setForm({ ...form, username: e.target.value })}
+                    className="w-full font-hand text-lg border-b-2 border-black px-1 focus:border-[var(--primary)] outline-none bg-transparent"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="display_name" className="block text-sm font-heading mb-1">Display Name</label>
+                  <input
+                    id="display_name"
                     value={form.display_name}
                     onChange={e => setForm({ ...form, display_name: e.target.value })}
                     className="w-full font-hand text-lg border-b-2 border-black px-1 focus:border-[var(--primary)] outline-none bg-transparent"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-heading mb-1">Bio</label>
+                  <label htmlFor="bio" className="block text-sm font-heading mb-1">Bio</label>
                   <textarea
+                    id="bio"
                     rows={3}
                     value={form.bio}
                     onChange={e => setForm({ ...form, bio: e.target.value })}
@@ -525,8 +555,9 @@ export default function Profile() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-heading mb-1">Email</label>
+                  <label htmlFor="email" className="block text-sm font-heading mb-1">Email</label>
                   <input
+                    id="email"
                     value={form.email}
                     onChange={e => setForm({ ...form, email: e.target.value })}
                     className="w-full font-hand text-lg border-b-2 border-black px-1 focus:border-[var(--primary)] outline-none bg-transparent"
