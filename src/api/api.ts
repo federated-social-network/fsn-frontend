@@ -153,6 +153,7 @@ export const getConnectionsList = () => getApi().get("/list_connections"); // en
 export const removeConnection = (username: string) =>
   getApi().post(`/remove_connection/${username}`);
 
+
 export const searchUsers = (q: string) =>
   getApi().get("/search_users", { params: { q } });
 
