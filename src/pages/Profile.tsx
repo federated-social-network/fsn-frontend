@@ -110,9 +110,10 @@ export default function Profile() {
       const newUsername = response.data.username;
 
       if (newUsername && newUsername !== username) {
+        // Update local storage so "My Profile" links work
+        localStorage.setItem("username", newUsername);
+
         // Redirect to new profile URL
-        // We can't just setUser because the URL is wrong now.
-        // Force a page reload or navigation to the new URL.
         window.location.href = `/profile/${newUsername}`;
         return;
       }
