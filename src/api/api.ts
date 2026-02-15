@@ -105,8 +105,8 @@ export const getUser = async (username: string, token?: string) => {
 // profile fields; the exact path may differ between backends. This helper
 // posts a JSON body to `/update_user` by default — adjust if your
 // instance expects a different path (e.g. `/users/{username}` or PATCH).
-export const updateUser = (username: string, data: Record<string, any>) =>
-  getApi().post(`/update_user`, { username, ...data });
+export const updateUser = (data: Record<string, any>) =>
+  getApi().put(`/update_profile`, data);
 
 // Upload an avatar image. Uses multipart/form-data and posts to
 // `/upload_avatar`. If your backend expects a different path, update it.
