@@ -1,5 +1,11 @@
 import PostForm from "../components/PostForm";
 
+/**
+ * A simple feed component.
+ * Currently serves as a placeholder or simplified view for the timeline.
+ *
+ * @returns {JSX.Element} The rendered Feed.
+ */
 export default function Feed() {
   const username = localStorage.getItem("username") || "";
 

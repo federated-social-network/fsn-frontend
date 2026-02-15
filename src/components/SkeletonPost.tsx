@@ -1,3 +1,9 @@
+/**
+ * A placeholder component showing a loading skeleton for a post.
+ * Used while fetching data to improve perceived performance.
+ *
+ * @returns {JSX.Element} The rendered SkeletonPost.
+ */
 export default function SkeletonPost() {
     return (
         <div className="bg-[var(--bg-muted)]/40 border border-[var(--muted-border)] rounded-xl p-4 animate-pulse">

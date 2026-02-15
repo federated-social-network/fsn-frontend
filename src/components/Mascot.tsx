@@ -1,14 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
+/**
+ * Props for the Mascot component.
+ */
 interface MascotProps {
+    /** Indicates if the password input field is focused. */
     isPasswordFocused: boolean;
+    /** Indicates if the password should be shown (e.g., user clicked "show password"). */
     showPassword?: boolean;
 }
 
-
-
-
+/**
+ * An interactive Mascot component that reacts to mouse movement and password field state.
+ * It features a hand-drawn sketch style with animated facial expressions.
+ *
+ * @param {MascotProps} props - The component props.
+ * @returns {JSX.Element} The rendered Mascot SVG.
+ */
 export default function Mascot({ isPasswordFocused, showPassword = false }: MascotProps) {
     const ref = useRef<HTMLDivElement>(null);
     const mouseX = useMotionValue(0);
@@ -131,6 +140,9 @@ export default function Mascot({ isPasswordFocused, showPassword = false }: Masc
 
 // --- Sub Components ---
 
+/**
+ * Renders the mouth of the mascot with different expressions based on state.
+ */
 const Mouth = ({ isPasswordFocused, showPassword }: any) => {
     // Idle animation for mouth to make it feel alive
     const [isBreathing, setIsBreathing] = useState(false);
@@ -165,6 +177,9 @@ const Mouth = ({ isPasswordFocused, showPassword }: any) => {
     );
 };
 
+/**
+ * Renders the pupil of the eye, following the mouse cursor.
+ */
 const Pupil = ({ eyeX, eyeY, isPasswordFocused, showPassword }: any) => {
     const x = useTransform(eyeX, (v: number) => v * 0.8); // Increased movement multiplier
     const y = useTransform(eyeY, (v: number) => v * 0.8);
@@ -183,6 +198,9 @@ const Pupil = ({ eyeX, eyeY, isPasswordFocused, showPassword }: any) => {
     );
 };
 
+/**
+ * Renders the eyelid, handling blinking, squinting, and peeking animations.
+ */
 const Eyelid = ({ isPasswordFocused, showPassword }: any) => {
     // When password focused (and not shown), eyes close/squint
     // Represented by a path that clips or covers
@@ -217,6 +235,10 @@ const Eyelid = ({ isPasswordFocused, showPassword }: any) => {
     );
 };
 
+/**
+ * Renders the hands/arms of the mascot.
+ * Hands cover eyes when password is focused but not shown.
+ */
 const Hands = ({ isPasswordFocused, showPassword }: any) => {
     // Hands come up to cover eyes when password is focused (and hidden)
     // Arms start from body (y=300) and move up to face (y=180)

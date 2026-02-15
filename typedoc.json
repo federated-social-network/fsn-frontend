@@ -1,0 +1,17 @@
+{
+    "entryPoints": [
+        "src/main.tsx",
+        "src/App.tsx",
+        "src/api",
+        "src/components",
+        "src/pages",
+        "src/utils",
+        "src/types",
+        "src/config"
+    ],
+    "out": "docs",
+    "plugin": [],
+    "name": "FSN Frontend Documentation",
+    "readme": "README.md",
+    "includeVersion": true
+}

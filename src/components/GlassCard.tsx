@@ -1,14 +1,29 @@
 import React from "react";
 import { motion } from "framer-motion";
 
+/**
+ * Props for the GlassCard component.
+ */
 interface GlassCardProps {
+    /** The content to be rendered inside the card. */
     children: React.ReactNode;
+    /** Additional CSS classes to apply to the card container. */
     className?: string;
+    /** Whether to apply a hover elevation and scaling effect. */
     hoverEffect?: boolean;
+    /** Optional click handler. */
     onClick?: () => void;
+    /** The visual variant of the card. 'glass' for translucent, 'note' for solid white. */
     variant?: 'glass' | 'note';
 }
 
+/**
+ * A container component with a glassmorphism or sticky note style.
+ * Supports hover effects and click interactions.
+ *
+ * @param {GlassCardProps} props - The component props.
+ * @returns {JSX.Element} The rendered GlassCard.
+ */
 export default function GlassCard({ children, className = "", hoverEffect = false, onClick, variant = 'glass' }: GlassCardProps) {
     // Hybrid Style: Professional Glass + Sketchy Border/Shadow
     // Note Variant: Clean White for professional look

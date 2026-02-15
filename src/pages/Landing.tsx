@@ -3,6 +3,12 @@ import { INSTANCES } from "../config/instances";
 import SketchCard from "../components/SketchCard";
 import { motion } from "framer-motion";
 import { FiGlobe, FiCode, FiShield, FiShare2 } from "react-icons/fi";
+/**
+ * Landing page component.
+ * Displays the hero section, features, testimonials, and allows users to choose an instance.
+ *
+ * @returns {JSX.Element} The rendered Landing page.
+ */
 export default function Landing() {
   const navigate = useNavigate();
 

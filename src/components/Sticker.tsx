@@ -1,5 +1,8 @@
 import React from "react";
 
+/**
+ * Supported sticker types.
+ */
 export type StickerType =
     | "pin-1" | "pin-2" | "pin-3"
     | "plane"
@@ -7,12 +10,24 @@ export type StickerType =
     | "compass"
     | "stamp";
 
+/**
+ * Props for the Sticker component.
+ */
 interface StickerProps {
+    /** The type of sticker to render. */
     type: StickerType;
+    /** Additional CSS classes. */
     className?: string;
+    /** Inline styles. */
     style?: React.CSSProperties;
 }
 
+/**
+ * Renders a decorative SVG sticker.
+ *
+ * @param {StickerProps} props - The component props.
+ * @returns {JSX.Element} The rendered Sticker SVG.
+ */
 export default function Sticker({ type, className = "", style }: StickerProps) {
     if (type.startsWith("pin")) {
         const colors = {

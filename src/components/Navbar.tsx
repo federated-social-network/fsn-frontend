@@ -4,6 +4,12 @@ import { getInstanceName } from "../config/instances";
 import { useState } from "react";
 import ConfirmationModal from "./ConfirmationModal";
 
+/**
+ * The main integration navigation bar.
+ * Handles user logout, displays the current instance, and provides navigation links.
+ *
+ * @returns {JSX.Element} The rendered Navbar.
+ */
 export default function Navbar() {
     const username = localStorage.getItem("username") || "";
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);

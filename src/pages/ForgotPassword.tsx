@@ -8,6 +8,12 @@ import Mascot from "../components/Mascot";
 
 
 
+/**
+ * Forgot Password page component.
+ * Handles the 3-step process: Request OTP, Verify OTP, and Reset Password.
+ *
+ * @returns {JSX.Element} The rendered ForgotPassword page.
+ */
 const ForgotPassword = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);

@@ -1,17 +1,35 @@
 import { motion, AnimatePresence } from "framer-motion";
 import SketchCard from "./SketchCard";
 
+/**
+ * Props for the ConfirmationModal component.
+ */
 interface ConfirmationModalProps {
+    /** Whether the modal is currently open. */
     isOpen: boolean;
+    /** Function to call when the modal is requested to close. */
     onClose: () => void;
+    /** Function to call when the user confirms the action. */
     onConfirm: () => void;
+    /** The title of the modal. */
     title: string;
+    /** The message body of the modal. */
     message: string;
+    /** Text for the confirm button. Defaults to "Confirm". */
     confirmText?: string;
+    /** Text for the cancel button. Defaults to "Cancel". */
     cancelText?: string;
-    confirmColor?: string; // e.g. "bg-red-500" or "bg-black"
+    /** Tailwind CSS class for the confirm button color. Defaults to "bg-black". */
+    confirmColor?: string;
 }
 
+/**
+ * A modal dialog for confirming actions (e.g., logging out, deleting content).
+ * Uses a sketch-style card design.
+ *
+ * @param {ConfirmationModalProps} props - The component props.
+ * @returns {JSX.Element} The rendered ConfirmationModal.
+ */
 export default function ConfirmationModal({
     isOpen,
     onClose,

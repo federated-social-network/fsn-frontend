@@ -16,6 +16,13 @@ import ConfirmationModal from "../components/ConfirmationModal";
 
 
 
+/**
+ * The main dashboard component.
+ * Displays the user feed, suggested users, and allows creating new posts.
+ * Handles switching between global and following feeds, and instance switching.
+ *
+ * @returns {JSX.Element} The rendered Dashboard.
+ */
 export default function Dashboard() {
 
   const [posts, setPosts] = useState<Post[]>([]);

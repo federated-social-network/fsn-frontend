@@ -4,6 +4,16 @@ import { createPost } from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Helper component for the Modal
+/**
+ * Modal component for creating a new post.
+ * Handles the input, character count, and submission logic.
+ *
+ * @param {Object} props - The component props.
+ * @param {boolean} props.isOpen - Whether the modal is open.
+ * @param {() => void} props.onClose - Function to close the modal.
+ * @param {string} props.username - The username of the current user.
+ * @param {(data: any) => void} [props.onPosted] - Callback function triggered after a successful post.
+ */
 const PostModal = ({
   isOpen,
   onClose,
@@ -167,6 +177,13 @@ const PostModal = ({
   );
 };
 
+/**
+ * Component that displays a trigger bar to open the post creation modal.
+ *
+ * @param {Object} props - The component props.
+ * @param {(newPost?: any) => void} [props.onPosted] - Callback function triggered after a successful post.
+ * @returns {JSX.Element} The rendered PostForm trigger.
+ */
 export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => void }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const username = localStorage.getItem("username") || "?";

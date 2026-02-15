@@ -5,8 +5,13 @@ import { searchUsers, initiateConnection, removeConnection } from "../api/api";
 import SketchCard from "./SketchCard";
 import { FiSearch, FiX, FiUserPlus, FiUserX, FiClock, FiAlertCircle } from "react-icons/fi";
 
+/**
+ * Props for the UserSearchModal component.
+ */
 interface UserSearchModalProps {
+    /** Whether the modal is open. */
     isOpen: boolean;
+    /** Function to close the modal. */
     onClose: () => void;
 }
 
@@ -19,6 +24,13 @@ interface SearchResult {
     status: ConnectionStatus;
 }
 
+/**
+ * A modal for searching and connecting with other users.
+ * Handles search queries, displays results, and allows sending connection requests.
+ *
+ * @param {UserSearchModalProps} props - The component props.
+ * @returns {JSX.Element} The rendered UserSearchModal.
+ */
 export default function UserSearchModal({ isOpen, onClose }: UserSearchModalProps) {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<SearchResult[]>([]);

@@ -7,6 +7,12 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
 
 
+/**
+ * The root component of the application.
+ * Handles the main routing setup using React Router.
+ *
+ * @returns {JSX.Element} The main App component with routes.
+ */
 export default function App() {
   return (
     <BrowserRouter>

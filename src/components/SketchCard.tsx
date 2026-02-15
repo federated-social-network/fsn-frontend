@@ -1,16 +1,33 @@
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 
+/**
+ * Props for the SketchCard component.
+ */
 interface SketchCardProps {
+    /** The content to be rendered inside the card. */
     children: ReactNode;
+    /** Additional CSS classes. */
     className?: string;
+    /** The visual variant of the card (paper, sticky note, or polaroid). */
     variant?: "paper" | "sticky" | "polaroid";
-    rotate?: number; // Kept for API compatibility but ignored for visuals
+    /** Rotation angle (not currently used for visuals, kept for API compatibility). */
+    rotate?: number;
+    /** Whether the card should look taped. */
     taped?: boolean;
+    /** Whether the card should look pinned. */
     pinned?: boolean;
+    /** The color of the pin if pinned. */
     pinColor?: string;
 }
 
+/**
+ * A styled card component that mimics hand-drawn or physical paper elements.
+ * Supports various variants like sticky notes and polaroids.
+ *
+ * @param {SketchCardProps} props - The component props.
+ * @returns {JSX.Element} The rendered SketchCard.
+ */
 export default function SketchCard({
     children,
     className = "",

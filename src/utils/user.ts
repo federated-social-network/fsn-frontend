@@ -3,10 +3,13 @@ import { getInstanceName } from "../config/instances";
 /**
  * Parses a username string which might be a simple username or a full URL.
  * Returns a clean display username and the instance domain (if available).
- * 
- * Example:
- * "Harish1604" -> { username: "Harish1604", instance: null }
- * "https://instance-a-1094866630955.us-central1.run.app/users/Harish1604" -> { username: "Harish1604", instance: "Instance A" }
+ *
+ * @param {string | undefined | null} input - The username string or URL to parse.
+ * @returns {{ username: string | undefined | null, instance: string | null }} An object containing the parsed username and instance name.
+ *
+ * @example
+ * parseUsername("Harish1604") // -> { username: "Harish1604", instance: null }
+ * parseUsername("https://instance-a.run.app/users/Harish1604") // -> { username: "Harish1604", instance: "Instance A" }
  */
 export const parseUsername = (input: string | undefined | null) => {
     if (!input) return { username: "Unknown", instance: null };

@@ -9,6 +9,13 @@ import type { Post } from "../types/post";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiArrowLeft, FiEdit2, FiUserPlus, FiUserMinus, FiX, FiGrid, FiFileText, FiAlertCircle } from "react-icons/fi";
 
+/**
+ * User Profile page component.
+ * Displays user information, stats, bio, and their posts.
+ * Allows editing profile (if own profile) and connecting/disconnecting (if other user).
+ *
+ * @returns {JSX.Element} The rendered Profile page.
+ */
 export default function Profile() {
   const { identifier } = useParams<{ identifier: string }>();
   // Ensure we work with the clean username for logic, but might need the raw one for API calls?

@@ -1,3 +1,8 @@
+/**
+ * Calculates the time elapsed since a given date and returns a human-readable string.
+ * @param {string | Date | number | null} [input] - The date to calculate time from. Can be a string, Date object, or timestamp.
+ * @returns {string} A string representing how long ago the date was (e.g., "5 mins ago"), or "unknown" if input is invalid.
+ */
 export function timeAgo(input?: string | Date | number | null): string {
   if (!input) return "unknown";
   const date = typeof input === 'string' || typeof input === 'number' ? new Date(input) : input;
