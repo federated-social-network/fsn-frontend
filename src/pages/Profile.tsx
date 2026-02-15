@@ -101,7 +101,7 @@ export default function Profile() {
       }
 
       // We pass the form which now includes 'username'
-      const response = await updateUser(rawUsername, form);
+      const response = await updateUser(form);
 
       // Check if username changed by comparing the requested username (form.username) 
       // with the original username.

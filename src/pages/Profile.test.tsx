@@ -102,7 +102,7 @@ describe('Profile Component', () => {
         fireEvent.click(screen.getByRole('button', { name: /Save/i }));
 
         await waitFor(() => {
-            expect(api.updateUser).toHaveBeenCalledWith('testuser', expect.objectContaining({
+            expect(api.updateUser).toHaveBeenCalledWith(expect.objectContaining({
                 username: 'newname'
             }));
         });
@@ -145,7 +145,7 @@ describe('Profile Component', () => {
         fireEvent.click(screen.getByRole('button', { name: /Save/i }));
 
         await waitFor(() => {
-            expect(api.updateUser).toHaveBeenCalledWith('testuser', expect.objectContaining({
+            expect(api.updateUser).toHaveBeenCalledWith(expect.objectContaining({
                 email: 'newemail@example.com'
             }));
         });
