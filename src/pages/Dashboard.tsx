@@ -71,8 +71,7 @@ export default function Dashboard() {
 
 
   const mainRef = useRef<HTMLElement>(null);
-  const [hasNewPosts, setHasNewPosts] = useState(false);
-  const [showNewPostsBtn, setShowNewPostsBtn] = useState(false);
+
   const [showScrollTopBtn, setShowScrollTopBtn] = useState(false);
   const [suggestedUsers, setSuggestedUsers] = useState<any[]>([]);
   const [showAllUsers, setShowAllUsers] = useState(false);
@@ -175,35 +174,14 @@ export default function Dashboard() {
   }, [activeTab]);
 
 
-  // Poll for new posts
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const res = await getPosts(1); // Fetch just the latest
-        const latestInfo = res.data?.[0];
-        // If we have posts and the latest fetched post is newer than our top post
-        if (latestInfo && posts.length > 0 && latestInfo.id !== posts[0].id) {
-          setHasNewPosts(true);
-        }
-      } catch (err) {
-        // ignore polling errors
-      }
-    }, 15000); // Check every 15s
 
-    return () => clearInterval(interval);
-  }, [posts]);
 
   // Handle scroll to show buttons
   const handleScroll = () => {
     if (!mainRef.current) return;
     const scrollTop = mainRef.current.scrollTop;
 
-    // Show "New Posts" button if we have new posts AND we are scrolled down a bit
-    if (scrollTop > 100 && hasNewPosts) {
-      setShowNewPostsBtn(true);
-    } else {
-      setShowNewPostsBtn(false);
-    }
+
 
     // Show "Scroll Top" button if scrolled down significantly
     if (scrollTop > 300) {
@@ -213,12 +191,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleRefreshClick = () => {
-    loadPosts();
-    setHasNewPosts(false);
-    setShowNewPostsBtn(false);
-    mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+
 
   const handleScrollToTop = () => {
     mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -410,6 +383,8 @@ export default function Dashboard() {
                 </motion.button>
               )}
             </AnimatePresence>
+
+
 
             {/* ERROR */}
             {error && (
