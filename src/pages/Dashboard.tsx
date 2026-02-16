@@ -394,20 +394,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* New Posts Indicator */}
-            <AnimatePresence>
-              {showNewPostsBtn && activeTab === 'global' && (
-                <motion.button
-                  initial={{ y: -50, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -50, opacity: 0 }}
-                  onClick={handleRefreshClick}
-                  className="sticky top-4 left-1/2 -translate-x-1/2 z-30 bg-[var(--pastel-blue)] text-black font-sketch px-5 py-2 rounded-full shadow-lg border-2 border-black flex items-center gap-2 hover:scale-105 transition-transform mx-auto"
-                >
-                  <FiArrowUp className="text-lg" /> New Notes!
-                </motion.button>
-              )}
-            </AnimatePresence>
+
 
             {/* Scroll to Top */}
             <AnimatePresence>
