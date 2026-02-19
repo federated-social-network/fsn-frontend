@@ -38,7 +38,11 @@ export default function Dashboard() {
     try {
       const res = await getPosts();
       const postsData = res.data || [];
-      const sortedPosts = postsData.sort((a: Post, b: Post) => {
+      const normalized = postsData.map((p: any) => ({
+        ...p,
+        avatar_url: p.avatar_url || p.profile_url || null,
+      }));
+      const sortedPosts = normalized.sort((a: Post, b: Post) => {
         const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
         const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
         return dateB - dateA;
@@ -162,7 +166,11 @@ export default function Dashboard() {
         try {
           const res = await getFollowedPosts();
           const data = res.data || [];
-          const sorted = data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          const normalized = data.map((p: any) => ({
+            ...p,
+            avatar_url: p.avatar_url || p.profile_url || null,
+          }));
+          const sorted = normalized.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
           setFollowedPosts(sorted);
         } catch (e) {
           console.error("Failed to load following feed", e);

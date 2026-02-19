@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { getInstanceName } from "../config/instances";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ConfirmationModal from "./ConfirmationModal";
+import { getUser } from "../api/api";
 
 /**
  * The main integration navigation bar.
@@ -14,6 +15,18 @@ export default function Navbar() {
     const username = localStorage.getItem("username") || "";
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!username) return;
+        getUser(username)
+            .then((res) => {
+                const data = res.data || {};
+                const url = data.avatar_url || data.profile_url || data.user?.avatar_url || data.user?.profile_url || null;
+                setAvatarUrl(url);
+            })
+            .catch(() => setAvatarUrl(null));
+    }, [username]);
 
     const handleLogoutClick = () => {
         setShowLogoutConfirm(true);
@@ -76,7 +89,11 @@ export default function Navbar() {
                                     className="w-10 h-10 md:w-12 md:h-12 bg-white p-1 border border-gray-200 shadow-md rotate-[-2deg] transition-all"
                                 >
                                     <div className="w-full h-full bg-[var(--pastel-yellow)] border border-black/10 flex items-center justify-center font-sketch text-lg md:text-xl overflow-hidden">
-                                        {username ? username[0].toUpperCase() : '?'}
+                                        {avatarUrl ? (
+                                            <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+                                        ) : (
+                                            username ? username[0].toUpperCase() : '?'
+                                        )}
                                     </div>
                                 </motion.div>
                                 {/* Tape on photo */}
@@ -121,8 +138,12 @@ export default function Navbar() {
                                     onClick={() => setIsMenuOpen(false)}
                                     className="flex items-center gap-3 p-3 bg-white/50 rounded-lg hover:bg-white active:bg-gray-100 transition-colors"
                                 >
-                                    <div className="w-10 h-10 rounded-full bg-[var(--pastel-yellow)] border border-black flex items-center justify-center font-sketch text-lg">
-                                        {username ? username[0].toUpperCase() : '?'}
+                                    <div className="w-10 h-10 rounded-full bg-[var(--pastel-yellow)] border border-black flex items-center justify-center font-sketch text-lg overflow-hidden">
+                                        {avatarUrl ? (
+                                            <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+                                        ) : (
+                                            username ? username[0].toUpperCase() : '?'
+                                        )}
                                     </div>
                                     <div>
                                         <span className="font-bold block">{username}</span>
