@@ -60,8 +60,16 @@ export const getApi = (): AxiosInstance => {
  * @param {string} [email] - (Optional) The email address for the new account.
  * @returns {Promise<import("axios").AxiosResponse<any>>} The server response.
  */
-export const registerUser = (username: string, password: string, email?: string) =>
-  getApi().post("/auth/register", null, { params: { username, password, email } });
+export const registerUser = (username: string, password: string, email?: string, avatar?: File) => {
+  const form = new FormData();
+  if (avatar) {
+    form.append("avatar", avatar);
+  }
+  return getApi().post("/auth/register", form, {
+    params: { username, password, email },
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
 
 /**
  * Logs in a user.
@@ -154,11 +162,10 @@ export const updateUser = (username: string, data: Record<string, any>) =>
  * @param {File} file - The image file to upload.
  * @returns {Promise<import("axios").AxiosResponse<any>>} The server response.
  */
-export const uploadAvatar = (username: string, file: File) => {
+export const uploadAvatar = (file: File) => {
   const form = new FormData();
-  form.append("username", username);
-  form.append("avatar", file);
-  return getApi().post(`/upload_avatar`, form, {
+  form.append("file", file);
+  return getApi().post(`/users/avatar`, form, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };

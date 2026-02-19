@@ -42,7 +42,7 @@ export default function Navbar() {
                         >
                             HeliiX...
 
-                            
+
                         </motion.div>
                         {/* Highlight effect behind logo */}
                         <div className="absolute -inset-2 bg-[var(--highlighter-yellow)] rotate-2 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity -z-0"></div>

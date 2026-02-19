@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
-import { loginUser, registerUser } from "../api/api";
+import { loginUser, registerUser, uploadAvatar } from "../api/api";
 import { getInstanceName } from "../config/instances";
 import SketchCard from "../components/SketchCard";
 import Mascot from "../components/Mascot";
@@ -32,10 +32,17 @@ const AuthPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
+    // Avatar state (registration only)
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const avatarInputRef = useRef<HTMLInputElement>(null);
+
     // Reset state on mode change
     useEffect(() => {
         setErrorMsg("");
         setSuccessMsg("");
+        setAvatarFile(null);
+        setAvatarPreview(null);
     }, [isRegisterMode]);
 
     // Validation Helpers
@@ -68,12 +75,31 @@ const AuthPage = () => {
         try {
             if (isRegisterMode) {
                 // Register Flow
-                const res = await registerUser(username, password, email);
+                const res = await registerUser(username, password, email, avatarFile || undefined);
                 if (res.data?.message || res.status === 200) {
-                    setSuccessMsg("Registration successful! Logging in...");
-                    setTimeout(() => {
-                        navigate("/auth/login");
-                    }, 1500);
+                    setSuccessMsg("Registration successful!");
+
+                    // If avatar was selected, silently login to upload it
+                    if (avatarFile) {
+                        try {
+                            const loginRes = await loginUser(username, password);
+                            if (loginRes?.status === 200) {
+                                const data = loginRes.data || loginRes;
+                                localStorage.setItem("access_token", data.access_token);
+                                localStorage.setItem("AUTH_TOKEN", data.access_token);
+                                await uploadAvatar(avatarFile);
+                            }
+                        } catch (avatarErr) {
+                            console.error("Avatar upload failed:", avatarErr);
+                        } finally {
+                            // Clear auth state — user should log in manually
+                            localStorage.removeItem("access_token");
+                            localStorage.removeItem("AUTH_TOKEN");
+                            localStorage.removeItem("username");
+                        }
+                    }
+
+                    setTimeout(() => navigate("/auth/login"), 1500);
                 } else {
                     setErrorMsg("Registration failed");
                 }
@@ -190,6 +216,39 @@ const AuthPage = () => {
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 className="w-full bg-white border-2 border-black/80 p-3 sm:p-3.5 text-lg sm:text-xl outline-none focus:ring-4 focus:ring-black/5 focus:border-black transition-all font-hand text-black placeholder:text-gray-400 rounded-md"
                                             />
+                                        </div>
+                                    )}
+
+                                    {isRegisterMode && (
+                                        <div className="flex flex-col items-center gap-2">
+                                            <input
+                                                ref={avatarInputRef}
+                                                type="file"
+                                                accept="image/jpeg,image/png,image/gif,image/webp"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) {
+                                                        setAvatarFile(file);
+                                                        setAvatarPreview(URL.createObjectURL(file));
+                                                    }
+                                                }}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => avatarInputRef.current?.click()}
+                                                className="w-20 h-20 rounded-full border-2 border-dashed border-black/40 hover:border-black flex items-center justify-center overflow-hidden transition-all hover:scale-105 bg-gray-50 hover:bg-gray-100 group"
+                                            >
+                                                {avatarPreview ? (
+                                                    <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="flex flex-col items-center text-gray-400 group-hover:text-black transition-colors">
+                                                        <span className="text-2xl">📷</span>
+                                                        <span className="text-[10px] font-hand font-bold">Add Photo</span>
+                                                    </div>
+                                                )}
+                                            </button>
+                                            <span className="text-xs font-hand text-gray-400">Profile pic (optional)</span>
                                         </div>
                                     )}
 

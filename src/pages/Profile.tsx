@@ -66,6 +66,10 @@ export default function Profile() {
 
         if (!mounted) return;
         const userData = userRes.data;
+        // Map backend field name to what the frontend expects
+        if (userData.profile_url) {
+          userData.avatar_url = userData.profile_url;
+        }
         setUser(userData);
 
         // Map backend posts to frontend Post type
@@ -104,7 +108,7 @@ export default function Profile() {
     setSaveError(null);
     try {
       if (avatarFile) {
-        await uploadAvatar(rawUsername, avatarFile);
+        await uploadAvatar(avatarFile);
       }
       await updateUser(rawUsername, form);
       const res = await getUser(rawUsername);
@@ -391,9 +395,21 @@ export default function Profile() {
                 {editMode && (
                   <label className="absolute bottom-0 right-0 bg-[var(--primary)] text-white p-1.5 sm:p-2 rounded-full cursor-pointer shadow-sketch hover:scale-105 transition-transform text-xs font-bold font-heading border-2 border-black">
                     <FiEdit2 className="text-sm" />
-                    <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                    <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f) {
+                        // Validation
+                        const validTypes = ["image/jpeg", "image/png", "image/webp"];
+                        if (!validTypes.includes(f.type)) {
+                          alert("Invalid file type. Please upload JPEG, PNG, or WEBP.");
+                          return;
+                        }
+                        const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+                        if (f.size > MAX_SIZE) {
+                          alert("File too large. Maximum size is 2MB.");
+                          return;
+                        }
+
                         setAvatarFile(f);
                         const reader = new FileReader();
                         reader.onload = () => setAvatarPreview(String(reader.result));
