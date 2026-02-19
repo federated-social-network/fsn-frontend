@@ -111,7 +111,7 @@ export const createPost = (
  * @returns {Promise<import("axios").AxiosResponse<any>>} The server response containing the list of posts.
  */
 export const getPosts = (limit = 50, username?: string) => {
-  return getApi().get("/get_posts", { params: { limit, username } });
+  return getApi().get("/timeline", { params: { limit, username } });
 };
 
 // Fetch user details. Try several common endpoint shapes to be robust

@@ -421,8 +421,12 @@ export default function Dashboard() {
                           <div className="flex justify-between items-start mb-3 gap-2">
                             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                               <Link to={`/profile/${parseUsername(p.author).username}`}>
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-xs sm:text-sm shrink-0">
-                                  {parseUsername(p.author).username[0].toUpperCase()}
+                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-xs sm:text-sm shrink-0 overflow-hidden">
+                                  {(p as any).avatar_url ? (
+                                    <img src={(p as any).avatar_url} alt="" className="w-full h-full object-cover" />
+                                  ) : (
+                                    parseUsername(p.author).username[0].toUpperCase()
+                                  )}
                                 </div>
                               </Link>
                               <div className="min-w-0">
@@ -486,8 +490,12 @@ export default function Dashboard() {
                           <div className="flex justify-between items-start mb-3 gap-2">
                             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                               <Link to={`/profile/${parseUsername(p.author).username}`}>
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-xs sm:text-sm shrink-0">
-                                  {parseUsername(p.author).username[0].toUpperCase()}
+                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-xs sm:text-sm shrink-0 overflow-hidden">
+                                  {(p as any).avatar_url ? (
+                                    <img src={(p as any).avatar_url} alt="" className="w-full h-full object-cover" />
+                                  ) : (
+                                    parseUsername(p.author).username[0].toUpperCase()
+                                  )}
                                 </div>
                               </Link>
                               <div className="min-w-0">

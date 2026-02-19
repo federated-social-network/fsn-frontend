@@ -324,7 +324,7 @@ export default function Profile() {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
                 className="max-w-md w-full"
               >
                 <SketchCard variant="paper" className="p-0 overflow-hidden bg-white max-h-[80vh] flex flex-col">
