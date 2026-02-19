@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { createPost } from "../api/api";
+import { createPost, getUser } from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Helper component for the Modal
@@ -18,11 +18,13 @@ const PostModal = ({
   isOpen,
   onClose,
   username,
+  avatarUrl,
   onPosted
 }: {
   isOpen: boolean;
   onClose: () => void;
   username: string;
+  avatarUrl?: string | null;
   onPosted?: (data: any) => void;
 }) => {
   const [content, setContent] = useState("");
@@ -102,8 +104,12 @@ const PostModal = ({
               {/* Header */}
               <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-sm text-sm sm:text-base">
-                    {userInitial}
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-sm text-sm sm:text-base overflow-hidden">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+                    ) : (
+                      userInitial
+                    )}
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-800 text-base sm:text-lg leading-tight">{username}</h3>
@@ -188,6 +194,19 @@ export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => v
   const [isModalOpen, setIsModalOpen] = useState(false);
   const username = localStorage.getItem("username") || "?";
   const userInitial = username[0]?.toUpperCase();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!username || username === "?") return;
+    getUser(username)
+      .then((res) => {
+        const data = res.data || {};
+        // Backend may return `profile_url` instead of `avatar_url`
+        const url = data.avatar_url || data.profile_url || data.user?.avatar_url || data.user?.profile_url || null;
+        setAvatarUrl(url);
+      })
+      .catch(() => setAvatarUrl(null));
+  }, [username]);
 
   return (
     <>
@@ -199,8 +218,12 @@ export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => v
         transition={{ duration: 0.3 }}
       >
         <div className="flex gap-3 sm:gap-4 items-center">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md">
-            {userInitial}
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md overflow-hidden">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+            ) : (
+              userInitial
+            )}
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
@@ -216,6 +239,7 @@ export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => v
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         username={username}
+        avatarUrl={avatarUrl}
         onPosted={onPosted}
       />
     </>
