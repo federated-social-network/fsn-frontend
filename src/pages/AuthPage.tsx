@@ -135,18 +135,103 @@ const AuthPage = () => {
     return (
         <div className="min-h-screen relative flex items-center justify-center p-4 sm:p-6 overflow-hidden">
 
+            {/* Single hidden file input shared by both desktop and mobile avatar pickers */}
+            {isRegisterMode && (
+                <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                            setAvatarFile(file);
+                            setAvatarPreview(URL.createObjectURL(file));
+                        }
+                    }}
+                />
+            )}
+
             {/* Container for the Two Cards */}
             <div className="relative z-10 w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 items-stretch h-full">
 
-                {/* Left Side: Mascot Card - Hidden on mobile */}
+                {/* Left Side Card */}
                 <div className="hidden md:block h-full">
                     <SketchCard variant="paper" className="h-full flex flex-col items-center justify-center p-8 bg-sky-50 transform -rotate-1">
                         <h2 className="text-3xl lg:text-4xl font-bold text-center mb-8 font-sketch tracking-wider">
                             {isRegisterMode ? "Join the Crew!" : "Welcome Back!"}
                         </h2>
-                        <div className="w-full max-w-xs scale-110">
-                            <Mascot isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
-                        </div>
+
+                        {isRegisterMode ? (
+                            /* ── Avatar Picker (Register) ── */
+                            <div className="flex flex-col items-center gap-4">
+                                {/* Big clickable circle */}
+                                <motion.button
+                                    type="button"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.97 }}
+                                    onClick={() => avatarInputRef.current?.click()}
+                                    className="relative w-52 h-52 rounded-full border-4 border-black overflow-hidden bg-white shadow-lg group focus:outline-none"
+                                >
+                                    {avatarPreview ? (
+                                        <img
+                                            src={avatarPreview}
+                                            alt="Your photo"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        /* Creature SVG placeholder */
+                                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-sky-100 to-blue-50 group-hover:from-sky-200 group-hover:to-blue-100 transition-colors">
+                                            <svg viewBox="0 0 100 100" className="w-28 h-28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                {/* Body */}
+                                                <ellipse cx="50" cy="62" rx="22" ry="26" fill="#bfdbfe" stroke="#1e40af" strokeWidth="2.5" />
+                                                {/* Head */}
+                                                <circle cx="50" cy="34" r="18" fill="#bfdbfe" stroke="#1e40af" strokeWidth="2.5" />
+                                                {/* Eyes */}
+                                                <circle cx="43" cy="31" r="3.5" fill="#1e40af" />
+                                                <circle cx="57" cy="31" r="3.5" fill="#1e40af" />
+                                                {/* Eye highlights */}
+                                                <circle cx="44.5" cy="29.5" r="1.2" fill="white" />
+                                                <circle cx="58.5" cy="29.5" r="1.2" fill="white" />
+                                                {/* Smile */}
+                                                <path d="M44 39 Q50 44 56 39" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" fill="none" />
+                                                {/* Antenna */}
+                                                <line x1="50" y1="16" x2="50" y2="8" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" />
+                                                <circle cx="50" cy="6" r="3" fill="#93c5fd" stroke="#1e40af" strokeWidth="1.5" />
+                                                {/* Arms */}
+                                                <path d="M28 58 Q18 54 16 62" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                                                <path d="M72 58 Q82 54 84 62" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+
+                                            </svg>
+                                        </div>
+                                    )}
+
+
+                                </motion.button>
+
+                                <div className="text-center">
+                                    <p className="font-hand font-bold text-gray-700 text-base">
+                                        {avatarPreview ? "Lookin' good! 🎉" : "Pick your avatar"}
+                                    </p>
+                                    {avatarPreview ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => avatarInputRef.current?.click()}
+                                            className="font-hand text-sm mt-1 text-blue-500 hover:text-blue-700 underline underline-offset-2 transition-colors border-none shadow-none bg-transparent p-0"
+                                        >
+                                            Click to change
+                                        </button>
+                                    ) : (
+                                        <p className="font-hand text-gray-400 text-sm mt-0.5">Click the circle to upload</p>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            /* ── Mascot (Login) ── */
+                            <div className="w-full max-w-xs scale-110">
+                                <Mascot isPasswordFocused={isPasswordFocused} showPassword={showPassword} />
+                            </div>
+                        )}
                     </SketchCard>
                 </div>
 
@@ -219,38 +304,7 @@ const AuthPage = () => {
                                         </div>
                                     )}
 
-                                    {isRegisterMode && (
-                                        <div className="flex flex-col items-center gap-2">
-                                            <input
-                                                ref={avatarInputRef}
-                                                type="file"
-                                                accept="image/jpeg,image/png,image/gif,image/webp"
-                                                className="hidden"
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                        setAvatarFile(file);
-                                                        setAvatarPreview(URL.createObjectURL(file));
-                                                    }
-                                                }}
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => avatarInputRef.current?.click()}
-                                                className="w-20 h-20 rounded-full border-2 border-dashed border-black/40 hover:border-black flex items-center justify-center overflow-hidden transition-all hover:scale-105 bg-gray-50 hover:bg-gray-100 group"
-                                            >
-                                                {avatarPreview ? (
-                                                    <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="flex flex-col items-center text-gray-400 group-hover:text-black transition-colors">
-                                                        <span className="text-2xl">📷</span>
-                                                        <span className="text-[10px] font-hand font-bold">Add Photo</span>
-                                                    </div>
-                                                )}
-                                            </button>
-                                            <span className="text-xs font-hand text-gray-400">Profile pic (optional)</span>
-                                        </div>
-                                    )}
+
 
                                     <div className="relative group">
                                         <input
