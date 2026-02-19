@@ -355,3 +355,14 @@ body.modal-open {
     display: none !important;
   }
 }
+
+/* Avatar image rendering fix — prevents cracked/pixelated appearance at small
+   sizes, especially inside rotated or border-radius-clipped containers. */
+.rounded-full img,
+.rounded-full > img {
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  image-rendering: auto;
+  will-change: transform;
+}
