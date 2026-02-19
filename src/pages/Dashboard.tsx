@@ -125,7 +125,8 @@ export default function Dashboard() {
         const usersData = Array.isArray(res.data) ? res.data : (res.data?.users || []);
         const mappedUsers = usersData.map((u: any) => ({
           username: u.username || u,
-          instance: u.instance || 'local'
+          instance: u.instance || 'local',
+          avatar_url: u.avatar_url || null
         }));
         setSuggestedUsers(mappedUsers);
       } catch (e) {
@@ -246,8 +247,12 @@ export default function Dashboard() {
                       <Link key={u.username} to={`/profile/${u.username}`} className="block group">
                         <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-black/5 bg-white/30">
                           {/* Avatar */}
-                          <div className="w-9 h-9 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-md shrink-0 shadow-sm">
-                            {u.username[0].toUpperCase()}
+                          <div className="w-9 h-9 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-md shrink-0 shadow-sm overflow-hidden">
+                            {u.avatar_url ? (
+                              <img src={u.avatar_url} alt={u.username} className="w-full h-full object-cover" />
+                            ) : (
+                              u.username[0].toUpperCase()
+                            )}
                           </div>
 
                           {/* Name & Instance */}
@@ -683,8 +688,12 @@ export default function Dashboard() {
                     {suggestedUsers.slice(0, 5).map((u: any) => (
                       <Link key={u.username} to={`/profile/${u.username}`} onClick={() => setShowMobileExtras(false)} className="block group">
                         <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-black/5 bg-white/30">
-                          <div className="w-8 h-8 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-sm shrink-0 shadow-sm">
-                            {u.username[0].toUpperCase()}
+                          <div className="w-8 h-8 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-sm shrink-0 shadow-sm overflow-hidden">
+                            {u.avatar_url ? (
+                              <img src={u.avatar_url} alt={u.username} className="w-full h-full object-cover" />
+                            ) : (
+                              u.username[0].toUpperCase()
+                            )}
                           </div>
                           <div className="overflow-hidden flex-1 min-w-0 flex flex-col justify-center">
                             <div className="font-bold font-hand truncate text-sm leading-tight text-gray-800">{u.username}</div>
