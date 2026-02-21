@@ -451,11 +451,14 @@ export default function Dashboard() {
                                 <div className="text-[10px] sm:text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
                               </div>
                             </div>
-                            {(p.origin_instance || parseUsername(p.author).instance) && (
-                              <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs border font-hand shrink-0 ${getInstanceColor(p.origin_instance || parseUsername(p.author).instance)}`}>
-                                {getInstanceName(p.origin_instance || parseUsername(p.author).instance)}
-                              </span>
-                            )}
+                            {(() => {
+                              const inst = p.origin_instance || parseUsername(p.author).instance || localStorage.getItem("INSTANCE_BASE_URL");
+                              return inst ? (
+                                <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs border font-hand shrink-0 ${getInstanceColor(inst)}`}>
+                                  {getInstanceName(inst)}
+                                </span>
+                              ) : null;
+                            })()}
                           </div>
 
                           {/* Content */}
@@ -520,11 +523,14 @@ export default function Dashboard() {
                                 <div className="text-[10px] sm:text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
                               </div>
                             </div>
-                            {(p.origin_instance || parseUsername(p.author).instance) && (
-                              <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs border font-hand shrink-0 ${getInstanceColor(p.origin_instance || parseUsername(p.author).instance)}`}>
-                                {getInstanceName(p.origin_instance || parseUsername(p.author).instance)}
-                              </span>
-                            )}
+                            {(() => {
+                              const inst = p.origin_instance || parseUsername(p.author).instance || localStorage.getItem("INSTANCE_BASE_URL");
+                              return inst ? (
+                                <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs border font-hand shrink-0 ${getInstanceColor(inst)}`}>
+                                  {getInstanceName(inst)}
+                                </span>
+                              ) : null;
+                            })()}
                           </div>
 
                           {/* Content */}
