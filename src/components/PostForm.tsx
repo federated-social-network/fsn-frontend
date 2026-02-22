@@ -6,13 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 // Helper component for the Modal
 /**
  * Modal component for creating a new post.
- * Handles the input, character count, and submission logic.
- *
- * @param {Object} props - The component props.
- * @param {boolean} props.isOpen - Whether the modal is open.
- * @param {() => void} props.onClose - Function to close the modal.
- * @param {string} props.username - The username of the current user.
- * @param {(data: any) => void} [props.onPosted] - Callback function triggered after a successful post.
+ * Handles the input, character count, image upload, and submission logic.
  */
 const PostModal = ({
   isOpen,
@@ -30,7 +24,10 @@ const PostModal = ({
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Focus when opened
   useEffect(() => {
@@ -38,6 +35,42 @@ const PostModal = ({
       setTimeout(() => textareaRef.current?.focus(), 100);
     }
   }, [isOpen]);
+
+  // Clean up preview URL on unmount or change
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate type
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      setError("Invalid file type. Please upload JPEG, PNG, WEBP, or GIF.");
+      return;
+    }
+
+    // Validate size (5 MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image too large. Maximum size is 5 MB.");
+      return;
+    }
+
+    setError("");
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const clearImage = () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handlePost = async () => {
     setError("");
@@ -48,17 +81,18 @@ const PostModal = ({
       return;
     }
 
-    if (!content.trim()) {
-      setError("Please type a message!");
+    if (!content.trim() && !imageFile) {
+      setError("Please type a message or add an image!");
       return;
     }
 
     try {
       setLoading(true);
-      const res = await createPost(content, username);
+      const res = await createPost(content, username, imageFile || undefined);
 
       if (res?.status === 200 || res?.status === 201) {
         setContent("");
+        clearImage();
         if (onPosted) onPosted(res.data);
 
         try {
@@ -131,11 +165,11 @@ const PostModal = ({
               <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-[200px]">
                 <textarea
                   ref={textareaRef}
-                  className="w-full h-full text-lg sm:text-xl text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
+                  className="w-full text-lg sm:text-xl text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
                   placeholder="What do you want to talk about?"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  style={{ minHeight: '150px', fontSize: '16px' }}
+                  style={{ minHeight: imagePreview ? '80px' : '150px', fontSize: '16px' }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -143,6 +177,27 @@ const PostModal = ({
                     }
                   }}
                 />
+
+                {/* Image preview */}
+                {imagePreview && (
+                  <div className="mt-3 relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                    <img
+                      src={imagePreview}
+                      alt="Upload preview"
+                      className="w-full max-h-72 object-contain rounded-xl"
+                    />
+                    <button
+                      onClick={clearImage}
+                      className="absolute top-2 right-2 w-8 h-8 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
+                      title="Remove image"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                )}
 
                 {error && (
                   <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium">
@@ -152,27 +207,54 @@ const PostModal = ({
               </div>
 
               {/* Footer */}
-              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end items-center gap-2 sm:gap-3 safe-bottom">
-                <button
-                  onClick={onClose}
-                  className="px-4 sm:px-5 py-2 text-gray-600 font-semibold hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors text-sm sm:text-base"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handlePost}
-                  disabled={!content.trim() || loading}
-                  className="bg-indigo-600 text-white px-5 sm:px-6 py-2 rounded-full font-bold hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center gap-2 text-sm sm:text-base"
-                >
-                  {loading ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                      Posting
-                    </>
-                  ) : (
-                    "Post"
-                  )}
-                </button>
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center gap-2 sm:gap-3 safe-bottom">
+                {/* Left side: toolbar icons */}
+                <div className="flex items-center gap-1">
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={handleImageSelect}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-10 h-10 rounded-full hover:bg-gray-100 active:bg-gray-200 flex items-center justify-center text-gray-500 hover:text-indigo-600 transition-colors"
+                    title="Add image"
+                  >
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                      <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Right side: Cancel + Post */}
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <button
+                    onClick={onClose}
+                    className="px-4 sm:px-5 py-2 text-gray-600 font-semibold hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors text-sm sm:text-base"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handlePost}
+                    disabled={(!content.trim() && !imageFile) || loading}
+                    className="bg-indigo-600 text-white px-5 sm:px-6 py-2 rounded-full font-bold hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center gap-2 text-sm sm:text-base"
+                  >
+                    {loading ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        Posting
+                      </>
+                    ) : (
+                      "Post"
+                    )}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -185,10 +267,6 @@ const PostModal = ({
 
 /**
  * Component that displays a trigger bar to open the post creation modal.
- *
- * @param {Object} props - The component props.
- * @param {(newPost?: any) => void} [props.onPosted] - Callback function triggered after a successful post.
- * @returns {JSX.Element} The rendered PostForm trigger.
  */
 export default function PostForm({ onPosted }: { onPosted?: (newPost?: any) => void }) {
   const [isModalOpen, setIsModalOpen] = useState(false);

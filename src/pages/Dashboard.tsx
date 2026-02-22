@@ -41,6 +41,7 @@ export default function Dashboard() {
       const normalized = postsData.map((p: any) => ({
         ...p,
         avatar_url: p.avatar_url || p.profile_url || null,
+        image_url: p.image_url || null,
       }));
       const sortedPosts = normalized.sort((a: Post, b: Post) => {
         const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
@@ -169,6 +170,7 @@ export default function Dashboard() {
           const normalized = data.map((p: any) => ({
             ...p,
             avatar_url: p.avatar_url || p.profile_url || null,
+            image_url: p.image_url || null,
           }));
           const sorted = normalized.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
           setFollowedPosts(sorted);
@@ -462,9 +464,23 @@ export default function Dashboard() {
                           </div>
 
                           {/* Content */}
-                          <div className="font-hand text-lg sm:text-xl leading-relaxed whitespace-pre-wrap pl-0 sm:pl-1">
-                            {p.content}
-                          </div>
+                          {p.content && (
+                            <div className="font-hand text-lg sm:text-xl leading-relaxed whitespace-pre-wrap pl-0 sm:pl-1">
+                              {p.content}
+                            </div>
+                          )}
+
+                          {/* Post Image */}
+                          {(p as any).image_url && (
+                            <div className="mt-3 rounded-xl overflow-hidden border border-gray-100">
+                              <img
+                                src={(p as any).image_url}
+                                alt="Post image"
+                                className="w-full max-h-[500px] object-contain bg-gray-50"
+                                loading="lazy"
+                              />
+                            </div>
+                          )}
                         </div>
                       </SketchCard>
                     </motion.div>
@@ -534,9 +550,23 @@ export default function Dashboard() {
                           </div>
 
                           {/* Content */}
-                          <div className="font-hand text-lg sm:text-xl leading-relaxed whitespace-pre-wrap pl-0 sm:pl-1">
-                            {p.content}
-                          </div>
+                          {p.content && (
+                            <div className="font-hand text-lg sm:text-xl leading-relaxed whitespace-pre-wrap pl-0 sm:pl-1">
+                              {p.content}
+                            </div>
+                          )}
+
+                          {/* Post Image */}
+                          {(p as any).image_url && (
+                            <div className="mt-3 rounded-xl overflow-hidden border border-gray-100">
+                              <img
+                                src={(p as any).image_url}
+                                alt="Post image"
+                                className="w-full max-h-[500px] object-contain bg-gray-50"
+                                loading="lazy"
+                              />
+                            </div>
+                          )}
                         </div>
                       </SketchCard>
                     </motion.div>
