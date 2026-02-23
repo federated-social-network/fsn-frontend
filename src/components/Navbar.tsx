@@ -184,37 +184,6 @@ export default function Navbar() {
                 </AnimatePresence>
             </div>
 
-            {/* Pipe-like structure with marquee effect - Hidden on mobile */}
-            <div className="hidden sm:block w-full h-10 md:h-12 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 overflow-hidden border-t-2 border-gray-900 border-b-2 shadow-inner">
-                <div className="relative flex items-center h-full">
-                    <div className="animate-marquee whitespace-nowrap flex items-center gap-8 text-white font-medium text-sm md:text-base">
-                        <span>Connect by consent, not algorithms — a truly federated social network.</span>
-                        <span className="text-blue-400">✦</span>
-                        <span>Decentralized communities, mutual connections, and privacy-first social networking done right.</span>
-                        <span className="text-purple-400">✦</span>
-                        <span>Independent instances, trusted connections, and social networking without central control</span>
-                        <span className="text-pink-400">✦</span>
-                        <span>Connect by consent, not algorithms — a truly federated social network.</span>
-                        <span className="text-blue-400">✦</span>
-                        <span>Decentralized communities, mutual connections, and privacy-first social networking done right.</span>
-                        <span className="text-purple-400">✦</span>
-                        <span>Independent instances, trusted connections, and social networking without central control</span>
-                        <span className="text-pink-400">✦</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Add marquee animation styles */}
-            <style>{`
-                @keyframes marquee {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
-                }
-                .animate-marquee {
-                    animation: marquee 25s linear infinite;
-                }
-            `}</style>
-
             <ConfirmationModal
                 isOpen={showLogoutConfirm}
                 onClose={() => setShowLogoutConfirm(false)}
