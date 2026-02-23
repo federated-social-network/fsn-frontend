@@ -334,7 +334,7 @@ export default function Profile() {
                     <button onClick={() => setShowConnectionsModal(false)} className="hover:bg-black/10 rounded-full w-8 h-8 flex items-center justify-center">✕</button>
                   </div>
 
-                  <div className="p-4 overflow-y-auto min-h-[200px]">
+                  <div className="p-4 overflow-y-auto min-h-[200px] max-h-[320px]">
                     {loadingConnections ? (
                       <div className="text-center py-8 font-hand text-gray-500">Loading...</div>
                     ) : connectionsList.length > 0 ? (

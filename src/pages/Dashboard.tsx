@@ -10,7 +10,7 @@ import SkeletonPost from "../components/SkeletonPost";
 import PostCard from "../components/PostCard";
 import UserSearchModal from "../components/UserSearchModal";
 import { AnimatePresence, motion } from "framer-motion";
-import { FiSearch, FiRefreshCw, FiArrowUp, FiInfo, FiUsers, FiX, FiAlertTriangle } from "react-icons/fi";
+import { FiSearch, FiRefreshCw, FiArrowUp, FiUsers, FiAlertTriangle } from "react-icons/fi";
 import ConfirmationModal from "../components/ConfirmationModal";
 
 
@@ -84,7 +84,6 @@ export default function Dashboard() {
   const [pendingInvites, setPendingInvites] = useState<any[]>([]);
   const [followedPosts, setFollowedPosts] = useState<Post[]>([]);
   const [loadingFollowing, setLoadingFollowing] = useState(false);
-  const [showMobileExtras, setShowMobileExtras] = useState(false);
 
   const handleConnect = async (e: React.MouseEvent, targetUsername: string) => {
     e.preventDefault();
@@ -358,17 +357,7 @@ export default function Dashboard() {
                   </button>
                 </div>
 
-                {/* Extras Toggle (Mobile Only) */}
-                <button
-                  onClick={() => setShowMobileExtras(true)}
-                  className="md:hidden w-11 h-11 ml-2 rounded-full bg-[var(--pastel-yellow)] border-2 border-black flex items-center justify-center hover:scale-105 active:scale-95 transition-transform font-bold text-lg relative shadow-sm"
-                  title="Show Info"
-                >
-                  <FiInfo className="text-xl" />
-                  {pendingInvites.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white animate-pulse flex items-center justify-center text-[10px] text-white font-bold">{pendingInvites.length}</span>
-                  )}
-                </button>
+                {/* Extras Toggle (Mobile Only) - REMOVED AS IT IS IN BOTTOM NAV */}
 
                 {/* Refresh Button */}
                 <button
@@ -538,136 +527,6 @@ export default function Dashboard() {
         confirmText="Yes, Switch"
         confirmColor="bg-blue-600"
       />
-
-      {/* MOBILE EXTRAS DRAWER (Available Users / Invites) */}
-      <AnimatePresence>
-        {showMobileExtras && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowMobileExtras(false)}
-              className="md:hidden fixed inset-0 bg-black/30 z-40 backdrop-blur-sm"
-            />
-            {/* Drawer */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="md:hidden fixed top-0 right-0 h-full w-[85%] max-w-sm bg-[var(--paper-white)] z-50 shadow-2xl overflow-y-auto p-4 sm:p-5 border-l-2 border-black safe-bottom"
-            >
-              <div className="flex justify-between items-center mb-5 sm:mb-6 border-b-2 border-dashed border-gray-300 pb-4">
-                <h2 className="font-sketch text-xl sm:text-2xl">Quick Access</h2>
-                <button
-                  onClick={() => setShowMobileExtras(false)}
-                  className="w-11 h-11 rounded-full bg-black/5 hover:bg-black/10 active:bg-black/20 flex items-center justify-center text-xl transition-colors"
-                >
-                  <FiX className="text-xl" />
-                </button>
-              </div>
-
-              <div className="space-y-6">
-                {/* Mobile: Pending Invites */}
-                <SketchCard variant="paper" className="p-4 bg-[var(--pastel-pink)]">
-                  <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Pending Invites</h3>
-                  <div className="space-y-3">
-                    {pendingInvites.length > 0 ? (
-                      pendingInvites.map((invite: any) => (
-                        <div key={invite.connection_id} className="bg-white/50 p-2 rounded border border-black/5 flex items-center justify-between">
-                          <div className="font-hand text-sm truncate w-24">
-                            {invite.from_username || "Unknown"}
-                          </div>
-                          <button
-                            onClick={() => handleAccept(invite.connection_id)}
-                            className="bg-white border border-black/20 hover:bg-green-100 text-xs px-2 py-1 rounded font-bold text-green-700 shadow-sm"
-                          >
-                            Accept
-                          </button>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="font-hand text-sm text-center opacity-60 italic py-2">
-                        No pending invites...
-                      </div>
-                    )}
-                  </div>
-                </SketchCard>
-
-                {/* Mobile: Available Users */}
-                <SketchCard variant="paper" className="p-4 bg-[var(--pastel-yellow)]">
-                  <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Available Users</h3>
-                  <div className="space-y-2">
-                    {suggestedUsers.slice(0, 5).map((u: any) => (
-                      <Link key={u.username} to={`/profile/${u.username}`} onClick={() => setShowMobileExtras(false)} className="block group">
-                        <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-black/5 bg-white/30">
-                          <div className="w-8 h-8 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-sm shrink-0 shadow-sm overflow-hidden">
-                            {u.avatar_url ? (
-                              <img src={u.avatar_url} alt={u.username} className="w-full h-full object-cover" />
-                            ) : (
-                              u.username[0].toUpperCase()
-                            )}
-                          </div>
-                          <div className="overflow-hidden flex-1 min-w-0 flex flex-col justify-center">
-                            <div className="font-bold font-hand truncate text-sm leading-tight text-gray-800">{u.username}</div>
-                            <div className="text-[10px] bg-black/5 px-1.5 py-0.5 rounded-full inline-block truncate w-fit max-w-full text-gray-600 mt-0.5 border border-black/5">
-                              {u.instance || 'local'}
-                            </div>
-                          </div>
-                          {/* Connect Button */}
-                          <div className="shrink-0 ml-1">
-                            {sentRequests.has(u.username) ? (
-                              <span className="text-[10px] font-hand text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200 block text-center min-w-[30px]">✓</span>
-                            ) : (
-                              <button
-                                onClick={(e) => handleConnect(e, u.username)}
-                                className="bg-[var(--ink-blue)] text-white text-[10px] px-2 py-1 rounded-md font-hand shadow-sm active:scale-95"
-                              >
-                                Connect+
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </SketchCard>
-
-                {/* Mobile: Available Instances */}
-                <SketchCard variant="paper" className="p-4 bg-[var(--pastel-blue)]">
-                  <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Available Instances</h3>
-                  <div className="space-y-3">
-                    {INSTANCES.map((inst, index) => {
-                      const currentUrl = localStorage.getItem("INSTANCE_BASE_URL");
-                      const normalize = (u: string | null) => u?.replace(/\/$/, "") || "";
-                      const isCurrent = normalize(currentUrl) === normalize(inst.url);
-                      return (
-                        <div key={index} className={`p-3 rounded-lg border flex flex-col gap-1 ${inst.color} bg-white/50`}>
-                          <div className="flex justify-between items-center">
-                            <div className="font-bold font-sketch text-md">{inst.name}</div>
-                            {isCurrent && <span className="text-[10px] font-bold bg-black/10 px-1.5 rounded-full text-black/60">CURRENT</span>}
-                          </div>
-                          <div className="text-xs font-hand break-all opacity-70">{inst.url}</div>
-                          {!isCurrent && (
-                            <button
-                              onClick={() => handleSwitchInstance(inst.url)}
-                              className="mt-2 text-xs bg-white border border-black/20 hover:bg-black/5 py-1 px-2 rounded font-bold self-start"
-                            >
-                              Switch to Instance
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </SketchCard>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
       <UserSearchModal isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
 

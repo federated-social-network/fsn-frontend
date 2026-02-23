@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { getInstanceName } from "../config/instances";
 import { useState, useEffect } from "react";
 import ConfirmationModal from "./ConfirmationModal";
@@ -14,7 +14,6 @@ import { getUser } from "../api/api";
 export default function Navbar() {
     const username = localStorage.getItem("username") || "";
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
     useEffect(() => {
@@ -113,75 +112,16 @@ export default function Navbar() {
                         </button>
                     </div>
 
-                    {/* MOBILE MENU TOGGLE */}
+                    {/* MOBILE LOGOUT ICON OVERRIDE (Optional right side alignment on mobile, since hamburger is gone) */}
                     <button
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="md:hidden w-12 h-12 flex items-center justify-center text-2xl rounded-lg hover:bg-black/5 active:bg-black/10 transition-colors"
-                        aria-label="Toggle menu"
+                        onClick={handleLogoutClick}
+                        className="md:hidden w-10 h-10 flex items-center justify-center text-xl rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+                        aria-label="Sign Out"
                     >
-                        {isMenuOpen ? "✕" : "☰"}
+                        🚪
                     </button>
                 </div>
 
-                {/* MOBILE MENU DRAWER */}
-                <AnimatePresence>
-                    {isMenuOpen && (
-                        <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="md:hidden overflow-hidden border-t-2 border-dashed border-gray-200 mt-4 pt-4"
-                        >
-                            <div className="flex flex-col gap-3 font-hand text-lg">
-                                <Link
-                                    to={`/profile/${username}`}
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="flex items-center gap-3 p-3 bg-white/50 rounded-lg hover:bg-white active:bg-gray-100 transition-colors"
-                                >
-                                    <div className="w-10 h-10 rounded-full bg-[var(--pastel-yellow)] border border-black flex items-center justify-center font-sketch text-lg overflow-hidden">
-                                        {avatarUrl ? (
-                                            <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
-                                        ) : (
-                                            username ? username[0].toUpperCase() : '?'
-                                        )}
-                                    </div>
-                                    <div>
-                                        <span className="font-bold block">{username}</span>
-                                        <span className="text-sm text-gray-500">View Profile</span>
-                                    </div>
-                                </Link>
-
-                                <Link
-                                    to="/dashboard"
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="p-3 hover:bg-black/5 active:bg-black/10 rounded-lg flex items-center gap-3 transition-colors"
-                                >
-                                    <span className="text-xl">📰</span>
-                                    <span>Feed</span>
-                                </Link>
-
-                                <div className="border-t border-dashed border-gray-300 my-1"></div>
-
-                                {/* Mobile Instance Badge */}
-                                <div className="p-3 text-sm bg-blue-50 border border-blue-100 rounded-lg text-blue-800 flex items-center gap-2">
-                                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                    Connected to: <strong>{getInstanceName(localStorage.getItem("INSTANCE_BASE_URL"))}</strong>
-                                </div>
-
-                                <button
-                                    onClick={() => {
-                                        setIsMenuOpen(false);
-                                        handleLogoutClick();
-                                    }}
-                                    className="text-left text-red-600 p-3 hover:bg-red-50 active:bg-red-100 rounded-lg flex items-center gap-3 transition-colors"
-                                >
-                                    <span className="text-xl">🚪</span>
-                                    <span>Log Out</span>
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </div>
 
             <ConfirmationModal
@@ -195,5 +135,5 @@ export default function Navbar() {
             />
         </div>
     );
-    
+
 }

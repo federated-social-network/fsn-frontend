@@ -65,6 +65,13 @@ body {
   /* Slightly larger grid */
 }
 
+/* Add padding specifically for mobile where the sticky navbar exists */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom)); /* h-14 is 3.5rem */
+  }
+}
+
 /* Typography Overrides */
 h1,
 h2,
