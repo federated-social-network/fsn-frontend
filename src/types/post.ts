@@ -18,4 +18,8 @@ export interface Post {
   created_at?: string | Date;
   /** (Optional) URL of an image attached to the post. */
   image_url?: string;
+  /** The number of likes on the post. */
+  like_count?: number;
+  /** Whether the current user has liked this post. */
+  is_liked?: boolean;
 }
