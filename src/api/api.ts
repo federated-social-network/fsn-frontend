@@ -106,6 +106,7 @@ export const createPost = (
     return getApi().post("/posts", form, {
       params,
       headers: { "Content-Type": "multipart/form-data" },
+      timeout: 60000, // 60s for image uploads
     });
   }
 
