@@ -81,7 +81,8 @@ export default function Profile() {
           author: rawUsername, // implicit
           author_id: userData.id,
           origin_instance: userData.instance || instance || "", // implicit from URL if not in data
-          is_remote: false
+          is_remote: false,
+          image_url: p.image_url || null,
         }));
 
         setPosts(userPosts);
@@ -622,9 +623,23 @@ export default function Profile() {
                         {p.origin_instance && <span className="font-marker text-[10px] bg-[var(--highlighter-yellow)] px-1 rounded-sm">@{p.origin_instance}</span>}
                       </div>
 
-                      <div className="font-hand text-base whitespace-pre-wrap leading-snug flex-grow">
-                        {p.content}
-                      </div>
+                      {p.content && (
+                        <div className="font-hand text-base whitespace-pre-wrap leading-snug flex-grow">
+                          {p.content}
+                        </div>
+                      )}
+
+                      {/* Post Image */}
+                      {p.image_url && (
+                        <div className="mt-2 rounded-lg overflow-hidden border border-gray-100">
+                          <img
+                            src={p.image_url}
+                            alt="Post image"
+                            className="w-full max-h-48 object-contain bg-gray-50"
+                            loading="lazy"
+                          />
+                        </div>
+                      )}
 
 
                     </SketchCard>

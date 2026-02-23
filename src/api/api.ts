@@ -88,7 +88,8 @@ export const loginUser = (username: string, password: string) =>
  */
 export const createPost = (
   content: string,
-  username?: string
+  username?: string,
+  image?: File
 ) => {
   // Build query params.
   const params: Record<string, string> = { content } as any;
@@ -96,6 +97,16 @@ export const createPost = (
   if (username) {
     // include username as a param for server-side attribution if useful
     params.username = username;
+  }
+
+  // If an image is attached, send as multipart/form-data with key "image".
+  if (image) {
+    const form = new FormData();
+    form.append("image", image);
+    return getApi().post("/posts", form, {
+      params,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   }
 
   // Do not set Basic auth here. getApi() will attach a Bearer token

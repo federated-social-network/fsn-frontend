@@ -16,4 +16,6 @@ export interface Post {
   is_remote: boolean;
   /** The creation timestamp of the post. */
   created_at?: string | Date;
+  /** (Optional) URL of an image attached to the post. */
+  image_url?: string;
 }
