@@ -99,21 +99,15 @@ export default function PostCard({ post: p }: PostCardProps) {
                 {/* ── Image ── */}
                 {imageUrl && (
                     <div
-                        className="relative w-full max-h-[350px] bg-gray-50 overflow-hidden cursor-pointer group"
+                        className="w-full overflow-hidden cursor-pointer group"
                         onClick={() => setLightboxOpen(true)}
                     >
                         <img
                             src={imageUrl}
                             alt="Post"
-                            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                            className="w-full object-contain max-h-[520px] group-hover:scale-[1.01] transition-transform duration-500"
                             loading="lazy"
                         />
-                        {/* Blur overlay at bottom */}
-                        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white/80 via-white/40 to-transparent backdrop-blur-[2px] flex items-end justify-center pb-2 pointer-events-none">
-                            <span className="text-xs font-medium text-gray-600 bg-white/70 px-3 py-1 rounded-full shadow-sm backdrop-blur-sm">
-                                Click to view full image
-                            </span>
-                        </div>
                     </div>
                 )}
 
