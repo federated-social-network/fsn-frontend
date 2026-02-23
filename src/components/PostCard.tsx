@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { parseUsername } from "../utils/user";
 import { getInstanceName, getInstanceColor } from "../config/instances";
 import { timeAgo } from "../utils/time";
+import { likePost, unlikePost } from "../api/api";
 
 interface PostCardProps {
     post: any;
@@ -14,19 +15,54 @@ interface PostCardProps {
  * A professional LinkedIn/Instagram-style post card.
  * - Compact images with lightbox
  * - Truncated captions (3 lines) with "Show more" (like LinkedIn)
+ * - Interactive like button with red heart when liked
  * - Clean, modern UI
  */
+// Helper: read/write liked post IDs from localStorage
+const LIKED_KEY = "fsn_liked_posts";
+const getLikedSet = (): Set<string> => {
+    try {
+        const raw = localStorage.getItem(LIKED_KEY);
+        return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch {
+        return new Set();
+    }
+};
+const setLikedSet = (s: Set<string>) => {
+    localStorage.setItem(LIKED_KEY, JSON.stringify([...s]));
+};
+
 export default function PostCard({ post: p }: PostCardProps) {
     const [expanded, setExpanded] = useState(false);
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [isClamped, setIsClamped] = useState(false);
     const contentRef = useRef<HTMLParagraphElement>(null);
 
+    // Like state — server truth wins when present, otherwise fall back to local cache
+    const [isLiked, setIsLiked] = useState<boolean>(() => {
+        if (p.is_liked === true) return true;
+        if (p.is_liked === false) return false;
+        // is_liked is undefined (server didn't return it) → check local cache
+        return getLikedSet().has(p.id);
+    });
+    const [likeCount, setLikeCount] = useState<number>(p.like_count ?? 0);
+    const [likeLoading, setLikeLoading] = useState(false);
+
     const { username } = parseUsername(p.author);
     const avatarUrl = (p as any).avatar_url;
     const imageUrl = (p as any).image_url;
     const inst = p.origin_instance || parseUsername(p.author).instance || localStorage.getItem("INSTANCE_BASE_URL");
     const content = p.content || "";
+
+    // Sync when props change — prefer server value, fallback to cache if undefined
+    useEffect(() => {
+        if (p.is_liked === true || p.is_liked === false) {
+            setIsLiked(p.is_liked);
+        } else {
+            setIsLiked(getLikedSet().has(p.id));
+        }
+        setLikeCount(p.like_count ?? 0);
+    }, [p.id, p.is_liked, p.like_count]);
 
     // Detect if text overflows 3 lines
     useEffect(() => {
@@ -35,6 +71,38 @@ export default function PostCard({ post: p }: PostCardProps) {
             setIsClamped(el.scrollHeight > el.clientHeight);
         }
     }, [content]);
+
+    const handleLikeToggle = async () => {
+        if (likeLoading) return;
+        setLikeLoading(true);
+
+        const wasLiked = isLiked;
+
+        // Optimistic update — also persist to local cache immediately
+        setIsLiked(!wasLiked);
+        setLikeCount((prev) => (wasLiked ? Math.max(0, prev - 1) : prev + 1));
+        const liked = getLikedSet();
+        if (wasLiked) liked.delete(p.id); else liked.add(p.id);
+        setLikedSet(liked);
+
+        try {
+            if (wasLiked) {
+                await unlikePost(p.id);
+            } else {
+                await likePost(p.id);
+            }
+        } catch (err: any) {
+            // Revert both state and cache on failure
+            console.error(`[PostCard] Like toggle FAILED for post ${p.id}:`, err?.response?.data || err?.message || err);
+            setIsLiked(wasLiked);
+            setLikeCount((prev) => (wasLiked ? prev + 1 : Math.max(0, prev - 1)));
+            const revert = getLikedSet();
+            if (wasLiked) revert.add(p.id); else revert.delete(p.id);
+            setLikedSet(revert);
+        } finally {
+            setLikeLoading(false);
+        }
+    };
 
     return (<>
         <motion.div
@@ -114,11 +182,43 @@ export default function PostCard({ post: p }: PostCardProps) {
                 {/* ── Footer / Engagement bar ── */}
                 <div className="px-4 py-2.5 border-t border-gray-100 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <button className="flex items-center gap-1.5 text-gray-500 hover:text-red-500 transition-colors group">
-                            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                            </svg>
-                            <span className="text-xs font-medium">Like</span>
+                        <button
+                            onClick={handleLikeToggle}
+                            disabled={likeLoading}
+                            style={{
+                                color: isLiked ? '#ef4444' : '#6b7280',
+                                border: 'none',
+                                boxShadow: 'none',
+                                background: 'none',
+                                padding: 0,
+                                minHeight: 'auto',
+                                minWidth: 'auto',
+                            }}
+                            className="flex items-center gap-1.5 transition-colors group cursor-pointer"
+                        >
+                            <motion.div
+                                key={isLiked ? "liked" : "unliked"}
+                                initial={{ scale: 0.5 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                            >
+                                <svg
+                                    className="w-5 h-5 group-hover:scale-110 transition-transform"
+                                    viewBox="0 0 24 24"
+                                    fill={isLiked ? "#ef4444" : "none"}
+                                    stroke={isLiked ? "#ef4444" : "#6b7280"}
+                                    strokeWidth="1.8"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                    />
+                                </svg>
+                            </motion.div>
+                            <span className="text-xs font-medium">
+                                {likeCount > 0 ? likeCount : "Like"}
+                            </span>
                         </button>
                     </div>
                     <div className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">

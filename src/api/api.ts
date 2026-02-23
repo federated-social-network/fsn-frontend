@@ -285,3 +285,19 @@ export const removeConnection = (username: string) =>
 export const searchUsers = (q: string) =>
   getApi().get("/search_users", { params: { q } });
 
+/**
+ * Likes a post.
+ * @param {string} postId - The ID of the post to like.
+ * @returns {Promise<import("axios").AxiosResponse<any>>} The server response.
+ */
+export const likePost = (postId: string) =>
+  getApi().post(`/posts/${postId}/like`);
+
+/**
+ * Unlikes a post.
+ * @param {string} postId - The ID of the post to unlike.
+ * @returns {Promise<import("axios").AxiosResponse<any>>} The server response.
+ */
+export const unlikePost = (postId: string) =>
+  getApi().delete(`/posts/${postId}/like`);
+
