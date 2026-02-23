@@ -3,12 +3,11 @@ import Navbar from "../components/Navbar";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { getPosts, getRandomUsers, initiateConnection, acceptConnection, getPendingConnections, getFollowedPosts } from "../api/api";
-import { timeAgo } from "../utils/time";
-import { parseUsername } from "../utils/user";
-import { INSTANCES, getInstanceName, getInstanceColor } from "../config/instances";
+import { INSTANCES } from "../config/instances";
 import type { Post } from "../types/post";
 import SketchCard from "../components/SketchCard";
 import SkeletonPost from "../components/SkeletonPost";
+import PostCard from "../components/PostCard";
 import UserSearchModal from "../components/UserSearchModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiSearch, FiRefreshCw, FiArrowUp, FiInfo, FiUsers, FiX, FiAlertTriangle } from "react-icons/fi";
@@ -419,73 +418,9 @@ export default function Dashboard() {
             {/* POSTS - GLOBAL */}
             {activeTab === 'global' && (
               <>
-                <AnimatePresence mode="popLayout">
-                  {!loading && posts.map((p) => (
-                    <motion.div
-                      key={p.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ type: 'spring', bounce: 0.3 }}
-                      className="mb-1"
-                    >
-                      <SketchCard className="group transition-transform bg-white relative">
-                        {/* Tape effect removed from top center for straight look */}
-
-                        <div className="p-4 sm:p-5">
-                          {/* Header */}
-                          <div className="flex justify-between items-start mb-3 gap-2">
-                            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                              <Link to={`/profile/${parseUsername(p.author).username}`}>
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-xs sm:text-sm shrink-0 overflow-hidden">
-                                  {(p as any).avatar_url ? (
-                                    <img src={(p as any).avatar_url} alt="" className="w-full h-full object-cover" />
-                                  ) : (
-                                    parseUsername(p.author).username[0].toUpperCase()
-                                  )}
-                                </div>
-                              </Link>
-                              <div className="min-w-0">
-                                <div className="font-bold font-sketch text-base sm:text-lg leading-none truncate">
-                                  <Link to={`/profile/${parseUsername(p.author).username}`} className="hover:underline">
-                                    {parseUsername(p.author).username}
-                                  </Link>
-                                </div>
-                                <div className="text-[10px] sm:text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
-                              </div>
-                            </div>
-                            {(() => {
-                              const inst = p.origin_instance || parseUsername(p.author).instance || localStorage.getItem("INSTANCE_BASE_URL");
-                              return inst ? (
-                                <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs border font-hand shrink-0 ${getInstanceColor(inst)}`}>
-                                  {getInstanceName(inst)}
-                                </span>
-                              ) : null;
-                            })()}
-                          </div>
-
-                          {/* Content */}
-                          {p.content && (
-                            <div className="font-hand text-lg sm:text-xl leading-relaxed whitespace-pre-wrap pl-0 sm:pl-1">
-                              {p.content}
-                            </div>
-                          )}
-
-                          {/* Post Image */}
-                          {(p as any).image_url && (
-                            <div className="mt-3 rounded-xl overflow-hidden border border-gray-100">
-                              <img
-                                src={(p as any).image_url}
-                                alt="Post image"
-                                className="w-full max-h-[500px] object-contain bg-gray-50"
-                                loading="lazy"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </SketchCard>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                {!loading && posts.map((p) => (
+                  <PostCard key={p.id} post={p} />
+                ))}
 
                 {!loading && posts.length === 0 && (
                   <div className="text-center py-20 opacity-50 font-hand text-xl">
@@ -505,73 +440,9 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                <AnimatePresence mode="popLayout">
-                  {!loadingFollowing && followedPosts.map((p) => (
-                    <motion.div
-                      key={p.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ type: 'spring', bounce: 0.3 }}
-                      className="mb-2"
-                    >
-                      <SketchCard className="group transition-transform bg-white relative">
-                        {/* Tape effect removed */}
-
-                        <div className="p-4 sm:p-5">
-                          {/* Header */}
-                          <div className="flex justify-between items-start mb-3 gap-2">
-                            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                              <Link to={`/profile/${parseUsername(p.author).username}`}>
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 border border-black flex items-center justify-center font-bold font-marker text-xs sm:text-sm shrink-0 overflow-hidden">
-                                  {(p as any).avatar_url ? (
-                                    <img src={(p as any).avatar_url} alt="" className="w-full h-full object-cover" />
-                                  ) : (
-                                    parseUsername(p.author).username[0].toUpperCase()
-                                  )}
-                                </div>
-                              </Link>
-                              <div className="min-w-0">
-                                <div className="font-bold font-sketch text-base sm:text-lg leading-none truncate">
-                                  <Link to={`/profile/${parseUsername(p.author).username}`} className="hover:underline">
-                                    {parseUsername(p.author).username}
-                                  </Link>
-                                </div>
-                                <div className="text-[10px] sm:text-xs font-hand text-gray-500">{timeAgo(p.created_at)}</div>
-                              </div>
-                            </div>
-                            {(() => {
-                              const inst = p.origin_instance || parseUsername(p.author).instance || localStorage.getItem("INSTANCE_BASE_URL");
-                              return inst ? (
-                                <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs border font-hand shrink-0 ${getInstanceColor(inst)}`}>
-                                  {getInstanceName(inst)}
-                                </span>
-                              ) : null;
-                            })()}
-                          </div>
-
-                          {/* Content */}
-                          {p.content && (
-                            <div className="font-hand text-lg sm:text-xl leading-relaxed whitespace-pre-wrap pl-0 sm:pl-1">
-                              {p.content}
-                            </div>
-                          )}
-
-                          {/* Post Image */}
-                          {(p as any).image_url && (
-                            <div className="mt-3 rounded-xl overflow-hidden border border-gray-100">
-                              <img
-                                src={(p as any).image_url}
-                                alt="Post image"
-                                className="w-full max-h-[500px] object-contain bg-gray-50"
-                                loading="lazy"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </SketchCard>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                {!loadingFollowing && followedPosts.map((p) => (
+                  <PostCard key={p.id} post={p} />
+                ))}
 
                 {!loadingFollowing && followedPosts.length === 0 && (
                   <div className="text-center py-20 opacity-60">
