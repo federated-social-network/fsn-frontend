@@ -67,7 +67,6 @@ export const registerUser = (username: string, password: string, email?: string,
   }
   return getApi().post("/auth/register", form, {
     params: { username, password, email },
-    headers: { "Content-Type": "multipart/form-data" },
   });
 };
 
@@ -105,14 +104,13 @@ export const createPost = (
     form.append("image", image);
     return getApi().post("/posts", form, {
       params,
-      headers: { "Content-Type": "multipart/form-data" },
       timeout: 60000, // 60s for image uploads
     });
   }
 
   // Do not set Basic auth here. getApi() will attach a Bearer token
   // if one is present in localStorage (preferred server flow).
-  return getApi().post("/posts", null, { params });
+  return getApi().post("/posts", {}, { params });
 };
 
 // Fetch posts from the instance. Returns an array of posts.
@@ -177,9 +175,7 @@ export const updateUser = (username: string, data: Record<string, any>) =>
 export const uploadAvatar = (file: File) => {
   const form = new FormData();
   form.append("file", file);
-  return getApi().post(`/users/avatar`, form, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  return getApi().post(`/users/avatar`, form);
 };
 
 /**
