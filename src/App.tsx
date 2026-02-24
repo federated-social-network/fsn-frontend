@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import MobileNavbar from "./components/MobileNavbar";
 import NetworkMobilePage from "./pages/NetworkMobilePage";
 import CreatePostMobilePage from "./pages/CreatePostMobilePage";
+import SearchMobilePage from "./pages/SearchMobilePage";
 
 /**
  * Layout mapping to include MobileNavbar on authenticated routes.
@@ -59,6 +60,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <CreatePostMobilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <ProtectedRoute>
+                <SearchMobilePage />
               </ProtectedRoute>
             }
           />
