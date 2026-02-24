@@ -19,16 +19,22 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-white text-black font-hand overflow-x-hidden">
+      {/* --- HEADER --- */}
+      <header className="absolute top-0 left-0 w-full p-6 flex flex-col items-center justify-center z-50">
+        <img src="/logo.png" alt="HeliiX Logo" className="w-20 h-20 sm:w-28 sm:h-28 lg:w-36 lg:h-36 object-contain drop-shadow-lg" />
+      </header>
+
       {/* --- HERO SECTION (Original Page) --- */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden pt-28 sm:pt-32">
 
         {/* Grid Background - Hidden on mobile */}
-        <div
+        < div
           className="absolute inset-0 pointer-events-none opacity-20 hidden sm:block"
           style={{
             backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
             backgroundSize: '40px 40px'
-          }}
+          }
+          }
         />
 
         {/* Travel & Federated Network SVG Background - Hidden on mobile for cleaner look */}
@@ -217,10 +223,10 @@ export default function Landing() {
           </div>
 
         </div>
-      </section>
+      </section >
 
       {/* --- FEATURES SECTION ("Why Heliix?") --- */}
-      <section className="py-20 px-4 sm:px-6 bg-white relative z-10">
+      < section className="py-20 px-4 sm:px-6 bg-white relative z-10" >
         <div className="max-w-6xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -257,11 +263,11 @@ export default function Landing() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
 
       {/* --- TESTIMONIALS SECTION --- */}
-      <section className="py-20 px-4 sm:px-6 bg-[var(--pastel-yellow)] border-y-2 border-black border-dashed">
+      < section className="py-20 px-4 sm:px-6 bg-[var(--pastel-yellow)] border-y-2 border-black border-dashed" >
         <div className="max-w-5xl mx-auto">
           <motion.h2
             initial={{ opacity: 0 }}
@@ -304,10 +310,10 @@ export default function Landing() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* --- FOOTER --- */}
-      <footer className="bg-black text-white py-12 px-4 font-hand">
+      < footer className="bg-black text-white py-12 px-4 font-hand" >
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
@@ -341,9 +347,9 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
           © {new Date().getFullYear()} HeliiX Project. Built with ❤️ and ☕.
         </div>
-      </footer>
+      </footer >
 
-    </div>
+    </div >
   );
 }
 
