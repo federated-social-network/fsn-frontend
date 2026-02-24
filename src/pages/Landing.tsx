@@ -228,7 +228,7 @@ export default function Landing() {
             viewport={{ once: true }}
             className="text-4xl sm:text-5xl font-bold text-center mb-16 font-sketch"
           >
-            Why Heliix?
+            Why HeliiX?
           </motion.h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -310,7 +310,10 @@ export default function Landing() {
       <footer className="bg-black text-white py-12 px-4 font-hand">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <h2 className="text-3xl font-sketch mb-4 text-white">Heliix</h2>
+            <div className="flex items-center gap-3 mb-4">
+              <img src="/logo.png" alt="HeliiX Logo" className="w-10 h-10 object-contain" />
+              <h2 className="text-3xl font-sketch text-white">HeliiX</h2>
+            </div>
             <p className="text-gray-400 max-w-sm">
               A decentralized social network built for people, not advertisers. Join the fediverse today.
             </p>
@@ -336,7 +339,7 @@ export default function Landing() {
         </div>
 
         <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
-          © {new Date().getFullYear()} Heliix Project. Built with ❤️ and ☕.
+          © {new Date().getFullYear()} HeliiX Project. Built with ❤️ and ☕.
         </div>
       </footer>
 

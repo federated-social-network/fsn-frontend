@@ -4,10 +4,11 @@ import { getInstanceName } from "../config/instances";
 import { useState, useEffect } from "react";
 import ConfirmationModal from "./ConfirmationModal";
 import { getUser } from "../api/api";
+import { FiLogOut, FiUser } from "react-icons/fi";
 
 /**
- * The main integration navigation bar.
- * Handles user logout, displays the current instance, and provides navigation links.
+ * The main navigation bar.
+ * Clean, compact, professional design with the HeliiX branding.
  *
  * @returns {JSX.Element} The rendered Navbar.
  */
@@ -39,89 +40,87 @@ export default function Navbar() {
         window.location.href = "/";
     };
 
+    const instanceName = getInstanceName(localStorage.getItem("INSTANCE_BASE_URL"));
 
     return (
         <div className="relative z-50">
-            <div className="relative bg-gradient-to-b from-[var(--paper-white)] to-gray-50 pt-3 sm:pt-5 pb-4 sm:pb-7 px-4 sm:px-6 shadow-lg">
+            {/* Glassmorphism navbar */}
+            <div className="relative bg-white/80 backdrop-blur-md border-b border-gray-200/60 px-4 sm:px-6">
+                <div className="max-w-7xl mx-auto flex items-center justify-between h-14 sm:h-16">
 
-                <div className="max-w-7xl mx-auto flex items-center justify-between relative">
-
-                    {/* LOGO */}
-                    <div className="group relative select-none">
+                    {/* LEFT: Logo + Brand */}
+                    <Link to="/dashboard" className="flex items-center gap-2.5 group border-none">
                         <motion.div
-                            whileHover={{ rotate: -2, scale: 1.05 }}
-                            className="text-2xl sm:text-3xl md:text-4xl font-sketch font-bold text-[var(--ink-primary)] relative z-10"
+                            whileHover={{ scale: 1.08, rotate: -3 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex items-center gap-2.5"
                         >
-                            HeliiX...
-
-
+                            <img
+                                src="/logo.png"
+                                alt="HeliiX"
+                                className="w-14 h-14 sm:w-16 sm:h-16 -my-3 object-contain drop-shadow-sm"
+                            />
+                            <span className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900" style={{ fontFamily: 'var(--font-heading)' }}>
+                                HeliiX
+                            </span>
                         </motion.div>
-                        {/* Highlight effect behind logo */}
-                        <div className="absolute -inset-2 bg-[var(--highlighter-yellow)] rotate-2 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity -z-0"></div>
-                    </div>
+                    </Link>
 
-                    {/* INSTANCE BADGE - Hidden on mobile */}
-                    <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 transform -rotate-1">
-                        <div className="bg-[var(--pastel-blue)] px-4 py-1.5 border-2 border-[var(--ink-primary)] shadow-[2px_2px_0px_rgba(0,0,0,0.2)] rounded-sm font-hand text-sm flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            Connected to <strong>{getInstanceName(localStorage.getItem("INSTANCE_BASE_URL"))}</strong>
+                    {/* CENTER: Instance Badge — desktop only */}
+                    {instanceName && (
+                        <div className="hidden lg:flex items-center absolute left-1/2 -translate-x-1/2">
+                            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-sm text-emerald-700" style={{ fontFamily: 'var(--font-body)' }}>
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                <span className="font-medium">{instanceName}</span>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
-                    {/* USER CONTROLS (Desktop) */}
-                    <div className="hidden md:flex items-center gap-4 lg:gap-6">
-                        {/* Profile "Polaroid" */}
-                        <Link to={`/profile/${username}`} className="group flex items-center gap-3">
-                            <div className="hidden lg:block text-right">
-                                <div className="font-hand font-bold text-lg leading-none group-hover:text-[var(--primary)] transition-colors">
-                                    {username}
-                                </div>
-                                <div className="text-[10px] font-marker text-gray-400 uppercase tracking-widest">
-                                    Me
-                                </div>
-                            </div>
+                    {/* RIGHT: User Controls */}
+                    <div className="flex items-center gap-2 sm:gap-3">
 
+                        {/* Profile Link */}
+                        <Link
+                            to={`/profile/${username}`}
+                            className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-gray-100/80 transition-colors group border-none"
+                        >
+                            {/* Avatar */}
+                            <motion.div
+                                whileHover={{ scale: 1.08 }}
+                                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden bg-gradient-to-br from-blue-100 to-indigo-100 border-2 border-white shadow-sm flex items-center justify-center"
+                            >
+                                {avatarUrl ? (
+                                    <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+                                ) : (
+                                    <FiUser className="text-gray-500 text-sm" />
+                                )}
+                            </motion.div>
 
-                            <div className="relative">
-                                <motion.div
-                                    whileHover={{ rotate: 3, scale: 1.1 }}
-                                    className="w-10 h-10 md:w-12 md:h-12 bg-white p-1 border border-gray-200 shadow-md rotate-[-2deg] transition-all"
-                                >
-                                    <div className="w-full h-full bg-[var(--pastel-yellow)] border border-black/10 flex items-center justify-center font-sketch text-lg md:text-xl overflow-hidden">
-                                        {avatarUrl ? (
-                                            <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
-                                        ) : (
-                                            username ? username[0].toUpperCase() : '?'
-                                        )}
-                                    </div>
-                                </motion.div>
-                                {/* Tape on photo */}
-                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 md:w-8 h-2 md:h-3 bg-white/40 border-l border-r border-white/60 rotate-2 shadow-sm pointer-events-none"></div>
-                            </div>
+                            {/* Username — hidden on small screens */}
+                            <span className="hidden md:block text-sm font-semibold text-gray-700 group-hover:text-gray-900 transition-colors max-w-[120px] truncate">
+                                {username}
+                            </span>
                         </Link>
 
+                        {/* Divider */}
+                        <div className="hidden sm:block w-px h-6 bg-gray-200"></div>
 
                         {/* Logout Button */}
-                        <button
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={handleLogoutClick}
-                            className="bg-black/5 hover:bg-black/10 border-2 border-transparent hover:border-black/5 rounded-full px-3 md:px-4 py-2 flex items-center gap-2 transition-all"
+                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50/80 transition-all border-none shadow-none text-sm font-medium"
                             title="Sign Out"
                         >
-                            <span className="text-lg md:text-xl">🚪</span>
-                            <span className="font-sketch font-bold text-xs md:text-sm text-[var(--ink-primary)] hidden lg:inline">Log Out</span>
-                        </button>
+                            <FiLogOut className="text-base" />
+                            <span className="hidden sm:inline text-sm">Logout</span>
+                        </motion.button>
                     </div>
-
-                    {/* MOBILE LOGOUT ICON OVERRIDE (Optional right side alignment on mobile, since hamburger is gone) */}
-                    <button
-                        onClick={handleLogoutClick}
-                        className="md:hidden w-10 h-10 flex items-center justify-center text-xl rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
-                        aria-label="Sign Out"
-                    >
-                        🚪
-                    </button>
                 </div>
-
             </div>
 
             <ConfirmationModal
@@ -129,11 +128,10 @@ export default function Navbar() {
                 onClose={() => setShowLogoutConfirm(false)}
                 onConfirm={performLogout}
                 title="Leaving so soon?"
-                message="Are you sure you want to log out? You'll need to sign in again to access your scribbles."
+                message="Are you sure you want to log out? You'll need to sign in again to access your account."
                 confirmText="Yes, Log Out"
                 confirmColor="bg-red-500"
             />
         </div>
     );
-
 }
