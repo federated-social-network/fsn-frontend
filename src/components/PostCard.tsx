@@ -151,8 +151,12 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
         }
     };
 
-    // ── Tap handler: single-tap opens lightbox, double-tap likes ──
+    // ── Tap handler: single-tap opens lightbox, double-tap likes (only if image exists) ──
     const handleTap = () => {
+        // Only allow tap actions (like double-tap to like, single-tap to open image) if there is an image.
+        // For text-only posts, this tap area does nothing.
+        if (!imageUrl) return;
+
         const now = Date.now();
         const DOUBLE_TAP_DELAY = 300;
 
