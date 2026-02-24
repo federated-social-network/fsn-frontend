@@ -58,7 +58,7 @@ export default function Navbar() {
                             <img
                                 src="/logo.png"
                                 alt="HeliiX"
-                                className="w-14 h-14 sm:w-16 sm:h-16 -my-3 object-contain drop-shadow-sm"
+                                className="w-10 h-10 sm:w-10 sm:h-10 -my-3 object-contain drop-shadow-sm"
                             />
                             <span className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900" style={{ fontFamily: 'var(--font-heading)' }}>
                                 HeliiX
