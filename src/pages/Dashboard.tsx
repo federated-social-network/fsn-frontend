@@ -2,7 +2,7 @@ import PostForm from "../components/PostForm";
 import Navbar from "../components/Navbar";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { getPosts, getRandomUsers, initiateConnection, acceptConnection, getPendingConnections, getFollowedPosts } from "../api/api";
+import { getPosts, getRandomUsers, initiateConnection, acceptConnection, getPendingConnections, getFollowedPosts, getConnectionsList } from "../api/api";
 import { INSTANCES } from "../config/instances";
 import type { Post } from "../types/post";
 import SketchCard from "../components/SketchCard";
@@ -84,6 +84,7 @@ export default function Dashboard() {
   const [pendingInvites, setPendingInvites] = useState<any[]>([]);
   const [followedPosts, setFollowedPosts] = useState<Post[]>([]);
   const [loadingFollowing, setLoadingFollowing] = useState(false);
+  const [connectedUsers, setConnectedUsers] = useState<Set<string>>(new Set());
 
   const handleConnect = async (e: React.MouseEvent, targetUsername: string) => {
     e.preventDefault();
@@ -138,6 +139,21 @@ export default function Dashboard() {
       }
     };
     fetchUsers();
+  }, []);
+
+  // Fetch connected users for the +Follow button in PostCard
+  useEffect(() => {
+    const fetchConnections = async () => {
+      try {
+        const res = await getConnectionsList();
+        const data = Array.isArray(res.data) ? res.data : (res.data?.connections || []);
+        const usernames = new Set<string>(data.map((c: any) => c.username || c.connected_username || c));
+        setConnectedUsers(usernames);
+      } catch (e) {
+        console.error("Failed to fetch connections", e);
+      }
+    };
+    fetchConnections();
   }, []);
 
   // Fetch Pending Invites (with Polling)
@@ -408,7 +424,7 @@ export default function Dashboard() {
             {activeTab === 'global' && (
               <>
                 {!loading && posts.map((p) => (
-                  <PostCard key={p.id} post={p} />
+                  <PostCard key={p.id} post={p} connectedUsers={connectedUsers} onFollowSent={(u) => setConnectedUsers(prev => new Set([...prev, u]))} />
                 ))}
 
                 {!loading && posts.length === 0 && (
@@ -430,7 +446,7 @@ export default function Dashboard() {
                 )}
 
                 {!loadingFollowing && followedPosts.map((p) => (
-                  <PostCard key={p.id} post={p} />
+                  <PostCard key={p.id} post={p} connectedUsers={connectedUsers} onFollowSent={(u) => setConnectedUsers(prev => new Set([...prev, u]))} />
                 ))}
 
                 {!loadingFollowing && followedPosts.length === 0 && (

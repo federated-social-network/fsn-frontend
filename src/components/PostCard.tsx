@@ -3,12 +3,16 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseUsername } from "../utils/user";
-import { getInstanceName, getInstanceColor } from "../config/instances";
 import { timeAgo } from "../utils/time";
-import { likePost, unlikePost } from "../api/api";
+import { likePost, unlikePost, initiateConnection } from "../api/api";
+import { FiUserPlus } from "react-icons/fi";
 
 interface PostCardProps {
     post: any;
+    /** Set of usernames the current user is already connected to */
+    connectedUsers?: Set<string>;
+    /** Callback after a follow request is sent (so parent can update its state) */
+    onFollowSent?: (username: string) => void;
 }
 
 /**
@@ -16,6 +20,7 @@ interface PostCardProps {
  * - Compact images with lightbox
  * - Truncated captions (3 lines) with "Show more" (like LinkedIn)
  * - Interactive like button with red heart when liked
+ * - +Follow button for non-connected users
  * - Clean, modern UI
  */
 // Helper: read/write liked post IDs from localStorage
@@ -32,7 +37,7 @@ const setLikedSet = (s: Set<string>) => {
     localStorage.setItem(LIKED_KEY, JSON.stringify([...s]));
 };
 
-export default function PostCard({ post: p }: PostCardProps) {
+export default function PostCard({ post: p, connectedUsers, onFollowSent }: PostCardProps) {
     const [expanded, setExpanded] = useState(false);
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [isClamped, setIsClamped] = useState(false);
@@ -42,17 +47,24 @@ export default function PostCard({ post: p }: PostCardProps) {
     const [isLiked, setIsLiked] = useState<boolean>(() => {
         if (p.is_liked === true) return true;
         if (p.is_liked === false) return false;
-        // is_liked is undefined (server didn't return it) → check local cache
         return getLikedSet().has(p.id);
     });
     const [likeCount, setLikeCount] = useState<number>(p.like_count ?? 0);
     const [likeLoading, setLikeLoading] = useState(false);
 
+    // Follow state
+    const [followLoading, setFollowLoading] = useState(false);
+    const [followSent, setFollowSent] = useState(false);
+
     const { username } = parseUsername(p.author);
+    const currentUser = localStorage.getItem("username") || "";
     const avatarUrl = (p as any).avatar_url;
     const imageUrl = (p as any).image_url;
-    const inst = p.origin_instance || parseUsername(p.author).instance || localStorage.getItem("INSTANCE_BASE_URL");
     const content = p.content || "";
+
+    const isOwnPost = username.toLowerCase() === currentUser.toLowerCase();
+    const isConnected = connectedUsers?.has(username) ?? true; // default to true (hide button) if not provided
+    const showFollowBtn = !isOwnPost && !isConnected && !followSent;
 
     // Sync when props change — prefer server value, fallback to cache if undefined
     useEffect(() => {
@@ -104,6 +116,20 @@ export default function PostCard({ post: p }: PostCardProps) {
         }
     };
 
+    const handleFollow = async () => {
+        if (followLoading) return;
+        setFollowLoading(true);
+        try {
+            await initiateConnection(username);
+            setFollowSent(true);
+            onFollowSent?.(username);
+        } catch (err: any) {
+            console.error(`[PostCard] Follow FAILED for ${username}:`, err?.response?.data || err?.message || err);
+        } finally {
+            setFollowLoading(false);
+        }
+    };
+
     return (<>
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -126,22 +152,35 @@ export default function PostCard({ post: p }: PostCardProps) {
                             </div>
                         </Link>
                         <div className="min-w-0">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                                <Link
-                                    to={`/profile/${username}`}
-                                    className="font-semibold text-sm text-gray-900 hover:text-blue-600 transition-colors truncate"
-                                >
-                                    {username}
-                                </Link>
-                                {inst && (
-                                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium border ${getInstanceColor(inst)}`}>
-                                        {getInstanceName(inst)}
-                                    </span>
-                                )}
-                            </div>
+                            <Link
+                                to={`/profile/${username}`}
+                                className="font-semibold text-sm text-gray-900 hover:text-blue-600 transition-colors truncate block"
+                            >
+                                {username}
+                            </Link>
                             <div className="text-xs text-gray-500 mt-0.5">{timeAgo(p.created_at)}</div>
                         </div>
                     </div>
+
+                    {/* +Follow button */}
+                    {showFollowBtn && (
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleFollow}
+                            disabled={followLoading}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors border-none shadow-none"
+                            style={{ minHeight: 'auto', minWidth: 'auto', boxShadow: 'none' }}
+                        >
+                            <FiUserPlus className="text-xs" />
+                            <span>{followLoading ? "..." : "Follow"}</span>
+                        </motion.button>
+                    )}
+                    {followSent && (
+                        <span className="text-xs text-emerald-600 font-medium px-2 py-1 bg-emerald-50 rounded-full">
+                            Requested
+                        </span>
+                    )}
                 </div>
 
                 {/* ── Caption ── */}
@@ -180,7 +219,7 @@ export default function PostCard({ post: p }: PostCardProps) {
                 )}
 
                 {/* ── Footer / Engagement bar ── */}
-                <div className="px-4 py-2.5 border-t border-gray-100 flex items-center justify-between">
+                <div className="px-4 py-2.5 border-t border-gray-100 flex items-center">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={handleLikeToggle}
@@ -220,9 +259,6 @@ export default function PostCard({ post: p }: PostCardProps) {
                                 {likeCount > 0 ? likeCount : "Like"}
                             </span>
                         </button>
-                    </div>
-                    <div className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
-                        {inst ? getInstanceName(inst) : ""}
                     </div>
                 </div>
             </div>
