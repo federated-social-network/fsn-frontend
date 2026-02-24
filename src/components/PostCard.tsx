@@ -17,11 +17,11 @@ interface PostCardProps {
 
 /**
  * A professional LinkedIn/Instagram-style post card.
+ * - Double-tap to like with heart animation (web + mobile)
  * - Compact images with lightbox
- * - Truncated captions (3 lines) with "Show more" (like LinkedIn)
+ * - Truncated captions (3 lines) with "Show more"
  * - Interactive like button with red heart when liked
  * - +Follow button for non-connected users
- * - Clean, modern UI
  */
 // Helper: read/write liked post IDs from localStorage
 const LIKED_KEY = "fsn_liked_posts";
@@ -52,6 +52,11 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
     const [likeCount, setLikeCount] = useState<number>(p.like_count ?? 0);
     const [likeLoading, setLikeLoading] = useState(false);
 
+    // Double-tap heart animation state
+    const [showHeartAnim, setShowHeartAnim] = useState(false);
+    const lastTapRef = useRef<number>(0);
+    const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
     // Follow state
     const [followLoading, setFollowLoading] = useState(false);
     const [followSent, setFollowSent] = useState(false);
@@ -63,7 +68,7 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
     const content = p.content || "";
 
     const isOwnPost = username.toLowerCase() === currentUser.toLowerCase();
-    const isConnected = connectedUsers?.has(username) ?? true; // default to true (hide button) if not provided
+    const isConnected = connectedUsers?.has(username) ?? true;
     const showFollowBtn = !isOwnPost && !isConnected && !followSent;
 
     // Sync when props change — prefer server value, fallback to cache if undefined
@@ -84,13 +89,44 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
         }
     }, [content]);
 
+    // Keep refs in sync so double-tap always reads fresh values
+    const isLikedRef = useRef(isLiked);
+    const likeLoadingRef = useRef(likeLoading);
+    useEffect(() => { isLikedRef.current = isLiked; }, [isLiked]);
+    useEffect(() => { likeLoadingRef.current = likeLoading; }, [likeLoading]);
+
+    // ── Like-only action (for double-tap — never unlikes) ──
+    const performLike = async () => {
+        if (likeLoadingRef.current) return;
+        if (isLikedRef.current) return; // already liked, just show heart
+
+        setLikeLoading(true);
+        setIsLiked(true);
+        setLikeCount((prev) => prev + 1);
+        const liked = getLikedSet();
+        liked.add(p.id);
+        setLikedSet(liked);
+
+        try {
+            await likePost(p.id);
+        } catch (err: any) {
+            console.error(`[PostCard] Like FAILED for post ${p.id}:`, err?.response?.data || err?.message || err);
+            setIsLiked(false);
+            setLikeCount((prev) => Math.max(0, prev - 1));
+            const revert = getLikedSet();
+            revert.delete(p.id);
+            setLikedSet(revert);
+        } finally {
+            setLikeLoading(false);
+        }
+    };
+
     const handleLikeToggle = async () => {
         if (likeLoading) return;
         setLikeLoading(true);
 
         const wasLiked = isLiked;
 
-        // Optimistic update — also persist to local cache immediately
         setIsLiked(!wasLiked);
         setLikeCount((prev) => (wasLiked ? Math.max(0, prev - 1) : prev + 1));
         const liked = getLikedSet();
@@ -104,7 +140,6 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
                 await likePost(p.id);
             }
         } catch (err: any) {
-            // Revert both state and cache on failure
             console.error(`[PostCard] Like toggle FAILED for post ${p.id}:`, err?.response?.data || err?.message || err);
             setIsLiked(wasLiked);
             setLikeCount((prev) => (wasLiked ? prev + 1 : Math.max(0, prev - 1)));
@@ -113,6 +148,33 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
             setLikedSet(revert);
         } finally {
             setLikeLoading(false);
+        }
+    };
+
+    // ── Tap handler: single-tap opens lightbox, double-tap likes ──
+    const handleTap = () => {
+        const now = Date.now();
+        const DOUBLE_TAP_DELAY = 300;
+
+        if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+            // Double-tap → cancel pending single-tap, fire like
+            lastTapRef.current = 0;
+            if (singleTapTimerRef.current) {
+                clearTimeout(singleTapTimerRef.current);
+                singleTapTimerRef.current = null;
+            }
+            setShowHeartAnim(true);
+            performLike();
+            setTimeout(() => setShowHeartAnim(false), 1000);
+        } else {
+            // First tap → wait to see if a second tap follows
+            lastTapRef.current = now;
+            if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
+            singleTapTimerRef.current = setTimeout(() => {
+                // Single-tap confirmed → open lightbox if image exists
+                if (imageUrl) setLightboxOpen(true);
+                singleTapTimerRef.current = null;
+            }, DOUBLE_TAP_DELAY);
         }
     };
 
@@ -129,6 +191,9 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
             setFollowLoading(false);
         }
     };
+
+    // Heart SVG path used in both the button and the double-tap animation
+    const heartPath = "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z";
 
     return (<>
         <motion.div
@@ -173,7 +238,7 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
                             style={{ minHeight: 'auto', minWidth: 'auto', boxShadow: 'none' }}
                         >
                             <FiUserPlus className="text-xs" />
-                            <span>{followLoading ? "..." : "Follow"}</span>
+                            <span>{followLoading ? "..." : "Connect"}</span>
                         </motion.button>
                     )}
                     {followSent && (
@@ -183,40 +248,103 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
                     )}
                 </div>
 
-                {/* ── Caption ── */}
-                {content && (
-                    <div className="px-4 pb-3">
-                        <p
-                            ref={contentRef}
-                            className={`text-sm text-gray-800 leading-relaxed whitespace-pre-wrap ${!expanded ? "line-clamp-3" : ""}`}
-                        >
-                            {content}
-                        </p>
-                        {(isClamped || expanded) && (
-                            <button
-                                onClick={() => setExpanded(!expanded)}
-                                className="text-sm font-medium text-blue-600 hover:text-blue-700 mt-1 transition-colors"
+                {/* ── Tap area (caption + image): single-tap=view, double-tap=like ── */}
+                <div
+                    className="relative select-none"
+                    onClick={handleTap}
+                    style={{ cursor: 'pointer' }}
+                >
+                    {/* ── Caption ── */}
+                    {content && (
+                        <div className="px-4 pb-3">
+                            <p
+                                ref={contentRef}
+                                className={`text-sm text-gray-800 leading-relaxed whitespace-pre-wrap ${!expanded ? "line-clamp-3" : ""}`}
                             >
-                                {expanded ? "Show less" : "...show more"}
-                            </button>
-                        )}
-                    </div>
-                )}
+                                {content}
+                            </p>
+                            {(isClamped || expanded) && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+                                    className="text-sm font-medium text-blue-600 hover:text-blue-700 mt-1 transition-colors"
+                                >
+                                    {expanded ? "Show less" : "...show more"}
+                                </button>
+                            )}
+                        </div>
+                    )}
 
-                {/* ── Image ── */}
-                {imageUrl && (
-                    <div
-                        className="w-full overflow-hidden cursor-pointer group"
-                        onClick={() => setLightboxOpen(true)}
-                    >
-                        <img
-                            src={imageUrl}
-                            alt="Post"
-                            className="w-full object-contain max-h-[520px] group-hover:scale-[1.01] transition-transform duration-500"
-                            loading="lazy"
-                        />
-                    </div>
-                )}
+                    {/* ── Image ── */}
+                    {imageUrl && (
+                        <div className="w-full overflow-hidden group">
+                            <img
+                                src={imageUrl}
+                                alt="Post"
+                                className="w-full object-contain max-h-[520px] group-hover:scale-[1.01] transition-transform duration-500"
+                                loading="lazy"
+                            />
+                        </div>
+                    )}
+
+                    {/* ── Double-tap Heart Animation Overlay ── */}
+                    <AnimatePresence>
+                        {showHeartAnim && (
+                            <motion.div
+                                className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.15 }}
+                            >
+                                <motion.svg
+                                    viewBox="0 0 24 24"
+                                    className="w-20 h-20 sm:w-24 sm:h-24 drop-shadow-lg"
+                                    initial={{ scale: 0, opacity: 0, rotate: -10 }}
+                                    animate={{ scale: [0, 1.3, 1], opacity: [0, 1, 1], rotate: [-10, 5, 0] }}
+                                    exit={{ scale: 0, opacity: 0 }}
+                                    transition={{ duration: 0.6, ease: [0.175, 0.885, 0.32, 1.275] }}
+                                >
+                                    <path
+                                        d={heartPath}
+                                        fill="#ef4444"
+                                        stroke="white"
+                                        strokeWidth="1"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </motion.svg>
+
+                                {/* Particle burst rings */}
+                                {[...Array(6)].map((_, i) => (
+                                    <motion.div
+                                        key={i}
+                                        className="absolute w-2 h-2 rounded-full"
+                                        style={{
+                                            background: i % 2 === 0 ? '#ef4444' : '#f97316',
+                                        }}
+                                        initial={{
+                                            scale: 0,
+                                            opacity: 1,
+                                            x: 0,
+                                            y: 0,
+                                        }}
+                                        animate={{
+                                            scale: [0, 1, 0.5],
+                                            opacity: [1, 1, 0],
+                                            x: Math.cos((i * 60 * Math.PI) / 180) * 50,
+                                            y: Math.sin((i * 60 * Math.PI) / 180) * 50,
+                                        }}
+                                        transition={{
+                                            duration: 0.6,
+                                            ease: "easeOut",
+                                            delay: 0.1,
+                                        }}
+                                    />
+                                ))}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
 
                 {/* ── Footer / Engagement bar ── */}
                 <div className="px-4 py-2.5 border-t border-gray-100 flex items-center">
@@ -251,7 +379,7 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
                                     <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                        d={heartPath}
                                     />
                                 </svg>
                             </motion.div>
@@ -262,7 +390,7 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
                     </div>
                 </div>
             </div>
-        </motion.div>
+        </motion.div >
 
         {/* ── Lightbox Modal ── */}
         {
