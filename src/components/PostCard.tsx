@@ -293,54 +293,80 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
                                 className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.15 }}
+                                exit={{ opacity: 0, transition: { duration: 0.3, delay: 0.4 } }}
                             >
+                                {/* White flash */}
+                                <motion.div
+                                    className="absolute inset-0 bg-white"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: [0, 0.15, 0] }}
+                                    transition={{ duration: 0.4 }}
+                                />
+
+                                {/* Expanding ring */}
+                                <motion.div
+                                    className="absolute rounded-full border-2 border-red-400"
+                                    initial={{ width: 0, height: 0, opacity: 0.8 }}
+                                    animate={{ width: 160, height: 160, opacity: 0 }}
+                                    transition={{ duration: 0.7, ease: "easeOut" }}
+                                />
+
+                                {/* Main heart */}
                                 <motion.svg
                                     viewBox="0 0 24 24"
-                                    className="w-20 h-20 sm:w-24 sm:h-24 drop-shadow-lg"
-                                    initial={{ scale: 0, opacity: 0, rotate: -10 }}
-                                    animate={{ scale: [0, 1.3, 1], opacity: [0, 1, 1], rotate: [-10, 5, 0] }}
+                                    className="w-28 h-28 sm:w-32 sm:h-32"
+                                    style={{ filter: 'drop-shadow(0 0 20px rgba(239, 68, 68, 0.6))' }}
+                                    initial={{ scale: 0, rotate: -15 }}
+                                    animate={{
+                                        scale: [0, 1.4, 0.95, 1.1, 1],
+                                        rotate: [-15, 10, -5, 0],
+                                        opacity: [0, 1, 1, 1, 1],
+                                    }}
                                     exit={{ scale: 0, opacity: 0 }}
-                                    transition={{ duration: 0.6, ease: [0.175, 0.885, 0.32, 1.275] }}
+                                    transition={{
+                                        duration: 0.7,
+                                        times: [0, 0.35, 0.55, 0.75, 1],
+                                        ease: "easeOut",
+                                    }}
                                 >
                                     <path
                                         d={heartPath}
                                         fill="#ef4444"
                                         stroke="white"
-                                        strokeWidth="1"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
+                                        strokeWidth="0.5"
                                     />
                                 </motion.svg>
 
-                                {/* Particle burst rings */}
-                                {[...Array(6)].map((_, i) => (
-                                    <motion.div
-                                        key={i}
-                                        className="absolute w-2 h-2 rounded-full"
-                                        style={{
-                                            background: i % 2 === 0 ? '#ef4444' : '#f97316',
-                                        }}
-                                        initial={{
-                                            scale: 0,
-                                            opacity: 1,
-                                            x: 0,
-                                            y: 0,
-                                        }}
-                                        animate={{
-                                            scale: [0, 1, 0.5],
-                                            opacity: [1, 1, 0],
-                                            x: Math.cos((i * 60 * Math.PI) / 180) * 50,
-                                            y: Math.sin((i * 60 * Math.PI) / 180) * 50,
-                                        }}
-                                        transition={{
-                                            duration: 0.6,
-                                            ease: "easeOut",
-                                            delay: 0.1,
-                                        }}
-                                    />
-                                ))}
+                                {/* Scattered particles */}
+                                {[...Array(8)].map((_, i) => {
+                                    const angle = (i * 45 * Math.PI) / 180;
+                                    const distance = 55 + (i % 3) * 15;
+                                    const colors = ['#ef4444', '#f97316', '#ec4899', '#f43f5e', '#fb923c', '#e11d48', '#f87171', '#fbbf24'];
+                                    const size = i % 2 === 0 ? 8 : 6;
+                                    return (
+                                        <motion.div
+                                            key={i}
+                                            className="absolute rounded-full"
+                                            style={{
+                                                width: size,
+                                                height: size,
+                                                background: colors[i],
+                                            }}
+                                            initial={{ scale: 0, x: 0, y: 0, opacity: 1 }}
+                                            animate={{
+                                                scale: [0, 1.2, 0],
+                                                x: Math.cos(angle) * distance,
+                                                y: Math.sin(angle) * distance,
+                                                opacity: [0, 1, 0],
+                                            }}
+                                            transition={{
+                                                duration: 0.65,
+                                                delay: 0.15 + i * 0.03,
+                                                ease: "easeOut",
+                                            }}
+                                        />
+                                    );
+                                })}
                             </motion.div>
                         )}
                     </AnimatePresence>
