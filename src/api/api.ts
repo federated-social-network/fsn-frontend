@@ -90,27 +90,15 @@ export const createPost = (
   username?: string,
   image?: File
 ) => {
-  // Build query params.
-  const params: Record<string, string> = { content } as any;
+  const form = new FormData();
+  form.append("content", content);
+  if (username) form.append("username", username);
+  if (image) form.append("image", image);
 
-  if (username) {
-    // include username as a param for server-side attribution if useful
-    params.username = username;
-  }
-
-  // If an image is attached, send as multipart/form-data with key "image".
-  if (image) {
-    const form = new FormData();
-    form.append("image", image);
-    return getApi().post("/posts", form, {
-      params,
-      timeout: 60000, // 60s for image uploads
-    });
-  }
-
-  // Do not set Basic auth here. getApi() will attach a Bearer token
-  // if one is present in localStorage (preferred server flow).
-  return getApi().post("/posts", {}, { params });
+  return getApi().post("/posts", form, {
+    headers: { "Content-Type": undefined }, // let axios auto-set multipart/form-data
+    timeout: image ? 60000 : 8000, // 60s for image uploads
+  });
 };
 
 // Fetch posts from the instance. Returns an array of posts.
