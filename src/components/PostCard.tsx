@@ -4,15 +4,10 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseUsername } from "../utils/user";
 import { timeAgo } from "../utils/time";
-import { likePost, unlikePost, initiateConnection } from "../api/api";
-import { FiUserPlus } from "react-icons/fi";
+import { likePost, unlikePost } from "../api/api";
 
 interface PostCardProps {
     post: any;
-    /** Set of usernames the current user is already connected to */
-    connectedUsers?: Set<string>;
-    /** Callback after a follow request is sent (so parent can update its state) */
-    onFollowSent?: (username: string) => void;
 }
 
 /**
@@ -37,7 +32,7 @@ const setLikedSet = (s: Set<string>) => {
     localStorage.setItem(LIKED_KEY, JSON.stringify([...s]));
 };
 
-export default function PostCard({ post: p, connectedUsers, onFollowSent }: PostCardProps) {
+export default function PostCard({ post: p }: PostCardProps) {
     const [expanded, setExpanded] = useState(false);
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [isClamped, setIsClamped] = useState(false);
@@ -57,19 +52,14 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
     const lastTapRef = useRef<number>(0);
     const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Follow state
-    const [followLoading, setFollowLoading] = useState(false);
-    const [followSent, setFollowSent] = useState(false);
 
-    const { username } = parseUsername(p.author);
-    const currentUser = localStorage.getItem("username") || "";
+
+    const { username, instance } = parseUsername(p.author);
     const avatarUrl = (p as any).avatar_url;
     const imageUrl = (p as any).image_url;
     const content = p.content || "";
 
-    const isOwnPost = username.toLowerCase() === currentUser.toLowerCase();
-    const isConnected = connectedUsers?.has(username) ?? true;
-    const showFollowBtn = !isOwnPost && !isConnected && !followSent;
+
 
     // Sync when props change — prefer server value, fallback to cache if undefined
     useEffect(() => {
@@ -182,19 +172,7 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
         }
     };
 
-    const handleFollow = async () => {
-        if (followLoading) return;
-        setFollowLoading(true);
-        try {
-            await initiateConnection(username);
-            setFollowSent(true);
-            onFollowSent?.(username);
-        } catch (err: any) {
-            console.error(`[PostCard] Follow FAILED for ${username}:`, err?.response?.data || err?.message || err);
-        } finally {
-            setFollowLoading(false);
-        }
-    };
+
 
     // Heart SVG path used in both the button and the double-tap animation
     const heartPath = "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z";
@@ -231,24 +209,11 @@ export default function PostCard({ post: p, connectedUsers, onFollowSent }: Post
                         </div>
                     </div>
 
-                    {/* +Follow button */}
-                    {showFollowBtn && (
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleFollow}
-                            disabled={followLoading}
-                            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors border-none shadow-none"
-                            style={{ minHeight: 'auto', minWidth: 'auto', boxShadow: 'none' }}
-                        >
-                            <FiUserPlus className="text-xs" />
-                            <span>{followLoading ? "..." : "Connect"}</span>
-                        </motion.button>
-                    )}
-                    {followSent && (
-                        <span className="text-xs text-emerald-600 font-medium px-2 py-1 bg-emerald-50 rounded-full">
-                            Requested
-                        </span>
+                    {/* Instance Indicator */}
+                    {instance && (
+                        <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100/80 text-gray-700 text-[11px] font-semibold tracking-wide border border-gray-200">
+                            <span>{instance}</span>
+                        </div>
                     )}
                 </div>
 

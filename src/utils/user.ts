@@ -1,15 +1,11 @@
 import { getInstanceName } from "../config/instances";
 
 /**
- * Parses a username string which might be a simple username or a full URL.
+ * Parses a username string which might be a simple username, a URL, or an ActivityPub handle.
  * Returns a clean display username and the instance domain (if available).
  *
  * @param {string | undefined | null} input - The username string or URL to parse.
- * @returns {{ username: string | undefined | null, instance: string | null }} An object containing the parsed username and instance name.
- *
- * @example
- * parseUsername("Harish1604") // -> { username: "Harish1604", instance: null }
- * parseUsername("https://instance-a.run.app/users/Harish1604") // -> { username: "Harish1604", instance: "Instance A" }
+ * @returns {{ username: string, instance: string | null }} An object containing the parsed username and instance name.
  */
 export const parseUsername = (input: string | undefined | null) => {
     if (!input) return { username: "Unknown", instance: null };
@@ -29,9 +25,33 @@ export const parseUsername = (input: string | undefined | null) => {
                 instance: friendlyInstance
             };
         }
+
+        // Check if input looks like ActivityPub format (e.g., @user@mastodon.social or user@pixelfed.social)
+        if (input.includes("@")) {
+            const parts = input.split("@").filter(Boolean); // removes leading empty string if it starts with @
+            if (parts.length >= 2) {
+                const username = parts[0];
+                const domain = parts[parts.length - 1]; // last part is the domain
+
+                let friendlyInstance = domain;
+                if (domain.toLowerCase().includes("mastodon")) {
+                    friendlyInstance = "Mastodon";
+                } else if (domain.toLowerCase().includes("pixelfed")) {
+                    friendlyInstance = "Pixelfed";
+                } else {
+                    friendlyInstance = getInstanceName(domain) || domain;
+                }
+
+                return {
+                    username,
+                    instance: friendlyInstance
+                };
+            }
+        }
+
     } catch (e) {
-        // Fallback if URL parsing fails
-        console.warn("Failed to parse username URL:", input);
+        // Fallback if parsing fails
+        console.warn("Failed to parse username:", input);
     }
 
     // Fallback / Default behavior: treat input as plain username
