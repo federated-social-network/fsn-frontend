@@ -21,7 +21,7 @@ export default function NetworkMobilePage() {
                 ]);
 
                 setPendingInvites(Array.isArray(invitesRes.data) ? invitesRes.data : []);
-                
+
                 const usersData = Array.isArray(usersRes.data) ? usersRes.data : (usersRes.data?.users || []);
                 const mappedUsers = usersData.map((u: any) => ({
                     username: u.username || u,
@@ -90,7 +90,7 @@ export default function NetworkMobilePage() {
                         <div className="space-y-3">
                             {pendingInvites.map((invite: any) => (
                                 <div key={invite.connection_id} className="bg-white/80 p-3 rounded-lg border border-black/10 flex items-center justify-between shadow-sm">
-                                    <div className="font-hand text-lg truncate flex-1">
+                                    <div className="font-hand text-lg break-all pr-2 flex-1">
                                         {invite.from_username || "Unknown"}
                                     </div>
                                     <button

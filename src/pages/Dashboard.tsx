@@ -461,7 +461,7 @@ export default function Dashboard() {
               {pendingInvites.length > 0 ? (
                 pendingInvites.map((invite: any) => (
                   <div key={invite.connection_id} className="bg-white/50 p-2 rounded border border-black/5 flex items-center justify-between">
-                    <div className="font-hand text-sm truncate w-24">
+                    <div className="font-hand text-sm flex-1 break-all pr-2">
                       {invite.from_username || "Unknown"}
                     </div>
                     <button
