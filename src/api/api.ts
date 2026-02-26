@@ -114,6 +114,19 @@ export const completePost = (content: string) => {
   });
 };
 
+/**
+ * Gets an AI suggestion to elaborate the post content.
+ * @param {string} content - The content to elaborate.
+ * @returns {Promise<import("axios").AxiosResponse<any>>} The server response.
+ */
+export const elaboratePost = (content: string) => {
+  const form = new FormData();
+  form.append("content", content);
+  return getApi().post("/post/eloboratePost", form, {
+    headers: { "Content-Type": undefined }
+  });
+};
+
 // Fetch posts from the instance. Returns an array of posts.
 /**
  * Fetches posts from the instance.

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { createPost, completePost, getUser } from "../api/api";
+import { createPost, completePost, elaboratePost, getUser } from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Helper component for the Modal
@@ -27,7 +27,8 @@ const PostModal = ({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [suggestedContent, setSuggestedContent] = useState<string | null>(null);
-  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [isElaborating, setIsElaborating] = useState(false);
   const [suggestionError, setSuggestionError] = useState("");
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -81,7 +82,7 @@ const PostModal = ({
   const handleEnhance = async () => {
     if (wordCount < 5) return;
     setSuggestionError("");
-    setIsSuggesting(true);
+    setIsEnhancing(true);
     try {
       const res = await completePost(content);
       if (res.data && res.data.completed) {
@@ -93,7 +94,26 @@ const PostModal = ({
       console.error(err);
       setSuggestionError("Failed to get suggestion. Try again.");
     } finally {
-      setIsSuggesting(false);
+      setIsEnhancing(false);
+    }
+  };
+
+  const handleElaborate = async () => {
+    if (wordCount < 5) return;
+    setSuggestionError("");
+    setIsElaborating(true);
+    try {
+      const res = await elaboratePost(content);
+      if (res.data && res.data.completed) {
+        setSuggestedContent(res.data.completed);
+      } else {
+        setSuggestionError("Failed to get suggestion.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setSuggestionError("Failed to get suggestion. Try again.");
+    } finally {
+      setIsElaborating(false);
     }
   };
 
@@ -316,14 +336,14 @@ const PostModal = ({
                     <button
                       type="button"
                       onClick={handleEnhance}
-                      disabled={isSuggesting || wordCount < 5}
+                      disabled={isEnhancing || isElaborating || wordCount < 5}
                       className={`ml-2 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${wordCount >= 5
-                        ? "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
-                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          ? "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
+                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
                         }`}
                       title={wordCount >= 5 ? "AI Enhance" : "Type at least 5 words to enhance"}
                     >
-                      {isSuggesting ? (
+                      {isEnhancing ? (
                         <span className="w-4 h-4 border-2 border-indigo-700/30 border-t-indigo-700 rounded-full animate-spin"></span>
                       ) : (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -331,6 +351,31 @@ const PostModal = ({
                         </svg>
                       )}
                       Enhance
+                    </button>
+                  )}
+
+                  {/* AI Elaborate Button */}
+                  {!suggestedContent && (
+                    <button
+                      type="button"
+                      onClick={handleElaborate}
+                      disabled={isEnhancing || isElaborating || wordCount < 5}
+                      className={`ml-2 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${wordCount >= 5
+                          ? "bg-purple-100 hover:bg-purple-200 text-purple-700"
+                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        }`}
+                      title={wordCount >= 5 ? "AI Elaborate" : "Type at least 5 words to elaborate"}
+                    >
+                      {isElaborating ? (
+                        <span className="w-4 h-4 border-2 border-purple-700/30 border-t-purple-700 rounded-full animate-spin"></span>
+                      ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                      )}
+                      Elaborate
                     </button>
                   )}
                 </div>
