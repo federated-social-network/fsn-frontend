@@ -235,7 +235,7 @@ export default function PostCard({ post: p }: PostCardProps) {
                             {(isClamped || expanded) && (
                                 <button
                                     onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-                                    className="text-sm font-medium text-blue-600 hover:text-blue-700 mt-1 transition-colors"
+                                    className="text-sm font-medium text-blue-600 hover:text-blue-700 mt-1 transition-colors outline-none focus:outline-none bg-transparent p-0 m-0 border-none shadow-none"
                                 >
                                     {expanded ? "Show less" : "...show more"}
                                 </button>

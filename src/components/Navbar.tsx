@@ -48,8 +48,8 @@ export default function Navbar() {
             <div className="relative bg-white/80 backdrop-blur-md border-b border-gray-200/60 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto flex items-center justify-between h-14 sm:h-16">
 
-                    {/* LEFT: Logo + Brand */}
-                    <Link to="/dashboard" className="flex items-center gap-2.5 group border-none">
+                    {/* CENTER (Mobile) / LEFT (Desktop): Logo + Brand */}
+                    <Link to="/dashboard" className="flex items-center gap-2.5 group border-none absolute left-1/2 -translate-x-1/2 sm:static sm:translate-x-0">
                         <motion.div
                             whileHover={{ scale: 1.08, rotate: -3 }}
                             whileTap={{ scale: 0.95 }}
@@ -80,7 +80,7 @@ export default function Navbar() {
                     )}
 
                     {/* RIGHT: User Controls */}
-                    <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 ml-auto sm:ml-0">
 
                         {/* Profile Link */}
                         <Link
