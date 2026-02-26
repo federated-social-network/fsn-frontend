@@ -324,8 +324,8 @@ export default function Dashboard() {
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           <div className="space-y-4">
-            {/* Create Post Card */}
-            <div className="relative z-10">
+            {/* Create Post Card (Desktop Only) */}
+            <div className="relative z-10 hidden md:block">
               <PostForm onPosted={() => loadPosts()} />
             </div>
 

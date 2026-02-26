@@ -251,7 +251,11 @@ const PostModal = ({
                           </svg>
                           AI Suggestion
                         </div>
-                        <p className="text-gray-800 text-sm mb-3 whitespace-pre-wrap leading-relaxed">{suggestedContent}</p>
+                        <div className="max-h-[114px] overflow-y-auto pr-2 custom-scrollbar mb-3">
+                          <p className="text-gray-800 text-sm whitespace-pre-wrap leading-relaxed">
+                            {suggestedContent}
+                          </p>
+                        </div>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={handleKeepSuggestion}
@@ -338,8 +342,8 @@ const PostModal = ({
                       onClick={handleEnhance}
                       disabled={isEnhancing || isElaborating || wordCount < 5}
                       className={`ml-2 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${wordCount >= 5
-                          ? "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
-                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        ? "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
+                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
                         }`}
                       title={wordCount >= 5 ? "AI Enhance" : "Type at least 5 words to enhance"}
                     >
@@ -361,8 +365,8 @@ const PostModal = ({
                       onClick={handleElaborate}
                       disabled={isEnhancing || isElaborating || wordCount < 5}
                       className={`ml-2 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${wordCount >= 5
-                          ? "bg-purple-100 hover:bg-purple-200 text-purple-700"
-                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        ? "bg-purple-100 hover:bg-purple-200 text-purple-700"
+                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
                         }`}
                       title={wordCount >= 5 ? "AI Elaborate" : "Type at least 5 words to elaborate"}
                     >

@@ -256,7 +256,11 @@ export default function CreatePostMobilePage() {
                                         </svg>
                                         AI Suggestion
                                     </div>
-                                    <p className="text-gray-800 text-[15px] mb-3 whitespace-pre-wrap leading-relaxed">{suggestedContent}</p>
+                                    <div className="max-h-[122px] overflow-y-auto pr-2 custom-scrollbar mb-3">
+                                        <p className="text-gray-800 text-[15px] whitespace-pre-wrap leading-relaxed">
+                                            {suggestedContent}
+                                        </p>
+                                    </div>
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={handleKeepSuggestion}
@@ -300,31 +304,19 @@ export default function CreatePostMobilePage() {
                     </div>
                 )}
 
-                {/* Action buttons — only visible when no image selected */}
+                {/* Action buttons area — only visible when no image selected */}
                 {!imageFile && (
-                    <div className="px-4 pb-3 flex items-center justify-between">
-                        <div className="flex items-center">
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/jpeg,image/png,image/webp,image/gif"
-                                className="hidden"
-                                onChange={handleImageSelect}
-                            />
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="w-11 h-11 rounded-full hover:bg-blue-50 active:bg-blue-100 flex items-center justify-center text-gray-500 hover:text-blue-600 transition-colors"
-                            >
-                                <FiImage className="text-xl" />
-                            </button>
+                    <div className="px-4 pb-3 flex flex-col gap-3">
 
-                            {/* AI Enhance Button */}
-                            {!suggestedContent && (
+                        {/* Top row: AI Helpers */}
+                        {!suggestedContent && (
+                            <div className="flex justify-end gap-2 border-b border-gray-100 pb-3">
+                                {/* AI Enhance Button */}
                                 <button
                                     type="button"
                                     onClick={handleEnhance}
                                     disabled={isEnhancing || isElaborating || wordCount < 5}
-                                    className={`ml-2 flex flex-row items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${wordCount >= 5
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${wordCount >= 5
                                         ? "bg-blue-100 hover:bg-blue-200 text-blue-700"
                                         : "bg-gray-100 text-gray-400 cursor-not-allowed"
                                         }`}
@@ -338,15 +330,13 @@ export default function CreatePostMobilePage() {
                                     )}
                                     Enhance
                                 </button>
-                            )}
 
-                            {/* AI Elaborate Button */}
-                            {!suggestedContent && (
+                                {/* AI Elaborate Button */}
                                 <button
                                     type="button"
                                     onClick={handleElaborate}
                                     disabled={isEnhancing || isElaborating || wordCount < 5}
-                                    className={`ml-2 flex flex-row items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${wordCount >= 5
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${wordCount >= 5
                                         ? "bg-purple-100 hover:bg-purple-200 text-purple-700"
                                         : "bg-gray-100 text-gray-400 cursor-not-allowed"
                                         }`}
@@ -362,10 +352,27 @@ export default function CreatePostMobilePage() {
                                     )}
                                     Elaborate
                                 </button>
-                            )}
-                        </div>
+                            </div>
+                        )}
 
-                        {!imageFile && (
+                        {/* Bottom Row: Image Upload & Post */}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center">
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp,image/gif"
+                                    className="hidden"
+                                    onChange={handleImageSelect}
+                                />
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-11 h-11 rounded-full hover:bg-blue-50 active:bg-blue-100 flex items-center justify-center text-gray-500 hover:text-blue-600 transition-colors"
+                                >
+                                    <FiImage className="text-xl" />
+                                </button>
+                            </div>
+
                             <motion.button
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handlePost}
@@ -381,9 +388,11 @@ export default function CreatePostMobilePage() {
                                         <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                         Posting...
                                     </span>
-                                ) : "Post"}
+                                ) : (
+                                    "Post"
+                                )}
                             </motion.button>
-                        )}
+                        </div>
                     </div>
                 )}
 
