@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { AnimatePresence } from "framer-motion";
-import { FiArrowLeft, FiImage, FiX } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiArrowLeft, FiImage, FiX, FiMic, FiMicOff } from "react-icons/fi";
 import { createPost, completePost, elaboratePost, getUser } from "../api/api";
 
 /**
@@ -25,15 +24,95 @@ export default function CreatePostMobilePage() {
     const [isElaborating, setIsElaborating] = useState(false);
     const [suggestionError, setSuggestionError] = useState("");
 
+    const [isListening, setIsListening] = useState(false);
+    const [transcript, setTranscript] = useState("");
+    const recognitionRef = useRef<any>(null);
+
+    useEffect(() => {
+        const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (SpeechRecognitionAPI) {
+            const recognition = new SpeechRecognitionAPI();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => setIsListening(true);
+
+            recognition.onresult = (event: any) => {
+                let interimTranscript = '';
+                let newFinalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        newFinalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                if (newFinalTranscript) {
+                    setContent(prev => (prev + (prev && newFinalTranscript ? " " : "") + newFinalTranscript).trim());
+                }
+                setTranscript(interimTranscript);
+            };
+
+            recognition.onerror = (event: any) => {
+                console.error("Speech recognition error", event.error);
+                if (event.error === 'not-allowed') {
+                    setError("Microphone access denied. Please allow permissions.");
+                } else if (event.error === 'network') {
+                    setError("Network error. Speech recognition might not be supported on this browser (e.g. Linux Chromium). Check browser settings.");
+                } else if (event.error !== 'no-speech') {
+                    setError(`Microphone error: ${event.error}`);
+                }
+                setIsListening(false);
+            };
+
+            recognition.onend = () => setIsListening(false);
+            recognitionRef.current = recognition;
+        }
+    }, []);
+
+    const handleMicClick = () => {
+        if (!recognitionRef.current) {
+            setError("Speech recognition is not natively supported in this browser. Please try Chrome.");
+            return;
+        }
+        if (isListening) {
+            recognitionRef.current.stop();
+            if (transcript) {
+                setContent(prev => (prev + (prev && transcript ? " " : "") + transcript).trim());
+            }
+            setTranscript("");
+            setIsListening(false);
+        } else {
+            setTranscript("");
+            setError("");
+            try {
+                recognitionRef.current.start();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    };
+
+    const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        if (isListening) {
+            recognitionRef.current?.stop();
+            setIsListening(false);
+            setTranscript("");
+        }
+        setContent(e.target.value);
+    };
+
+    const displayContent = transcript ? content + (content ? " " : "") + transcript : content;
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const MAX_CHARS = 500;
-    const charCount = content.length;
+    const charCount = displayContent.length;
     const charPercent = Math.min((charCount / MAX_CHARS) * 100, 100);
     const isOverLimit = charCount > MAX_CHARS;
-    const canPost = (content.trim().length > 0 || imageFile) && !isOverLimit && !loading;
+    const canPost = (displayContent.trim().length > 0 || imageFile) && !isOverLimit && !loading;
 
     // Fetch avatar
     useEffect(() => {
@@ -58,7 +137,7 @@ export default function CreatePostMobilePage() {
             el.style.height = "auto";
             el.style.height = el.scrollHeight + "px";
         }
-    }, [content]);
+    }, [displayContent]);
 
     // Cleanup preview URL
     useEffect(() => {
@@ -90,14 +169,14 @@ export default function CreatePostMobilePage() {
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
-    const wordCount = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+    const wordCount = displayContent.trim().split(/\s+/).filter(word => word.length > 0).length;
 
     const handleEnhance = async () => {
         if (wordCount < 5) return;
         setSuggestionError("");
         setIsEnhancing(true);
         try {
-            const res = await completePost(content);
+            const res = await completePost(displayContent);
             if (res.data && res.data.completed) {
                 setSuggestedContent(res.data.completed);
             } else {
@@ -116,7 +195,7 @@ export default function CreatePostMobilePage() {
         setSuggestionError("");
         setIsElaborating(true);
         try {
-            const res = await elaboratePost(content);
+            const res = await elaboratePost(displayContent);
             if (res.data && res.data.completed) {
                 setSuggestedContent(res.data.completed);
             } else {
@@ -146,8 +225,16 @@ export default function CreatePostMobilePage() {
         setError("");
         setLoading(true);
 
+        let finalContent = displayContent;
+        if (isListening) {
+            recognitionRef.current?.stop();
+            setIsListening(false);
+            setContent(finalContent);
+            setTranscript("");
+        }
+
         try {
-            const res = await createPost(content, username, imageFile || undefined);
+            const res = await createPost(finalContent, username, imageFile || undefined);
             if (res?.status === 200 || res?.status === 201) {
                 try {
                     window.dispatchEvent(new CustomEvent("post:created", { detail: res.data }));
@@ -225,8 +312,8 @@ export default function CreatePostMobilePage() {
                 <div className="px-4 py-2">
                     <textarea
                         ref={textareaRef}
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
+                        value={displayContent}
+                        onChange={handleTextareaChange}
                         placeholder="What's on your mind?"
                         className="w-full text-[16px] text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
                         style={{ minHeight: "120px" }}
@@ -370,6 +457,17 @@ export default function CreatePostMobilePage() {
                                     className="w-11 h-11 rounded-full hover:bg-blue-50 active:bg-blue-100 flex items-center justify-center text-gray-500 hover:text-blue-600 transition-colors"
                                 >
                                     <FiImage className="text-xl" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleMicClick}
+                                    className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${isListening
+                                        ? "bg-red-100 text-red-600 hover:bg-red-200 animate-pulse"
+                                        : "hover:bg-blue-50 active:bg-blue-100 text-gray-500 hover:text-blue-600"
+                                        }`}
+                                    title={isListening ? "Stop recording" : "Dictate"}
+                                >
+                                    {isListening ? <FiMicOff className="text-xl" /> : <FiMic className="text-xl" />}
                                 </button>
                             </div>
 

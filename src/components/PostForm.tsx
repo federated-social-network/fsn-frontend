@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { createPost, completePost, elaboratePost, getUser } from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
+import { FiMic, FiMicOff } from 'react-icons/fi';
 
 // Helper component for the Modal
 /**
@@ -23,6 +24,86 @@ const PostModal = ({
 }) => {
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognitionAPI) {
+      const recognition = new SpeechRecognitionAPI();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => setIsListening(true);
+
+      recognition.onresult = (event: any) => {
+        let interimTranscript = '';
+        let newFinalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            newFinalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        if (newFinalTranscript) {
+          setContent(prev => (prev + (prev && newFinalTranscript ? " " : "") + newFinalTranscript).trim());
+        }
+        setTranscript(interimTranscript);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error("Speech recognition error", event.error);
+        if (event.error === 'not-allowed') {
+          setError("Microphone access denied. Please allow permissions.");
+        } else if (event.error === 'network') {
+          setError("Network error. Speech recognition might not be supported on this browser (e.g. Linux Chromium). Check browser settings.");
+        } else if (event.error !== 'no-speech') {
+          setError(`Microphone error: ${event.error}`);
+        }
+        setIsListening(false);
+      };
+
+      recognition.onend = () => setIsListening(false);
+      recognitionRef.current = recognition;
+    }
+  }, []);
+
+  const handleMicClick = () => {
+    if (!recognitionRef.current) {
+      setError("Speech recognition is not natively supported in this browser. Please try Chrome.");
+      return;
+    }
+    if (isListening) {
+      recognitionRef.current.stop();
+      if (transcript) {
+        setContent(prev => (prev + (prev && transcript ? " " : "") + transcript).trim());
+      }
+      setTranscript("");
+      setIsListening(false);
+    } else {
+      setTranscript("");
+      setError("");
+      try {
+        recognitionRef.current.start();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      setTranscript("");
+    }
+    setContent(e.target.value);
+  };
+
+  const displayContent = transcript ? content + (content ? " " : "") + transcript : content;
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -77,14 +158,14 @@ const PostModal = ({
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const wordCount = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+  const wordCount = displayContent.trim().split(/\s+/).filter(word => word.length > 0).length;
 
   const handleEnhance = async () => {
     if (wordCount < 5) return;
     setSuggestionError("");
     setIsEnhancing(true);
     try {
-      const res = await completePost(content);
+      const res = await completePost(displayContent);
       if (res.data && res.data.completed) {
         setSuggestedContent(res.data.completed);
       } else {
@@ -103,7 +184,7 @@ const PostModal = ({
     setSuggestionError("");
     setIsElaborating(true);
     try {
-      const res = await elaboratePost(content);
+      const res = await elaboratePost(displayContent);
       if (res.data && res.data.completed) {
         setSuggestedContent(res.data.completed);
       } else {
@@ -138,14 +219,22 @@ const PostModal = ({
       return;
     }
 
-    if (!content.trim() && !imageFile) {
+    let finalContent = displayContent;
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      setContent(finalContent);
+      setTranscript("");
+    }
+
+    if (!finalContent.trim() && !imageFile) {
       setError("Please type a message or add an image!");
       return;
     }
 
     try {
       setLoading(true);
-      const res = await createPost(content, username, imageFile || undefined);
+      const res = await createPost(finalContent, username, imageFile || undefined);
 
       if (res?.status === 200 || res?.status === 201) {
         setContent("");
@@ -224,8 +313,8 @@ const PostModal = ({
                   ref={textareaRef}
                   className="w-full text-lg sm:text-xl text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
                   placeholder="What do you want to talk about?"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  value={displayContent}
+                  onChange={handleTextareaChange}
                   style={{ minHeight: imagePreview ? '80px' : '150px', fontSize: '16px' }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -333,6 +422,19 @@ const PostModal = ({
                       <circle cx="8.5" cy="8.5" r="1.5"></circle>
                       <polyline points="21 15 16 10 5 21"></polyline>
                     </svg>
+                  </button>
+
+                  {/* Microphone Button */}
+                  <button
+                    type="button"
+                    onClick={handleMicClick}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isListening
+                      ? "bg-red-100 text-red-600 hover:bg-red-200 animate-pulse"
+                      : "hover:bg-gray-100 active:bg-gray-200 text-gray-500 hover:text-indigo-600"
+                      }`}
+                    title={isListening ? "Stop recording" : "Dictate"}
+                  >
+                    {isListening ? <FiMicOff className="text-xl" /> : <FiMic className="text-xl" />}
                   </button>
 
                   {/* AI Enhance Button */}
