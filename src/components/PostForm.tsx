@@ -318,8 +318,8 @@ const PostModal = ({
                       onClick={handleEnhance}
                       disabled={isSuggesting || wordCount < 5}
                       className={`ml-2 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${wordCount >= 5
-                          ? "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
-                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        ? "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
+                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
                         }`}
                       title={wordCount >= 5 ? "AI Enhance" : "Type at least 5 words to enhance"}
                     >
@@ -336,14 +336,8 @@ const PostModal = ({
                 </div>
 
 
-                {/* Right side: Cancel + Post */}
+                {/* Right side: Post */}
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <button
-                    onClick={onClose}
-                    className="px-4 sm:px-5 py-2 text-gray-600 font-semibold hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors text-sm sm:text-base"
-                  >
-                    Cancel
-                  </button>
                   <button
                     onClick={handlePost}
                     disabled={(!content.trim() && !imageFile) || loading}
