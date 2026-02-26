@@ -85,7 +85,7 @@ export default function Navbar() {
                         {/* Profile Link */}
                         <Link
                             to={`/profile/${username}`}
-                            className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-gray-100/80 transition-colors group border-none"
+                            className="hidden sm:flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-gray-100/80 transition-colors group border-none"
                         >
                             {/* Avatar */}
                             <motion.div
