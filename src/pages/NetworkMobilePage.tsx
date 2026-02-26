@@ -73,10 +73,17 @@ export default function NetworkMobilePage() {
     return (
         <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
             {/* Header */}
-            <div className="shrink-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-                <button onClick={() => navigate(-1)} className="font-hand text-lg hover:text-[var(--primary)] flex items-center gap-2">
-                    <FiArrowLeft className="text-xl" /> Network
+            <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-white">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="w-10 h-10 rounded-full hover:bg-gray-100 active:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
+                >
+                    <FiArrowLeft className="text-xl" />
                 </button>
+
+                <h1 className="text-base font-bold text-gray-900 absolute left-1/2 -translate-x-1/2">Network</h1>
+
+                <div className="w-10 h-10" />
             </div>
 
             {/* Content */}

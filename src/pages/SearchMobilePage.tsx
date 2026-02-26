@@ -96,10 +96,22 @@ export default function SearchMobilePage() {
     return (
         <div className="min-h-screen bg-[var(--paper-white)] pb-20">
             {/* Header */}
-            <div className="bg-[var(--pastel-yellow)] px-4 py-3 border-b-2 border-black sticky top-0 z-10">
-                <h2 className="font-sketch text-lg flex items-center gap-2 text-black">
+            <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-[var(--pastel-yellow)] sticky top-0 z-10">
+                <button
+                    onClick={() => window.history.back()}
+                    className="w-10 h-10 rounded-full hover:bg-black/5 active:bg-black/10 flex items-center justify-center text-gray-800 transition-colors"
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+
+                <h1 className="text-base font-bold text-black absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 font-sketch">
                     <FiSearch className="text-lg" /> Find Friends
-                </h2>
+                </h1>
+
+                <div className="w-10 h-10" />
             </div>
 
             <div className="p-4 space-y-4">
@@ -113,8 +125,8 @@ export default function SearchMobilePage() {
                         placeholder="Type a username..."
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        className="w-full pl-10 pr-3 py-3 bg-white border-2 border-black rounded-lg font-hand text-lg focus:ring-4 focus:ring-black/5 outline-none transition-all placeholder:text-gray-400 text-black shadow-sm"
-                        style={{ fontSize: '16px' }}
+                        className="w-full pr-3 py-3 bg-white border-2 border-black rounded-lg font-hand text-lg focus:ring-4 focus:ring-black/5 outline-none transition-all placeholder:text-gray-400 text-black shadow-sm"
+                        style={{ fontSize: '16px', paddingLeft: '44px' }}
                         autoFocus
                     />
                 </div>
