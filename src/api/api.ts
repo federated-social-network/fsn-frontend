@@ -101,6 +101,19 @@ export const createPost = (
   });
 };
 
+/**
+ * Gets an AI suggestion to enhance the post content.
+ * @param {string} content - The content to enhance.
+ * @returns {Promise<import("axios").AxiosResponse<any>>} The server response.
+ */
+export const completePost = (content: string) => {
+  const form = new FormData();
+  form.append("content", content);
+  return getApi().post("/post/completePost", form, {
+    headers: { "Content-Type": undefined }
+  });
+};
+
 // Fetch posts from the instance. Returns an array of posts.
 /**
  * Fetches posts from the instance.

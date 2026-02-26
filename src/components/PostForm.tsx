@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { createPost, getUser } from "../api/api";
+import { createPost, completePost, getUser } from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Helper component for the Modal
@@ -26,6 +26,10 @@ const PostModal = ({
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [suggestedContent, setSuggestedContent] = useState<string | null>(null);
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [suggestionError, setSuggestionError] = useState("");
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -71,6 +75,39 @@ const PostModal = ({
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  const wordCount = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+
+  const handleEnhance = async () => {
+    if (wordCount < 5) return;
+    setSuggestionError("");
+    setIsSuggesting(true);
+    try {
+      const res = await completePost(content);
+      if (res.data && res.data.completed) {
+        setSuggestedContent(res.data.completed);
+      } else {
+        setSuggestionError("Failed to get suggestion.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setSuggestionError("Failed to get suggestion. Try again.");
+    } finally {
+      setIsSuggesting(false);
+    }
+  };
+
+  const handleKeepSuggestion = () => {
+    if (suggestedContent) {
+      setContent(suggestedContent);
+      setSuggestedContent(null);
+    }
+  };
+
+  const handleDiscardSuggestion = () => {
+    setSuggestedContent(null);
+  };
+
 
   const handlePost = async () => {
     setError("");
@@ -178,6 +215,49 @@ const PostModal = ({
                   }}
                 />
 
+                {/* AI Suggestion Area */}
+                <AnimatePresence>
+                  {suggestedContent && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                      animate={{ opacity: 1, height: "auto", marginTop: 16 }}
+                      exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl">
+                        <div className="flex items-center gap-2 mb-2 text-indigo-700 font-semibold text-sm">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                          </svg>
+                          AI Suggestion
+                        </div>
+                        <p className="text-gray-800 text-sm mb-3 whitespace-pre-wrap leading-relaxed">{suggestedContent}</p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={handleKeepSuggestion}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
+                          >
+                            Keep
+                          </button>
+                          <button
+                            onClick={handleDiscardSuggestion}
+                            className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
+                          >
+                            Discard
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {suggestionError && (
+                  <div className="mt-2 text-red-500 text-xs font-medium">
+                    {suggestionError}
+                  </div>
+                )}
+
+
                 {/* Image preview */}
                 {imagePreview && (
                   <div className="mt-3 relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
@@ -230,7 +310,31 @@ const PostModal = ({
                       <polyline points="21 15 16 10 5 21"></polyline>
                     </svg>
                   </button>
+
+                  {/* AI Enhance Button */}
+                  {!suggestedContent && (
+                    <button
+                      type="button"
+                      onClick={handleEnhance}
+                      disabled={isSuggesting || wordCount < 5}
+                      className={`ml-2 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${wordCount >= 5
+                          ? "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
+                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        }`}
+                      title={wordCount >= 5 ? "AI Enhance" : "Type at least 5 words to enhance"}
+                    >
+                      {isSuggesting ? (
+                        <span className="w-4 h-4 border-2 border-indigo-700/30 border-t-indigo-700 rounded-full animate-spin"></span>
+                      ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                        </svg>
+                      )}
+                      Enhance
+                    </button>
+                  )}
                 </div>
+
 
                 {/* Right side: Cancel + Post */}
                 <div className="flex items-center gap-2 sm:gap-3">

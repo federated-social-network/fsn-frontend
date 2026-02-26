@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { FiArrowLeft, FiImage, FiX } from "react-icons/fi";
-import { createPost, getUser } from "../api/api";
+import { createPost, completePost, getUser } from "../api/api";
 
 /**
  * Full-screen mobile-first post creation page.
@@ -18,6 +19,11 @@ export default function CreatePostMobilePage() {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+
+    const [suggestedContent, setSuggestedContent] = useState<string | null>(null);
+    const [isSuggesting, setIsSuggesting] = useState(false);
+    const [suggestionError, setSuggestionError] = useState("");
+
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,7 +85,40 @@ export default function CreatePostMobilePage() {
         if (imagePreview) URL.revokeObjectURL(imagePreview);
         setImageFile(null);
         setImagePreview(null);
+        setImagePreview(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    const wordCount = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+
+    const handleEnhance = async () => {
+        if (wordCount < 5) return;
+        setSuggestionError("");
+        setIsSuggesting(true);
+        try {
+            const res = await completePost(content);
+            if (res.data && res.data.completed) {
+                setSuggestedContent(res.data.completed);
+            } else {
+                setSuggestionError("Failed to get suggestion.");
+            }
+        } catch (err: any) {
+            console.error(err);
+            setSuggestionError("Failed to get suggestion.");
+        } finally {
+            setIsSuggesting(false);
+        }
+    };
+
+    const handleKeepSuggestion = () => {
+        if (suggestedContent) {
+            setContent(suggestedContent);
+            setSuggestedContent(null);
+        }
+    };
+
+    const handleDiscardSuggestion = () => {
+        setSuggestedContent(null);
     };
 
     const handlePost = async () => {
@@ -180,6 +219,50 @@ export default function CreatePostMobilePage() {
                     />
                 </div>
 
+                {/* AI Suggestion Area */}
+                <div className="px-4">
+                    <AnimatePresence>
+                        {suggestedContent && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                animate={{ opacity: 1, height: "auto", marginTop: 8, marginBottom: 16 }}
+                                exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0 }}
+                                className="overflow-hidden"
+                            >
+                                <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
+                                    <div className="flex items-center gap-2 mb-2 text-blue-700 font-semibold text-sm">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                                        </svg>
+                                        AI Suggestion
+                                    </div>
+                                    <p className="text-gray-800 text-[15px] mb-3 whitespace-pre-wrap leading-relaxed">{suggestedContent}</p>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={handleKeepSuggestion}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
+                                        >
+                                            Keep
+                                        </button>
+                                        <button
+                                            onClick={handleDiscardSuggestion}
+                                            className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
+                                        >
+                                            Discard
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                    {suggestionError && (
+                        <div className="mt-2 mb-2 text-red-500 text-xs font-medium">
+                            {suggestionError}
+                        </div>
+                    )}
+                </div>
+
+
                 {/* Character count */}
                 {charCount > 0 && (
                     <div className="px-4 pb-2 flex items-center gap-2">
@@ -200,19 +283,43 @@ export default function CreatePostMobilePage() {
                 {/* Action buttons — only visible when no image selected */}
                 {!imageFile && (
                     <div className="px-4 pb-3 flex items-center justify-between">
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp,image/gif"
-                            className="hidden"
-                            onChange={handleImageSelect}
-                        />
-                        <button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-11 h-11 rounded-full hover:bg-blue-50 active:bg-blue-100 flex items-center justify-center text-gray-500 hover:text-blue-600 transition-colors"
-                        >
-                            <FiImage className="text-xl" />
-                        </button>
+                        <div className="flex items-center">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/gif"
+                                className="hidden"
+                                onChange={handleImageSelect}
+                            />
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-11 h-11 rounded-full hover:bg-blue-50 active:bg-blue-100 flex items-center justify-center text-gray-500 hover:text-blue-600 transition-colors"
+                            >
+                                <FiImage className="text-xl" />
+                            </button>
+
+                            {/* AI Enhance Button */}
+                            {!suggestedContent && (
+                                <button
+                                    type="button"
+                                    onClick={handleEnhance}
+                                    disabled={isSuggesting || wordCount < 5}
+                                    className={`ml-2 flex flex-row items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${wordCount >= 5
+                                        ? "bg-blue-100 hover:bg-blue-200 text-blue-700"
+                                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                        }`}
+                                >
+                                    {isSuggesting ? (
+                                        <span className="w-4 h-4 border-2 border-blue-700/30 border-t-blue-700 rounded-full animate-spin"></span>
+                                    ) : (
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                                        </svg>
+                                    )}
+                                    Enhance
+                                </button>
+                            )}
+                        </div>
 
                         {!imageFile && (
                             <motion.button
