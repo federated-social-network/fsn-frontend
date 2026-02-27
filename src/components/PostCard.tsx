@@ -142,6 +142,9 @@ export default function PostCard({ post: p }: PostCardProps) {
     };
 
     const isMastodon = instance?.toLowerCase().includes("mastodon") || p.origin_instance?.toLowerCase().includes("mastodon");
+    const isPixelfed = instance?.toLowerCase().includes("pixelfed") || p.origin_instance?.toLowerCase().includes("pixelfed");
+    const isExternal = isMastodon || isPixelfed;
+
 
 
 
@@ -193,8 +196,8 @@ export default function PostCard({ post: p }: PostCardProps) {
                 {/* ── Header ── */}
                 <div className="flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-3 min-w-0">
-                        {isMastodon ? (
-                            <a href={`https://mastodon.social/@${username}`} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                        {isExternal ? (
+                            <a href={isMastodon ? `https://mastodon.social/@${username}` : `https://pixelfed.social/${username}`} target="_blank" rel="noopener noreferrer" className="shrink-0">
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white shadow-sm flex items-center justify-center font-semibold text-sm overflow-hidden">
                                     {avatarUrl ? (
                                         <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
@@ -215,9 +218,9 @@ export default function PostCard({ post: p }: PostCardProps) {
                             </Link>
                         )}
                         <div className="min-w-0">
-                            {isMastodon ? (
+                            {isExternal ? (
                                 <a
-                                    href={`https://mastodon.social/@${username}`}
+                                    href={isMastodon ? `https://mastodon.social/@${username}` : `https://pixelfed.social/${username}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="font-semibold text-sm text-gray-900 hover:text-blue-600 transition-colors truncate block"
@@ -371,7 +374,7 @@ export default function PostCard({ post: p }: PostCardProps) {
                 {/* ── Footer / Engagement bar ── */}
                 <div className="px-4 py-2.5 border-t border-gray-100 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        {!isMastodon && (
+                        {!isExternal && (
                             <button
                                 onClick={handleLikeToggle}
                                 disabled={likeLoading}
