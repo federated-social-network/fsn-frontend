@@ -155,9 +155,6 @@ export default function Dashboard() {
     };
 
     fetchInvites(); // Initial fetch
-    const interval = setInterval(fetchInvites, 5000); // Poll every 5 seconds
-
-    return () => clearInterval(interval);
   }, []);
 
   // Fetch Following Feed
