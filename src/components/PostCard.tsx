@@ -141,6 +141,10 @@ export default function PostCard({ post: p }: PostCardProps) {
         }
     };
 
+    const isMastodon = instance?.toLowerCase().includes("mastodon") || p.origin_instance?.toLowerCase().includes("mastodon");
+
+
+
     // ── Tap handler: single-tap opens lightbox, double-tap likes (only if image exists) ──
     const handleTap = () => {
         // Only allow tap actions (like double-tap to like, single-tap to open image) if there is an image.
@@ -189,22 +193,45 @@ export default function PostCard({ post: p }: PostCardProps) {
                 {/* ── Header ── */}
                 <div className="flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-3 min-w-0">
-                        <Link to={`/profile/${username}`} className="shrink-0">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white shadow-sm flex items-center justify-center font-semibold text-sm overflow-hidden">
-                                {avatarUrl ? (
-                                    <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                                ) : (
-                                    <span className="text-gray-600">{username[0]?.toUpperCase()}</span>
-                                )}
-                            </div>
-                        </Link>
-                        <div className="min-w-0">
-                            <Link
-                                to={`/profile/${username}`}
-                                className="font-semibold text-sm text-gray-900 hover:text-blue-600 transition-colors truncate block"
-                            >
-                                {username}
+                        {isMastodon ? (
+                            <a href={`https://mastodon.social/@${username}`} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white shadow-sm flex items-center justify-center font-semibold text-sm overflow-hidden">
+                                    {avatarUrl ? (
+                                        <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-gray-600">{username[0]?.toUpperCase()}</span>
+                                    )}
+                                </div>
+                            </a>
+                        ) : (
+                            <Link to={`/profile/${username}`} className="shrink-0">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white shadow-sm flex items-center justify-center font-semibold text-sm overflow-hidden">
+                                    {avatarUrl ? (
+                                        <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-gray-600">{username[0]?.toUpperCase()}</span>
+                                    )}
+                                </div>
                             </Link>
+                        )}
+                        <div className="min-w-0">
+                            {isMastodon ? (
+                                <a
+                                    href={`https://mastodon.social/@${username}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-semibold text-sm text-gray-900 hover:text-blue-600 transition-colors truncate block"
+                                >
+                                    {username}
+                                </a>
+                            ) : (
+                                <Link
+                                    to={`/profile/${username}`}
+                                    className="font-semibold text-sm text-gray-900 hover:text-blue-600 transition-colors truncate block"
+                                >
+                                    {username}
+                                </Link>
+                            )}
                             <div className="text-xs text-gray-500 mt-0.5">{timeAgo(p.created_at)}</div>
                         </div>
                     </div>
@@ -342,46 +369,48 @@ export default function PostCard({ post: p }: PostCardProps) {
                 </div>
 
                 {/* ── Footer / Engagement bar ── */}
-                <div className="px-4 py-2.5 border-t border-gray-100 flex items-center">
+                <div className="px-4 py-2.5 border-t border-gray-100 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <button
-                            onClick={handleLikeToggle}
-                            disabled={likeLoading}
-                            style={{
-                                color: isLiked ? '#ef4444' : '#6b7280',
-                                border: 'none',
-                                boxShadow: 'none',
-                                background: 'none',
-                                padding: 0,
-                                minHeight: 'auto',
-                                minWidth: 'auto',
-                            }}
-                            className="flex items-center gap-1.5 transition-colors group cursor-pointer"
-                        >
-                            <motion.div
-                                key={isLiked ? "liked" : "unliked"}
-                                initial={{ scale: 0.5 }}
-                                animate={{ scale: 1 }}
-                                transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                        {!isMastodon && (
+                            <button
+                                onClick={handleLikeToggle}
+                                disabled={likeLoading}
+                                style={{
+                                    color: isLiked ? '#ef4444' : '#6b7280',
+                                    border: 'none',
+                                    boxShadow: 'none',
+                                    background: 'none',
+                                    padding: 0,
+                                    minHeight: 'auto',
+                                    minWidth: 'auto',
+                                }}
+                                className="flex items-center gap-1.5 transition-colors group cursor-pointer"
                             >
-                                <svg
-                                    className="w-5 h-5 group-hover:scale-110 transition-transform"
-                                    viewBox="0 0 24 24"
-                                    fill={isLiked ? "#ef4444" : "none"}
-                                    stroke={isLiked ? "#ef4444" : "#6b7280"}
-                                    strokeWidth="1.8"
+                                <motion.div
+                                    key={isLiked ? "liked" : "unliked"}
+                                    initial={{ scale: 0.5 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ type: "spring", stiffness: 500, damping: 15 }}
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d={heartPath}
-                                    />
-                                </svg>
-                            </motion.div>
-                            <span className="text-xs font-medium">
-                                {likeCount > 0 ? likeCount : "Like"}
-                            </span>
-                        </button>
+                                    <svg
+                                        className="w-5 h-5 group-hover:scale-110 transition-transform"
+                                        viewBox="0 0 24 24"
+                                        fill={isLiked ? "#ef4444" : "none"}
+                                        stroke={isLiked ? "#ef4444" : "#6b7280"}
+                                        strokeWidth="1.8"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d={heartPath}
+                                        />
+                                    </svg>
+                                </motion.div>
+                                <span className="text-xs font-medium">
+                                    {likeCount > 0 ? likeCount : "Like"}
+                                </span>
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

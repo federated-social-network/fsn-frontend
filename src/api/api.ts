@@ -19,7 +19,7 @@ export const getApi = (): AxiosInstance => {
     headers: {
       "Content-Type": "application/json",
     },
-    timeout: 8000,
+    timeout: 30000,
   });
 
   // Optional: request interceptor (for future JWT support)
@@ -97,7 +97,7 @@ export const createPost = (
 
   return getApi().post("/posts", form, {
     headers: { "Content-Type": undefined }, // let axios auto-set multipart/form-data
-    timeout: image ? 60000 : 8000, // 60s for image uploads
+    timeout: image ? 60000 : 30000, // 60s for image uploads, 30s otherwise
   });
 };
 

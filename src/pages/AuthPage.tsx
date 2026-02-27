@@ -248,16 +248,47 @@ const AuthPage = () => {
                         >
                             <SketchCard variant="paper" className="h-full p-6 sm:p-8 md:p-12 flex flex-col justify-center bg-white transform md:rotate-1">
                                 <div className="flex flex-col items-center mb-6 sm:mb-8">
-                                    {/* Mobile Welcome Message */}
-                                    <div className="md:hidden text-center mb-4">
-                                        <span className="text-4xl">{isRegisterMode ? "✨" : "👋"}</span>
-                                    </div>
                                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-sketch tracking-wider text-center mb-2">
                                         {isRegisterMode ? "Sign Up" : "Log In"}
                                     </h1>
-                                    <p className="text-center text-base sm:text-lg md:text-xl font-hand text-[var(--ink-secondary)]">
+                                    <p className="text-center text-base sm:text-lg md:text-xl font-hand text-[var(--ink-secondary)] mb-4">
                                         {isRegisterMode ? "Start your sketched journey." : "Enter your secret credentials."}
                                     </p>
+
+                                    {/* Mobile Avatar Picker - ONLY shown on md:hidden when registering */}
+                                    {isRegisterMode && (
+                                        <div className="md:hidden flex flex-col items-center gap-3">
+                                            <motion.button
+                                                type="button"
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => avatarInputRef.current?.click()}
+                                                className="relative w-28 h-28 rounded-full border-4 border-black overflow-hidden bg-white shadow-md group focus:outline-none"
+                                            >
+                                                {avatarPreview ? (
+                                                    <img src={avatarPreview} alt="Your photo" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-sky-100 to-blue-50">
+                                                        <svg viewBox="0 0 100 100" className="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <ellipse cx="50" cy="62" rx="22" ry="26" fill="#bfdbfe" stroke="#1e40af" strokeWidth="2.5" />
+                                                            <circle cx="50" cy="34" r="18" fill="#bfdbfe" stroke="#1e40af" strokeWidth="2.5" />
+                                                            <circle cx="43" cy="31" r="3.5" fill="#1e40af" />
+                                                            <circle cx="57" cy="31" r="3.5" fill="#1e40af" />
+                                                            <circle cx="44.5" cy="29.5" r="1.2" fill="white" />
+                                                            <circle cx="58.5" cy="29.5" r="1.2" fill="white" />
+                                                            <path d="M44 39 Q50 44 56 39" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" fill="none" />
+                                                            <line x1="50" y1="16" x2="50" y2="8" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" />
+                                                            <circle cx="50" cy="6" r="3" fill="#93c5fd" stroke="#1e40af" strokeWidth="1.5" />
+                                                            <path d="M28 58 Q18 54 16 62" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                                                            <path d="M72 58 Q82 54 84 62" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                                                        </svg>
+                                                    </div>
+                                                )}
+                                            </motion.button>
+                                            <p className="font-hand font-bold text-[var(--primary)] text-sm m-0">
+                                                {avatarPreview ? "Tap to change" : "Tap to add avatar"}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {errorMsg && (
