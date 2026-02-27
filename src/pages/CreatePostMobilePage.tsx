@@ -48,8 +48,13 @@ export default function CreatePostMobilePage() {
                         interimTranscript += event.results[i][0].transcript;
                     }
                 }
+
                 if (newFinalTranscript) {
-                    setContent(prev => (prev + (prev && newFinalTranscript ? " " : "") + newFinalTranscript).trim());
+                    setContent(prev => {
+                        const baseContent = prev.trim();
+                        const addition = newFinalTranscript.trim();
+                        return baseContent ? `${baseContent} ${addition}` : addition;
+                    });
                 }
                 setTranscript(interimTranscript);
             };
@@ -66,7 +71,21 @@ export default function CreatePostMobilePage() {
                 setIsListening(false);
             };
 
-            recognition.onend = () => setIsListening(false);
+            // When recognition ends, we check if there's any leftover interim transcript
+            // and append it to content if it exists, then reset transcript.
+            recognition.onend = () => {
+                setIsListening(false);
+                setTranscript(prevTranscript => {
+                    if (prevTranscript.trim()) {
+                        setContent(prev => {
+                            const baseContent = prev.trim();
+                            const addition = prevTranscript.trim();
+                            return baseContent ? `${baseContent} ${addition}` : addition;
+                        });
+                    }
+                    return "";
+                });
+            };
             recognitionRef.current = recognition;
         }
     }, []);
@@ -78,11 +97,7 @@ export default function CreatePostMobilePage() {
         }
         if (isListening) {
             recognitionRef.current.stop();
-            if (transcript) {
-                setContent(prev => (prev + (prev && transcript ? " " : "") + transcript).trim());
-            }
-            setTranscript("");
-            setIsListening(false);
+            // onend handler now takes care of appending leftover transcript and resetting it
         } else {
             setTranscript("");
             setError("");
@@ -103,7 +118,7 @@ export default function CreatePostMobilePage() {
         setContent(e.target.value);
     };
 
-    const displayContent = transcript ? content + (content ? " " : "") + transcript : content;
+    const displayContent = isListening && transcript ? `${content} ${transcript}`.trim() : content;
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);

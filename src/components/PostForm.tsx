@@ -48,8 +48,13 @@ const PostModal = ({
             interimTranscript += event.results[i][0].transcript;
           }
         }
+
         if (newFinalTranscript) {
-          setContent(prev => (prev + (prev && newFinalTranscript ? " " : "") + newFinalTranscript).trim());
+          setContent(prev => {
+            const baseContent = prev.trim();
+            const addition = newFinalTranscript.trim();
+            return baseContent ? `${baseContent} ${addition}` : addition;
+          });
         }
         setTranscript(interimTranscript);
       };
@@ -66,7 +71,19 @@ const PostModal = ({
         setIsListening(false);
       };
 
-      recognition.onend = () => setIsListening(false);
+      recognition.onend = () => {
+        setIsListening(false);
+        setTranscript(prevTranscript => {
+          if (prevTranscript.trim()) {
+            setContent(prev => {
+              const baseContent = prev.trim();
+              const addition = prevTranscript.trim();
+              return baseContent ? `${baseContent} ${addition}` : addition;
+            });
+          }
+          return "";
+        });
+      };
       recognitionRef.current = recognition;
     }
   }, []);
@@ -78,11 +95,7 @@ const PostModal = ({
     }
     if (isListening) {
       recognitionRef.current.stop();
-      if (transcript) {
-        setContent(prev => (prev + (prev && transcript ? " " : "") + transcript).trim());
-      }
-      setTranscript("");
-      setIsListening(false);
+      // onend handler now takes care of appending leftover transcript and resetting it
     } else {
       setTranscript("");
       setError("");
@@ -103,7 +116,7 @@ const PostModal = ({
     setContent(e.target.value);
   };
 
-  const displayContent = transcript ? content + (content ? " " : "") + transcript : content;
+  const displayContent = isListening && transcript ? `${content} ${transcript}`.trim() : content;
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
