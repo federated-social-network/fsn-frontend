@@ -206,6 +206,7 @@ export default function PostCard({ post: p }: PostCardProps) {
                                     )}
                                 </div>
                             </a>
+                            
                         ) : (
                             <Link to={`/profile/${username}`} className="shrink-0">
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white shadow-sm flex items-center justify-center font-semibold text-sm overflow-hidden">
