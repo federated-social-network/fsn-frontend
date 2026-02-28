@@ -33,6 +33,7 @@
   --font-heading: 'Google Sans', sans-serif;
   --font-body: 'Google Sans', sans-serif;
   --font-marker: 'Google Sans', sans-serif;
+  --font-brand: 'Righteous', cursive;
 
   /* Scribble Borders */
   --border-sketch-1: 255px 15px 225px 15px / 15px 225px 15px 255px;
@@ -68,7 +69,8 @@ body {
 /* Add padding specifically for mobile where the sticky navbar exists */
 @media (max-width: 768px) {
   body {
-    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom)); /* h-14 is 3.5rem */
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+    /* h-14 is 3.5rem */
   }
 }
 
@@ -366,7 +368,7 @@ body.modal-open {
 /* Avatar image rendering fix — prevents cracked/pixelated appearance at small
    sizes, especially inside rotated or border-radius-clipped containers. */
 .rounded-full img,
-.rounded-full > img {
+.rounded-full>img {
   transform: translateZ(0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;

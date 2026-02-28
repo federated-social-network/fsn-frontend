@@ -236,80 +236,96 @@ export default function Dashboard() {
 
         {/* --- LEFT SIDEBAR: Available Users --- */}
         <aside className="md:col-span-3 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-6">
-          <SketchCard variant="paper" className="p-4 bg-[var(--pastel-yellow)]">
-            <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2 flex justify-between items-center">
-              Available Users
+          <div className="relative rounded-xl border-2 border-black overflow-hidden" style={{ backgroundColor: '#fef9c3' }}>
+
+            {/* Header */}
+            <div className="px-4 pt-4 pb-3 flex items-center justify-between border-b-2 border-black/10">
+              <h3 className="font-sketch text-lg text-gray-900 flex items-center gap-2">
+                <FiUsers className="text-base" />
+                People nearby
+              </h3>
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="text-gray-400 hover:text-black hover:scale-110 active:scale-95 transition-all p-1"
+                className="text-gray-500 hover:text-black hover:scale-110 active:scale-95 transition-all p-1 border-none shadow-none"
                 title="Find users"
               >
-                <FiSearch className="text-xl" />
+                <FiSearch className="text-lg" />
               </button>
-            </h3>
-            <div className="space-y-2">
+            </div>
+
+            {/* User List */}
+            <div className="p-3 space-y-2">
               {suggestedUsers.length > 0 ? (
                 <>
-                  <div className={`space-y-2 ${showAllUsers ? 'max-h-[300px] overflow-y-auto pr-1 custom-scrollbar' : ''}`}>
-                    {suggestedUsers.slice(0, showAllUsers ? undefined : 3).map((u: any) => (
-                      <Link key={u.username} to={`/profile/${u.username}`} className="block group">
-                        <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-black/5 bg-white/30">
-                          {/* Avatar */}
-                          <div className="w-9 h-9 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-md shrink-0 shadow-sm overflow-hidden">
-                            {u.avatar_url ? (
-                              <img src={u.avatar_url} alt={u.username} className="w-full h-full object-cover" />
-                            ) : (
-                              u.username[0].toUpperCase()
-                            )}
-                          </div>
-
-                          {/* Name & Instance */}
-                          <div className="overflow-hidden flex-1 min-w-0 flex flex-col justify-center">
-                            <div className="font-bold font-hand truncate text-sm leading-tight text-gray-800">
-                              {u.username}
+                  <div className={`space-y-2 ${showAllUsers ? 'max-h-[320px] overflow-y-auto pr-1' : ''}`} style={{ scrollbarWidth: 'thin' }}>
+                    {suggestedUsers.slice(0, showAllUsers ? undefined : 4).map((u: any, i: number) => (
+                      <motion.div
+                        key={u.username}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.25, delay: i * 0.05 }}
+                      >
+                        <Link to={`/profile/${u.username}`} className="block group border-none">
+                          <div className="flex items-center gap-2.5 p-2 rounded-lg bg-white/50 hover:bg-white/80 border border-black/5 hover:border-black/15 transition-all">
+                            {/* Avatar */}
+                            <div className="w-9 h-9 rounded-full border-2 border-black bg-[var(--pastel-mint)] flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                              {u.avatar_url ? (
+                                <img src={u.avatar_url} alt={u.username} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-sm font-bold text-gray-700 font-sketch">
+                                  {u.username[0].toUpperCase()}
+                                </span>
+                              )}
                             </div>
-                            <div className="text-[10px] bg-black/5 px-1.5 py-0.5 rounded-full inline-block truncate w-fit max-w-full text-gray-600 mt-0.5 border border-black/5">
-                              {u.instance || 'local'}
+
+                            {/* Name & Instance */}
+                            <div className="overflow-hidden flex-1 min-w-0">
+                              <div className="font-bold text-sm text-gray-800 truncate leading-tight font-hand">
+                                {u.username}
+                              </div>
+                              <div className="text-[10px] text-gray-500 truncate mt-0.5 font-hand">
+                                {u.instance || 'local'}
+                              </div>
+                            </div>
+
+                            {/* Connect Button */}
+                            <div className="shrink-0">
+                              {sentRequests.has(u.username) ? (
+                                <span className="text-[10px] font-bold text-green-700 bg-green-100 px-2 py-1 rounded-full border border-green-300 block text-center font-hand">
+                                  Sent ✓
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={(e) => handleConnect(e, u.username)}
+                                  className="text-[11px] font-bold px-2.5 py-1 rounded-md bg-black text-white hover:bg-gray-800 active:scale-95 transition-all border-none shadow-[1px_1px_0px_rgba(0,0,0,0.3)] font-hand"
+                                >
+                                  Connect+
+                                </button>
+                              )}
                             </div>
                           </div>
-
-                          {/* Connect Button (Always visible, no overlap) */}
-                          <div className="shrink-0 ml-1">
-                            {sentRequests.has(u.username) ? (
-                              <span className="text-[10px] font-hand text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200 block text-center min-w-[50px]">
-                                Sent
-                              </span>
-                            ) : (
-                              <button
-                                onClick={(e) => handleConnect(e, u.username)}
-                                className="bg-[var(--ink-blue)] text-white text-[11px] px-2.5 py-1 rounded-md font-hand shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all flex items-center gap-1 active:scale-95"
-                              >
-                                Connect+
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
+                        </Link>
+                      </motion.div>
                     ))}
                   </div>
 
-                  {suggestedUsers.length > 3 && (
+                  {suggestedUsers.length > 4 && (
                     <button
                       onClick={() => setShowAllUsers(!showAllUsers)}
-                      className="w-full text-center text-xs font-bold font-hand text-gray-500 hover:text-black mt-2 uppercase tracking-wide transition-colors"
+                      className="w-full text-center text-xs font-bold text-gray-500 hover:text-black mt-2 py-1.5 transition-colors border-none shadow-none font-hand uppercase tracking-wider"
                     >
-                      {showAllUsers ? "Show Less" : "Show More"}
+                      {showAllUsers ? "Show less" : "View all"}
                     </button>
                   )}
                 </>
               ) : (
-                <div className="text-center py-6 font-hand opacity-50 text-sm">
-                  <FiSearch className="text-2xl mx-auto mb-1" />
-                  Searching for signs...
+                <div className="text-center py-6 font-hand text-sm text-gray-500">
+                  <FiSearch className="text-2xl mx-auto mb-2 opacity-40" />
+                  Looking around...
                 </div>
               )}
             </div>
-          </SketchCard>
+          </div>
         </aside>
 
 

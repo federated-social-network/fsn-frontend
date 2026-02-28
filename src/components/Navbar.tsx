@@ -60,8 +60,8 @@ export default function Navbar() {
                                 alt="HeliiX"
                                 className="w-10 h-10 sm:w-10 sm:h-10 -my-3 object-contain drop-shadow-sm"
                             />
-                            <span className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900" style={{ fontFamily: 'var(--font-heading)' }}>
-                                HeliiX
+                            <span className="text-xl sm:text-2xl font-normal tracking-wide text-gray-900" style={{ fontFamily: 'var(--font-brand)' }}>
+                                Helii<span style={{ background: 'linear-gradient(135deg, #7c3aed 50%, #0891b2 50%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>X</span>
                             </span>
                         </motion.div>
                     </Link>
