@@ -423,9 +423,24 @@ const PostModal = ({
                       className="w-full max-h-72 object-contain rounded-xl"
                     />
                     {isValidatingImage ? (
-                      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center text-white z-10">
-                        <span className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin mb-3"></span>
-                        <p className="text-sm font-semibold tracking-wide">Scanning image for safety...</p>
+                      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10 overflow-hidden border-2 border-black rounded-none">
+                        {/* Straight thick scanner line */}
+                        <motion.div
+                          className="absolute left-0 right-0 h-1.5 bg-black shadow-[0_8px_0_0_rgba(253,224,71,1)]"
+                          animate={{ top: ["0%", "100%", "0%"] }}
+                          transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                        />
+                        {/* Sharp brutalist badge */}
+                        <div className="relative z-10 bg-black text-white px-5 py-2.5 shadow-[6px_6px_0_0_rgba(253,224,71,1)]">
+                          <span className="font-bold text-lg uppercase tracking-widest flex items-center gap-3">
+                            <motion.span
+                              animate={{ opacity: [1, 0, 1] }}
+                              transition={{ repeat: Infinity, duration: 0.8 }}
+                              className="w-3 h-3 bg-yellow-300 inline-block"
+                            />
+                            Scanning
+                          </span>
+                        </div>
                       </div>
                     ) : (
                       <button

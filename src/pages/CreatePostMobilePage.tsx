@@ -53,7 +53,7 @@ export default function CreatePostMobilePage() {
                     setContent(prev => {
                         const baseContent = prev.trim();
                         const addition = newFinalTranscript.trim();
-                        return baseContent ? `${baseContent} ${addition}` : addition;
+                        return baseContent ? `${baseContent} ${addition} ` : addition;
                     });
                 }
                 setTranscript(interimTranscript);
@@ -66,7 +66,7 @@ export default function CreatePostMobilePage() {
                 } else if (event.error === 'network') {
                     setError("Network error. Speech recognition might not be supported on this browser (e.g. Linux Chromium). Check browser settings.");
                 } else if (event.error !== 'no-speech') {
-                    setError(`Microphone error: ${event.error}`);
+                    setError(`Microphone error: ${event.error} `);
                 }
                 setIsListening(false);
             };
@@ -80,7 +80,7 @@ export default function CreatePostMobilePage() {
                         setContent(prev => {
                             const baseContent = prev.trim();
                             const addition = prevTranscript.trim();
-                            return baseContent ? `${baseContent} ${addition}` : addition;
+                            return baseContent ? `${baseContent} ${addition} ` : addition;
                         });
                     }
                     return "";
@@ -118,7 +118,7 @@ export default function CreatePostMobilePage() {
         setContent(e.target.value);
     };
 
-    const displayContent = isListening && transcript ? `${content} ${transcript}`.trim() : content;
+    const displayContent = isListening && transcript ? `${content} ${transcript} `.trim() : content;
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -285,7 +285,7 @@ export default function CreatePostMobilePage() {
                 } catch (_) { }
                 navigate("/dashboard");
             } else {
-                setError(`Server returned ${res?.status}`);
+                setError(`Server returned ${res?.status} `);
             }
         } catch (err: any) {
             const msg = err?.response?.data?.detail || err?.response?.data || err?.message || "Something went wrong";
@@ -315,10 +315,10 @@ export default function CreatePostMobilePage() {
                         whileTap={{ scale: 0.95 }}
                         onClick={handlePost}
                         disabled={!canPost}
-                        className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${canPost
-                            ? "bg-blue-600 text-white shadow-md active:bg-blue-700"
-                            : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                            }`}
+                        className={`px - 5 py - 2 rounded - full text - sm font - bold transition - all ${canPost
+                            ? "bg-blue-600 text-e shadow-md active:bg-blue-700"
+                            : "bg-gray-100 text--400 cursor-not-allowed"
+                            } `}
                         style={{ border: 'none', boxShadow: canPost ? '0 2px 8px rgba(59,130,246,0.3)' : 'none' }}
                     >
                         {loading ? (
@@ -428,13 +428,13 @@ export default function CreatePostMobilePage() {
                     <div className="px-4 pb-2 flex items-center gap-2">
                         <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                             <motion.div
-                                className={`h-full rounded-full ${isOverLimit ? "bg-red-500" : charPercent > 80 ? "bg-amber-500" : "bg-blue-500"}`}
+                                className={`h - full rounded - full ${isOverLimit ? "bg-red-500" : charPercent > 80 ? "bg-amber-500" : "bg-blue-500"} `}
                                 initial={{ width: 0 }}
-                                animate={{ width: `${charPercent}%` }}
+                                animate={{ width: `${charPercent}% ` }}
                                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                             />
                         </div>
-                        <span className={`text-xs font-medium tabular-nums ${isOverLimit ? "text-red-500" : charPercent > 80 ? "text-amber-500" : "text-gray-400"}`}>
+                        <span className={`text - xs font - medium tabular - nums ${isOverLimit ? "text-red-500" : charPercent > 80 ? "text-amber-500" : "text-gray-400"} `}>
                             {charCount}/{MAX_CHARS}
                         </span>
                     </div>
@@ -452,10 +452,10 @@ export default function CreatePostMobilePage() {
                                     type="button"
                                     onClick={handleEnhance}
                                     disabled={isEnhancing || isElaborating || wordCount < 5}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${wordCount >= 5
-                                        ? "bg-blue-100 hover:bg-blue-200 text-blue-700"
-                                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                        }`}
+                                    className={`flex items - center gap - 1.5 px - 3 py - 1.5 rounded - full text - sm font - bold transition - colors ${wordCount >= 5
+                                        ? "bg-blue-100 hover:bg-blue-200 texue-700"
+                                        : "bg-gray-100 text-gray-400 cursor-allowed"
+                                        } `}
                                 >
                                     {isEnhancing ? (
                                         <span className="w-4 h-4 border-2 border-blue-700/30 border-t-blue-700 rounded-full animate-spin"></span>
@@ -472,10 +472,10 @@ export default function CreatePostMobilePage() {
                                     type="button"
                                     onClick={handleElaborate}
                                     disabled={isEnhancing || isElaborating || wordCount < 5}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${wordCount >= 5
-                                        ? "bg-purple-100 hover:bg-purple-200 text-purple-700"
-                                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                        }`}
+                                    className={`flex items - center gap - 1.5 px - 3 py - 1.5 rounded - full text - sm font - bold transition - colors ${wordCount >= 5
+                                        ? "bg-purple-100 hover:bg-purple-200t-purple-700"
+                                        : "bg-gray-100 text-gray-400 cursor-allowed"
+                                        } `}
                                 >
                                     {isElaborating ? (
                                         <span className="w-4 h-4 border-2 border-purple-700/30 border-t-purple-700 rounded-full animate-spin"></span>
@@ -510,10 +510,10 @@ export default function CreatePostMobilePage() {
                                 <button
                                     type="button"
                                     onClick={handleMicClick}
-                                    className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${isListening
-                                        ? "bg-red-100 text-red-600 hover:bg-red-200 animate-pulse"
-                                        : "hover:bg-blue-50 active:bg-blue-100 text-gray-500 hover:text-blue-600"
-                                        }`}
+                                    className={`w - 11 h - 11 rounded - full flex items - center justify - center transition - colors ${isListening
+                                        ? "bg-red-100 text-red-600 hoverred-200 animate-pulse"
+                                        : "hover:bg-blue-50 active:bg-bl00 text-gray-500 hover:text-blue-600"
+                                        } `}
                                     title={isListening ? "Stop recording" : "Dictate"}
                                 >
                                     {isListening ? <FiMicOff className="text-xl" /> : <FiMic className="text-xl" />}
@@ -524,10 +524,10 @@ export default function CreatePostMobilePage() {
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handlePost}
                                 disabled={!canPost}
-                                className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${canPost
-                                    ? "bg-blue-600 text-white shadow-md active:bg-blue-700"
-                                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                    }`}
+                                className={`px - 6 py - 2.5 rounded - full text - sm font - bold transition - all ${canPost
+                                    ? "bg-blue-600 text-white sh-md active:bg-blue-700"
+                                    : "bg-gray-100 text-gray-400sor-not-allowed"
+                                    } `}
                                 style={{ border: 'none', boxShadow: canPost ? '0 2px 8px rgba(59,130,246,0.3)' : 'none' }}
                             >
                                 {loading ? (
@@ -558,9 +558,24 @@ export default function CreatePostMobilePage() {
                                 className="w-full max-h-64 object-contain"
                             />
                             {isValidatingImage ? (
-                                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center text-white z-10">
-                                    <span className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin mb-3"></span>
-                                    <p className="text-sm font-semibold tracking-wide">Scanning image for safety...</p>
+                                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10 overflow-hidden border-2 border-black rounded-none">
+                                    {/* Straight thick scanner line */}
+                                    <motion.div
+                                        className="absolute left-0 right-0 h-1.5 bg-black shadow-[0_8px_0_0_rgba(253,224,71,1)]"
+                                        animate={{ top: ["0%", "100%", "0%"] }}
+                                        transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                                    />
+                                    {/* Sharp brutalist badge */}
+                                    <div className="relative z-10 bg-black text-white px-5 py-2.5 shadow-[6px_6px_0_0_rgba(253,224,71,1)]">
+                                        <span className="font-bold text-lg uppercase tracking-widest flex items-center gap-3">
+                                            <motion.span
+                                                animate={{ opacity: [1, 0, 1] }}
+                                                transition={{ repeat: Infinity, duration: 0.8 }}
+                                                className="w-3 h-3 bg-yellow-300 inline-block"
+                                            />
+                                            Scanning
+                                        </span>
+                                    </div>
                                 </div>
                             ) : (
                                 <button
