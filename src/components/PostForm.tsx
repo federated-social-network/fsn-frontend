@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { createPost, completePost, elaboratePost, getUser } from "../api/api";
+import { createPost, completePost, elaboratePost, getUser, moderateImage } from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiMic, FiMicOff } from 'react-icons/fi';
 
@@ -120,6 +120,7 @@ const PostModal = ({
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isValidatingImage, setIsValidatingImage] = useState(false);
   const [suggestedContent, setSuggestedContent] = useState<string | null>(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isElaborating, setIsElaborating] = useState(false);
@@ -142,7 +143,7 @@ const PostModal = ({
     };
   }, [imagePreview]);
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -161,7 +162,36 @@ const PostModal = ({
 
     setError("");
     setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    const objectUrl = URL.createObjectURL(file);
+    setImagePreview(objectUrl);
+
+    // Call moderation API immediately
+    setIsValidatingImage(true);
+    try {
+      const res = await moderateImage(file);
+      const data = res.data;
+
+      const isUnsafe = data.adult === "POSSIBLE" || data.adult === "LIKELY" || data.adult === "VERY_LIKELY" ||
+        data.violence === "POSSIBLE" || data.violence === "LIKELY" || data.violence === "VERY_LIKELY" ||
+        data.racy === "POSSIBLE" || data.racy === "LIKELY" || data.racy === "VERY_LIKELY";
+
+      if (isUnsafe) {
+        setError("Explicit content detected. This image cannot be uploaded.");
+        setImageFile(null);
+        setImagePreview(null);
+        URL.revokeObjectURL(objectUrl);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    } catch (err) {
+      console.error("Image moderation failed:", err);
+      setError("Image validation failed. Please try again.");
+      setImageFile(null);
+      setImagePreview(null);
+      URL.revokeObjectURL(objectUrl);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } finally {
+      setIsValidatingImage(false);
+    }
   };
 
   const clearImage = () => {
@@ -386,22 +416,29 @@ const PostModal = ({
 
                 {/* Image preview */}
                 {imagePreview && (
-                  <div className="mt-3 relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                  <div className="mt-3 relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
                     <img
                       src={imagePreview}
                       alt="Upload preview"
                       className="w-full max-h-72 object-contain rounded-xl"
                     />
-                    <button
-                      onClick={clearImage}
-                      className="absolute top-2 right-2 w-8 h-8 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
-                      title="Remove image"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </button>
+                    {isValidatingImage ? (
+                      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center text-white z-10">
+                        <span className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin mb-3"></span>
+                        <p className="text-sm font-semibold tracking-wide">Scanning image for safety...</p>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={clearImage}
+                        className="absolute top-2 right-2 w-8 h-8 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
+                        title="Remove image"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 )}
 
@@ -504,13 +541,18 @@ const PostModal = ({
                 <div className="flex items-center gap-2 sm:gap-3">
                   <button
                     onClick={handlePost}
-                    disabled={(!content.trim() && !imageFile) || loading}
+                    disabled={(!content.trim() && !imageFile) || loading || isValidatingImage}
                     className="bg-indigo-600 text-white px-5 sm:px-6 py-2 rounded-full font-bold hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center gap-2 text-sm sm:text-base"
                   >
                     {loading ? (
                       <>
                         <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                         Posting
+                      </>
+                    ) : isValidatingImage ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        Scanning
                       </>
                     ) : (
                       "Post"

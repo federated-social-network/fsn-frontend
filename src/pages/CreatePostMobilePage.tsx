@@ -2,8 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiArrowLeft, FiImage, FiX, FiMic, FiMicOff } from "react-icons/fi";
-import { createPost, completePost, elaboratePost, getUser } from "../api/api";
-
+import { createPost, completePost, elaboratePost, getUser, moderateImage } from "../api/api";
 /**
  * Full-screen mobile-first post creation page.
  * Navigated to from the + button in the mobile bottom nav.
@@ -16,6 +15,7 @@ export default function CreatePostMobilePage() {
     const [content, setContent] = useState("");
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [isValidatingImage, setIsValidatingImage] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -127,7 +127,7 @@ export default function CreatePostMobilePage() {
     const charCount = displayContent.length;
     const charPercent = Math.min((charCount / MAX_CHARS) * 100, 100);
     const isOverLimit = charCount > MAX_CHARS;
-    const canPost = (displayContent.trim().length > 0 || imageFile) && !isOverLimit && !loading;
+    const canPost = (displayContent.trim().length > 0 || imageFile) && !isOverLimit && !loading && !isValidatingImage;
 
     // Fetch avatar
     useEffect(() => {
@@ -159,7 +159,7 @@ export default function CreatePostMobilePage() {
         return () => { if (imagePreview) URL.revokeObjectURL(imagePreview); };
     }, [imagePreview]);
 
-    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -173,7 +173,36 @@ export default function CreatePostMobilePage() {
         }
         setError("");
         setImageFile(file);
-        setImagePreview(URL.createObjectURL(file));
+        const objectUrl = URL.createObjectURL(file);
+        setImagePreview(objectUrl);
+
+        // Call moderation API immediately
+        setIsValidatingImage(true);
+        try {
+            const res = await moderateImage(file);
+            const data = res.data;
+
+            const isUnsafe = data.adult === "POSSIBLE" || data.adult === "LIKELY" || data.adult === "VERY_LIKELY" ||
+                data.violence === "POSSIBLE" || data.violence === "LIKELY" || data.violence === "VERY_LIKELY" ||
+                data.racy === "POSSIBLE" || data.racy === "LIKELY" || data.racy === "VERY_LIKELY";
+
+            if (isUnsafe) {
+                setError("Explicit content detected. This image cannot be uploaded.");
+                setImageFile(null);
+                setImagePreview(null);
+                URL.revokeObjectURL(objectUrl);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+            }
+        } catch (err) {
+            console.error("Image moderation failed:", err);
+            setError("Image validation failed. Please try again.");
+            setImageFile(null);
+            setImagePreview(null);
+            URL.revokeObjectURL(objectUrl);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        } finally {
+            setIsValidatingImage(false);
+        }
     };
 
     const clearImage = () => {
@@ -296,6 +325,11 @@ export default function CreatePostMobilePage() {
                             <span className="flex items-center gap-1.5">
                                 <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 Posting
+                            </span>
+                        ) : isValidatingImage ? (
+                            <span className="flex items-center gap-1.5">
+                                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Scanning
                             </span>
                         ) : "Post"}
                     </motion.button>
@@ -501,6 +535,11 @@ export default function CreatePostMobilePage() {
                                         <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                         Posting...
                                     </span>
+                                ) : isValidatingImage ? (
+                                    <span className="flex items-center gap-1.5">
+                                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        Scanning...
+                                    </span>
                                 ) : (
                                     "Post"
                                 )}
@@ -512,18 +551,25 @@ export default function CreatePostMobilePage() {
                 {/* Image preview */}
                 {imagePreview && (
                     <div className="px-4 pb-3">
-                        <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                        <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
                             <img
                                 src={imagePreview}
                                 alt="Preview"
                                 className="w-full max-h-64 object-contain"
                             />
-                            <button
-                                onClick={clearImage}
-                                className="absolute top-2 right-2 w-8 h-8 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
-                            >
-                                <FiX className="text-base" />
-                            </button>
+                            {isValidatingImage ? (
+                                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center text-white z-10">
+                                    <span className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin mb-3"></span>
+                                    <p className="text-sm font-semibold tracking-wide">Scanning image for safety...</p>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={clearImage}
+                                    className="absolute top-2 right-2 w-8 h-8 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
+                                >
+                                    <FiX className="text-base" />
+                                </button>
+                            )}
                         </div>
                     </div>
                 )}

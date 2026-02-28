@@ -115,6 +115,20 @@ export const completePost = (content: string) => {
 };
 
 /**
+ * Validates an image for explicit content using the moderation service.
+ * @param {File} file - The image file to validate.
+ * @returns {Promise<import("axios").AxiosResponse<any>>} The server response containing safety categories.
+ */
+export const moderateImage = (file: File) => {
+  const form = new FormData();
+  form.append("file", file);
+  return getApi().post("/moderate-image", form, {
+    headers: { "Content-Type": undefined },
+    timeout: 30000,
+  });
+};
+
+/**
  * Gets an AI suggestion to elaborate the post content.
  * @param {string} content - The content to elaborate.
  * @returns {Promise<import("axios").AxiosResponse<any>>} The server response.

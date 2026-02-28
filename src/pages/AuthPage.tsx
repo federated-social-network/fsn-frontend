@@ -47,6 +47,11 @@ const AuthPage = () => {
 
     // Validation Helpers
     const validateUsername = (u: string) => (!u || !u.trim() ? "Username is required" : null);
+    const validateRegisterUsername = (u: string) => {
+        if (!u || !u.trim()) return "Username is required";
+        if (!/^[a-zA-Z0-9_-]+$/.test(u)) return "Username can only contain alphanumeric characters, dashes (-), and underscores (_)";
+        return null;
+    };
     const validateEmail = (e: string) => {
         if (!e || !e.trim()) return "Email is required";
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return "Invalid email address";
@@ -62,7 +67,8 @@ const AuthPage = () => {
         setErrorMsg("");
         setSuccessMsg("");
 
-        const uErr = validateUsername(username);
+        const trimmedUsername = username.trim();
+        const uErr = isRegisterMode ? validateRegisterUsername(trimmedUsername) : validateUsername(trimmedUsername);
         const pErr = validatePassword(password);
         const eErr = isRegisterMode ? validateEmail(email) : null;
 
@@ -75,14 +81,14 @@ const AuthPage = () => {
         try {
             if (isRegisterMode) {
                 // Register Flow
-                const res = await registerUser(username, password, email, avatarFile || undefined);
+                const res = await registerUser(trimmedUsername, password, email, avatarFile || undefined);
                 if (res.data?.message || res.status === 200) {
                     setSuccessMsg("Registration successful!");
 
                     // If avatar was selected, silently login to upload it
                     if (avatarFile) {
                         try {
-                            const loginRes = await loginUser(username, password);
+                            const loginRes = await loginUser(trimmedUsername, password);
                             if (loginRes?.status === 200) {
                                 const data = loginRes.data || loginRes;
                                 localStorage.setItem("access_token", data.access_token);
@@ -105,10 +111,10 @@ const AuthPage = () => {
                 }
             } else {
                 // Login Flow
-                const res = await loginUser(username, password);
+                const res = await loginUser(trimmedUsername, password);
                 if (res?.status === 200) {
                     const data = res.data || res;
-                    localStorage.setItem("username", username);
+                    localStorage.setItem("username", trimmedUsername);
                     if (data?.access_token) {
                         localStorage.setItem("access_token", data.access_token);
                         localStorage.setItem("AUTH_TOKEN", data.access_token);
