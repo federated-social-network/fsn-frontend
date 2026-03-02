@@ -315,10 +315,10 @@ export default function CreatePostMobilePage() {
                         whileTap={{ scale: 0.95 }}
                         onClick={handlePost}
                         disabled={!canPost}
-                        className={`px - 5 py - 2 rounded - full text - sm font - bold transition - all ${canPost
+                        className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${canPost
                             ? "bg-blue-600 text-e shadow-md active:bg-blue-700"
                             : "bg-gray-100 text--400 cursor-not-allowed"
-                            } `}
+                            }`}
                         style={{ border: 'none', boxShadow: canPost ? '0 2px 8px rgba(59,130,246,0.3)' : 'none' }}
                     >
                         {loading ? (
@@ -428,13 +428,13 @@ export default function CreatePostMobilePage() {
                     <div className="px-4 pb-2 flex items-center gap-2">
                         <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                             <motion.div
-                                className={`h - full rounded - full ${isOverLimit ? "bg-red-500" : charPercent > 80 ? "bg-amber-500" : "bg-blue-500"} `}
+                                className={`h-full rounded-full ${isOverLimit ? "bg-red-500" : charPercent > 80 ? "bg-amber-500" : "bg-blue-500"}`}
                                 initial={{ width: 0 }}
-                                animate={{ width: `${charPercent}% ` }}
+                                animate={{ width: `${charPercent}%` }}
                                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                             />
                         </div>
-                        <span className={`text - xs font - medium tabular - nums ${isOverLimit ? "text-red-500" : charPercent > 80 ? "text-amber-500" : "text-gray-400"} `}>
+                        <span className={`text-xs font-medium tabular-nums ${isOverLimit ? "text-red-500" : charPercent > 80 ? "text-amber-500" : "text-gray-400"}`}>
                             {charCount}/{MAX_CHARS}
                         </span>
                     </div>
@@ -452,10 +452,10 @@ export default function CreatePostMobilePage() {
                                     type="button"
                                     onClick={handleEnhance}
                                     disabled={isEnhancing || isElaborating || wordCount < 5}
-                                    className={`flex items - center gap - 1.5 px - 3 py - 1.5 rounded - full text - sm font - bold transition - colors ${wordCount >= 5
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${wordCount >= 5
                                         ? "bg-blue-100 hover:bg-blue-200 texue-700"
-                                        : "bg-gray-100 text-gray-400 cursor-allowed"
-                                        } `}
+                                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                        }`}
                                 >
                                     {isEnhancing ? (
                                         <span className="w-4 h-4 border-2 border-blue-700/30 border-t-blue-700 rounded-full animate-spin"></span>
@@ -472,10 +472,10 @@ export default function CreatePostMobilePage() {
                                     type="button"
                                     onClick={handleElaborate}
                                     disabled={isEnhancing || isElaborating || wordCount < 5}
-                                    className={`flex items - center gap - 1.5 px - 3 py - 1.5 rounded - full text - sm font - bold transition - colors ${wordCount >= 5
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${wordCount >= 5
                                         ? "bg-purple-100 hover:bg-purple-200t-purple-700"
-                                        : "bg-gray-100 text-gray-400 cursor-allowed"
-                                        } `}
+                                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                        }`}
                                 >
                                     {isElaborating ? (
                                         <span className="w-4 h-4 border-2 border-purple-700/30 border-t-purple-700 rounded-full animate-spin"></span>
@@ -510,10 +510,10 @@ export default function CreatePostMobilePage() {
                                 <button
                                     type="button"
                                     onClick={handleMicClick}
-                                    className={`w - 11 h - 11 rounded - full flex items - center justify - center transition - colors ${isListening
-                                        ? "bg-red-100 text-red-600 hoverred-200 animate-pulse"
-                                        : "hover:bg-blue-50 active:bg-bl00 text-gray-500 hover:text-blue-600"
-                                        } `}
+                                    className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${isListening
+                                        ? "bg-red-100 text-red-600 hover:bg-red-200 animate-pulse"
+                                        : "hover:bg-blue-50 active:bg-blue-100 text-gray-500 hover:text-blue-600"
+                                        }`}
                                     title={isListening ? "Stop recording" : "Dictate"}
                                 >
                                     {isListening ? <FiMicOff className="text-xl" /> : <FiMic className="text-xl" />}
@@ -524,10 +524,10 @@ export default function CreatePostMobilePage() {
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handlePost}
                                 disabled={!canPost}
-                                className={`px - 6 py - 2.5 rounded - full text - sm font - bold transition - all ${canPost
-                                    ? "bg-blue-600 text-white sh-md active:bg-blue-700"
-                                    : "bg-gray-100 text-gray-400sor-not-allowed"
-                                    } `}
+                                className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${canPost
+                                    ? "bg-blue-600 text-white shadow-md active:bg-blue-700"
+                                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                    }`}
                                 style={{ border: 'none', boxShadow: canPost ? '0 2px 8px rgba(59,130,246,0.3)' : 'none' }}
                             >
                                 {loading ? (
