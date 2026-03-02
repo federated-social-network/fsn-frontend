@@ -218,27 +218,25 @@ export default function PostCard({ post: p }: PostCardProps) {
                                 </div>
                             </Link>
                         )}
-                        <div className="min-w-0 flex-1">
-                            <div className="flex items-center text-[15px]">
-                                {isExternal ? (
-                                    <a
-                                        href={isMastodon ? `https://mastodon.social/@${username}` : `https://pixelfed.social/${username}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="font-bold text-gray-900 hover:underline transition-colors truncate block"
-                                    >
-                                        {p.display_name || username}
-                                    </a>
-                                ) : (
-                                    <Link
-                                        to={`/profile/${username}`}
-                                        className="font-bold text-gray-900 hover:underline transition-colors truncate block"
-                                    >
-                                        {p.display_name || username}
-                                    </Link>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-1.5 text-[13px] text-gray-500 mt-px">
+                        <div className="min-w-0 flex-1 flex flex-col justify-center gap-0.5">
+                            {isExternal ? (
+                                <a
+                                    href={isMastodon ? `https://mastodon.social/@${username}` : `https://pixelfed.social/${username}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-bold text-[15px] text-gray-900 hover:underline truncate leading-none"
+                                >
+                                    {p.display_name || username}
+                                </a>
+                            ) : (
+                                <Link
+                                    to={`/profile/${username}`}
+                                    className="font-bold text-[15px] text-gray-900 hover:underline truncate leading-none"
+                                >
+                                    {p.display_name || username}
+                                </Link>
+                            )}
+                            <div className="flex items-center gap-1.5 text-[13px] text-gray-500 truncate leading-none">
                                 <span className="truncate">@{username}</span>
                                 <span className="flex-shrink-0">•</span>
                                 <span className="flex-shrink-0">{timeAgo(p.created_at)}</span>
