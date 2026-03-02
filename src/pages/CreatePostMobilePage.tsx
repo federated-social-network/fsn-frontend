@@ -316,8 +316,8 @@ export default function CreatePostMobilePage() {
                         onClick={handlePost}
                         disabled={!canPost}
                         className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${canPost
-                            ? "bg-blue-600 text-e shadow-md active:bg-blue-700"
-                            : "bg-gray-100 text--400 cursor-not-allowed"
+                            ? "bg-blue-600 text-white shadow-md active:bg-blue-700"
+                            : "bg-gray-100 text-gray-400 cursor-not-allowed"
                             }`}
                         style={{ border: 'none', boxShadow: canPost ? '0 2px 8px rgba(59,130,246,0.3)' : 'none' }}
                     >
@@ -453,7 +453,7 @@ export default function CreatePostMobilePage() {
                                     onClick={handleEnhance}
                                     disabled={isEnhancing || isElaborating || wordCount < 5}
                                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${wordCount >= 5
-                                        ? "bg-blue-100 hover:bg-blue-200 texue-700"
+                                        ? "bg-blue-100 hover:bg-blue-200 text-blue-700"
                                         : "bg-gray-100 text-gray-400 cursor-not-allowed"
                                         }`}
                                 >
@@ -473,7 +473,7 @@ export default function CreatePostMobilePage() {
                                     onClick={handleElaborate}
                                     disabled={isEnhancing || isElaborating || wordCount < 5}
                                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${wordCount >= 5
-                                        ? "bg-purple-100 hover:bg-purple-200t-purple-700"
+                                        ? "bg-purple-100 hover:bg-purple-200 text-purple-700"
                                         : "bg-gray-100 text-gray-400 cursor-not-allowed"
                                         }`}
                                 >
