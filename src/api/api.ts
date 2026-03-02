@@ -203,7 +203,10 @@ export const updateUser = (username: string, data: Record<string, any>) =>
 export const uploadAvatar = (file: File) => {
   const form = new FormData();
   form.append("file", file);
-  return getApi().post(`/users/avatar`, form);
+  return getApi().post(`/users/avatar`, form, {
+    headers: { "Content-Type": undefined },
+    timeout: 60000,
+  });
 };
 
 /**
@@ -324,4 +327,14 @@ export const likePost = (postId: string) =>
  */
 export const unlikePost = (postId: string) =>
   getApi().delete(`/posts/${postId}/like`);
+
+/**
+ * Updates the current user's profile (bio, display_name).
+ * @param {Object} data - Fields to update.
+ * @param {string} [data.bio] - The new bio text.
+ * @param {string} [data.display_name] - The new display name.
+ * @returns {Promise<import("axios").AxiosResponse<any>>} The server response.
+ */
+export const updateProfile = (data: { bio?: string; display_name?: string }) =>
+  getApi().post("/update-profile", null, { params: data });
 

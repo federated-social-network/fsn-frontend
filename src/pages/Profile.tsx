@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getUser, updateUser, uploadAvatar, deletePost, initiateConnection, getConnectionCount, getConnectionsList, removeConnection } from "../api/api";
+import { getUser, uploadAvatar, deletePost, initiateConnection, getConnectionCount, getConnectionsList, removeConnection, updateProfile } from "../api/api";
 import SketchCard from "../components/SketchCard";
 import { timeAgo } from "../utils/time";
 import { parseUsername } from "../utils/user";
 import { getInstanceName, getInstanceColor } from "../config/instances";
 import type { Post } from "../types/post";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiArrowLeft, FiEdit2, FiUserPlus, FiUserMinus, FiX, FiGrid, FiFileText, FiAlertCircle } from "react-icons/fi";
+import { FiArrowLeft, FiEdit2, FiUserPlus, FiUserMinus, FiX, FiGrid, FiFileText, FiAlertCircle, FiCamera, FiMail, FiLock } from "react-icons/fi";
 
 /**
  * User Profile page component.
@@ -111,11 +111,25 @@ export default function Profile() {
       if (avatarFile) {
         await uploadAvatar(avatarFile);
       }
-      await updateUser(rawUsername, form);
+      const profileRes = await updateProfile({
+        bio: form.bio,
+        display_name: form.display_name,
+      });
+      const updatedFields = profileRes?.data || {};
       const res = await getUser(rawUsername);
-      setUser(res.data);
+      const userData = res.data;
+      if (userData.profile_url) {
+        userData.avatar_url = userData.profile_url;
+      }
+      // Merge fields from update-profile response (getUser may not return them)
+      if (updatedFields.display_name != null) userData.display_name = updatedFields.display_name;
+      if (updatedFields.bio != null) userData.bio = updatedFields.bio;
+      setUser(userData);
+      setAvatarFile(null);
+      setAvatarPreview(null);
       setEditMode(false);
     } catch (err: any) {
+      console.error("Profile save failed:", err);
       setSaveError(err?.response?.data?.detail || err?.message || "Failed to save profile");
     } finally {
       setSaving(false);
@@ -381,7 +395,7 @@ export default function Profile() {
             {/* Avatar & Name - Instagram Style on Mobile */}
             <div className="flex flex-row md:flex-col items-center md:items-center gap-4 md:gap-0 md:text-center relative">
               {/* Avatar */}
-              <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-[var(--bg-surface)] p-1 sm:p-1.5 shadow-xl border-2 border-[var(--ink-primary)] md:mb-4 shrink-0">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-[var(--bg-surface)] p-1 sm:p-1.5 shadow-xl border-2 border-[var(--ink-primary)] md:mb-4 shrink-0 group/avatar">
                 {editMode && avatarPreview ? (
                   <img src={avatarPreview} alt="avatar preview" className="w-full h-full object-cover rounded-full" />
                 ) : (
@@ -394,23 +408,21 @@ export default function Profile() {
                   )
                 )}
                 {editMode && (
-                  <label className="absolute bottom-0 right-0 bg-[var(--primary)] text-white p-1.5 sm:p-2 rounded-full cursor-pointer shadow-sketch hover:scale-105 transition-transform text-xs font-bold font-heading border-2 border-black">
-                    <FiEdit2 className="text-sm" />
+                  <label className="absolute inset-0 rounded-full cursor-pointer flex items-center justify-center bg-black/0 group-hover/avatar:bg-black/40 transition-all duration-200 z-10">
+                    <FiCamera className="text-white text-xl sm:text-2xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 drop-shadow-lg" />
                     <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f) {
-                        // Validation
                         const validTypes = ["image/jpeg", "image/png", "image/webp"];
                         if (!validTypes.includes(f.type)) {
                           alert("Invalid file type. Please upload JPEG, PNG, or WEBP.");
                           return;
                         }
-                        const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+                        const MAX_SIZE = 2 * 1024 * 1024;
                         if (f.size > MAX_SIZE) {
                           alert("File too large. Maximum size is 2MB.");
                           return;
                         }
-
                         setAvatarFile(f);
                         const reader = new FileReader();
                         reader.onload = () => setAvatarPreview(String(reader.result));
@@ -423,8 +435,26 @@ export default function Profile() {
 
               {/* Name & Handle - Right of avatar on mobile, Below on desktop */}
               <div className="flex-1 md:flex-none text-left md:text-center min-w-0">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold font-sketch mb-0.5 sm:mb-1 truncate md:break-all">{parseUsername(user?.username).username || username}</h1>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-0.5 sm:mb-1 truncate md:break-all" style={{ fontFamily: 'var(--font-brand)' }}>
+                  {(() => {
+                    const name = String(user?.display_name || parseUsername(user?.username || "").username || username || "");
+                    if (!name || name.length <= 1) return name || "";
+                    return (
+                      <>
+                        {name.slice(0, -1)}
+                        <span style={{ background: 'linear-gradient(135deg, #7c3aed 50%, #0891b2 50%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{name.slice(-1)}</span>
+                      </>
+                    );
+                  })()}
+                </h1>
                 <p className="text-sm sm:text-base md:text-lg font-hand text-[var(--ink-secondary)] truncate">@{parseUsername(user?.username).username || username}</p>
+                {user?.email && (
+                  <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-white/60 border border-gray-200 rounded-full group/email cursor-default" title="Email cannot be changed">
+                    <FiMail className="text-[var(--ink-secondary)]/60 text-xs group-hover/email:hidden" />
+                    <FiLock className="text-[var(--ink-secondary)]/60 text-xs hidden group-hover/email:block" />
+                    <span className="text-xs sm:text-sm font-hand text-[var(--ink-secondary)]/70 truncate">{user.email}</span>
+                  </div>
+                )}
                 {(user?.instance || instance) && (
                   <span className={`px-2 py-0.5 mt-1 sm:mt-2 inline-block font-hand rounded text-[10px] sm:text-xs border ${getInstanceColor(user?.instance || instance)}`}>
                     {getInstanceName(user?.instance || instance)}
@@ -433,7 +463,71 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Action Buttons - Compact on mobile */}
+            {loading && <div className="text-center py-6 sm:py-8 font-hand text-base sm:text-lg">Loading info...</div>}
+            {error && (
+              <div className="py-6 sm:py-8 px-3 sm:px-4 text-center">
+                <FiAlertCircle className="text-4xl sm:text-5xl mx-auto mb-3 text-red-400" />
+                <h3 className="font-sketch text-lg sm:text-xl font-bold text-red-500 mb-2">Whoops!</h3>
+                <div className="font-hand text-base sm:text-lg text-[var(--ink-secondary)] bg-red-50 border-2 border-dashed border-red-300 p-3 rounded">
+                  {error}
+                </div>
+                <p className="mt-4 font-hand text-xs sm:text-sm text-gray-500">
+                  We couldn't find this scribbler. They might be on another instance!
+                </p>
+              </div>
+            )}
+
+            {/* Stats & Bio - Above Edit Profile button */}
+
+            {!loading && !error && !editMode && user && (
+              <div className="mt-4 sm:mt-8 space-y-4 sm:space-y-6">
+                {/* Bio - Styled card (above stats) */}
+                {user.bio ? (
+                  <div className="relative bg-gradient-to-br from-white to-[#f8f7f2] p-4 sm:p-5 rounded-xl border border-[var(--ink-primary)]/15 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                    <span className="absolute -top-2.5 left-3 bg-gradient-to-r from-[var(--pastel-blue)] to-[var(--pastel-lavender)] px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-heading font-bold tracking-wider text-[var(--ink-secondary)] uppercase">Bio</span>
+                    <p className="font-hand text-sm sm:text-lg leading-relaxed text-[var(--ink-primary)] pt-1">{user.bio}</p>
+                  </div>
+                ) : isOwnProfile ? (
+                  <div className="font-hand text-sm sm:text-base text-center text-[var(--ink-secondary)] bg-[#fffef0] p-3 sm:p-4 border-2 border-dashed border-[var(--highlighter-yellow)] rounded-lg">
+                    <p className="mb-2 italic">✨ Tell people about yourself!</p>
+                    <button
+                      onClick={() => {
+                        setEditMode(true);
+                        setForm({
+                          display_name: user?.display_name || "",
+                          bio: "",
+                          email: user?.email || ""
+                        });
+                        setAvatarPreview(user?.avatar_url);
+                      }}
+                      className="px-4 py-1.5 bg-white hover:bg-[var(--highlighter-yellow)] text-black border-2 border-black font-heading rounded transition-colors shadow-sketch text-xs sm:text-sm"
+                    >
+                      Add bio
+                    </button>
+                  </div>
+                ) : null}
+
+                {/* Stats Row */}
+                <div className="flex justify-around py-3 sm:py-4 border-y-2 border-dashed border-[var(--ink-secondary)]">
+                  <div className="text-center flex-1">
+                    <div className="text-lg sm:text-2xl font-sketch">{posts.length || user.post_count || 0}</div>
+                    <div className="text-xs sm:text-sm font-hand text-[var(--ink-secondary)]">Posts</div>
+                  </div>
+
+                  {isOwnProfile && (
+                    <div
+                      className="text-center flex-1 border-l border-dashed border-gray-400 cursor-pointer hover:bg-black/5 active:bg-black/10 transition-colors rounded"
+                      onClick={() => setShowConnectionsModal(true)}
+                    >
+                      <div className="text-lg sm:text-2xl font-sketch">{connectionCount ?? "-"}</div>
+                      <div className="text-xs sm:text-sm font-hand text-[var(--ink-secondary)]">Connections</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons - Below bio */}
             <div className="w-full mt-4 sm:mt-6 flex flex-col sm:flex-row gap-2">
               {/* Edit Button */}
               {isOwnProfile && !editMode && !loading && (
@@ -482,52 +576,6 @@ export default function Profile() {
               )}
             </div>
 
-            {loading && <div className="text-center py-6 sm:py-8 font-hand text-base sm:text-lg">Loading info...</div>}
-            {error && (
-              <div className="py-6 sm:py-8 px-3 sm:px-4 text-center">
-                <FiAlertCircle className="text-4xl sm:text-5xl mx-auto mb-3 text-red-400" />
-                <h3 className="font-sketch text-lg sm:text-xl font-bold text-red-500 mb-2">Whoops!</h3>
-                <div className="font-hand text-base sm:text-lg text-[var(--ink-secondary)] bg-red-50 border-2 border-dashed border-red-300 p-3 rounded">
-                  {error}
-                </div>
-                <p className="mt-4 font-hand text-xs sm:text-sm text-gray-500">
-                  We couldn't find this scribbler. They might be on another instance!
-                </p>
-              </div>
-            )}
-
-            {/* Stats & Bio - Horizontal on mobile like Instagram */}
-
-            {!loading && !error && !editMode && user && (
-              <div className="mt-4 sm:mt-8 space-y-4 sm:space-y-6">
-                {/* Stats Row - Always horizontal */}
-                <div className="flex justify-around py-3 sm:py-4 border-y-2 border-dashed border-[var(--ink-secondary)]">
-                  <div className="text-center flex-1">
-                    <div className="text-lg sm:text-2xl font-sketch">{posts.length || user.post_count || 0}</div>
-                    <div className="text-xs sm:text-sm font-hand text-[var(--ink-secondary)]">Posts</div>
-                  </div>
-
-                  {isOwnProfile && (
-                    <div
-                      className="text-center flex-1 border-l border-dashed border-gray-400 cursor-pointer hover:bg-black/5 active:bg-black/10 transition-colors rounded"
-                      onClick={() => setShowConnectionsModal(true)}
-                    >
-                      <div className="text-lg sm:text-2xl font-sketch">{connectionCount ?? "-"}</div>
-                      <div className="text-xs sm:text-sm font-hand text-[var(--ink-secondary)]">Connections</div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Bio - Compact on mobile */}
-                {user.bio && (
-                  <div className="font-hand text-sm sm:text-lg leading-relaxed bg-[#fff] p-2.5 sm:p-3 border border-dashed border-gray-300 shadow-sm relative">
-                    <span className="absolute -top-2.5 sm:-top-3 left-2 bg-white px-1 text-[10px] sm:text-xs font-marker text-gray-400">BIO</span>
-                    {user.bio}
-                  </div>
-                )}
-              </div>
-            )}
-
             {/* Edit Form */}
             {editMode && (
               <div className="mt-6 space-y-4 border-t-2 border-dashed border-black pt-4">
@@ -542,20 +590,18 @@ export default function Profile() {
                 <div>
                   <label className="block text-sm font-heading mb-1">Bio</label>
                   <textarea
-                    rows={3}
+                    rows={2}
+                    maxLength={50}
                     value={form.bio}
                     onChange={e => setForm({ ...form, bio: e.target.value })}
+                    placeholder="Tell people about yourself..."
                     className="w-full font-hand text-lg border-2 border-[var(--ink-secondary)] rounded p-2 focus:border-[var(--primary)] outline-none bg-white/50"
                   />
+                  <div className="text-right text-xs font-hand mt-1" style={{ color: form.bio.length >= 50 ? '#ef4444' : 'var(--ink-secondary)' }}>
+                    {form.bio.length}/50
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-heading mb-1">Email</label>
-                  <input
-                    value={form.email}
-                    onChange={e => setForm({ ...form, email: e.target.value })}
-                    className="w-full font-hand text-lg border-b-2 border-black px-1 focus:border-[var(--primary)] outline-none bg-transparent"
-                  />
-                </div>
+
                 {saveError && <p className="text-red-500 font-hand text-sm">{saveError}</p>}
 
                 <div className="flex flex-col gap-2 pt-2">
