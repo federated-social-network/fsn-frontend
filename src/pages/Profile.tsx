@@ -356,8 +356,10 @@ export default function Profile() {
                         {connectionsList.map((conn) => (
                           <div key={conn.username} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded border border-transparent hover:border-gray-200 transition-colors">
                             <Link to={`/profile/${conn.username}`} onClick={() => setShowConnectionsModal(false)} className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-[var(--pastel-mint)] border border-black flex items-center justify-center font-sketch text-lg">
-                                {conn.username[0].toUpperCase()}
+                              <div className="w-10 h-10 rounded-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[2px] shadow-sm shrink-0">
+                                <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-sketch text-lg text-black overflow-hidden">
+                                  {conn.username[0].toUpperCase()}
+                                </div>
                               </div>
                               <span className="font-hand font-bold text-lg">{conn.username}</span>
                             </Link>
@@ -395,9 +397,9 @@ export default function Profile() {
             {/* Avatar & Name - Instagram Style on Mobile */}
             <div className="flex flex-row md:flex-col items-center md:items-center gap-4 md:gap-0 md:text-center relative">
               {/* Avatar */}
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-[var(--bg-surface)] p-1 sm:p-1.5 shadow-xl border-2 border-[var(--ink-primary)] md:mb-4 shrink-0 group/avatar">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[3px] sm:p-1 shadow-xl md:mb-4 shrink-0 group/avatar">
                 {editMode && avatarPreview ? (
-                  <img src={avatarPreview} alt="avatar preview" className="w-full h-full object-cover rounded-full" />
+                  <img src={avatarPreview} alt="avatar preview" className="w-full h-full object-cover rounded-full bg-white" />
                 ) : (
                   user?.avatar_url ? (
                     <img src={user.avatar_url} alt="avatar" className="w-full h-full object-cover rounded-full" />

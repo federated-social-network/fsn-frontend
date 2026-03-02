@@ -90,13 +90,15 @@ export default function Navbar() {
                             {/* Avatar */}
                             <motion.div
                                 whileHover={{ scale: 1.08 }}
-                                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden bg-gradient-to-br from-blue-100 to-indigo-100 border-2 border-white shadow-sm flex items-center justify-center"
+                                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[2px] shadow-sm flex items-center justify-center shrink-0"
                             >
-                                {avatarUrl ? (
-                                    <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
-                                ) : (
-                                    <FiUser className="text-gray-500 text-sm" />
-                                )}
+                                <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
+                                    {avatarUrl ? (
+                                        <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <FiUser className="text-gray-500 text-sm" />
+                                    )}
+                                </div>
                             </motion.div>
 
                             {/* Username — hidden on small screens */}

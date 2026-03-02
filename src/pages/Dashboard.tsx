@@ -268,14 +268,16 @@ export default function Dashboard() {
                         <Link to={`/profile/${u.username}`} className="block group border-none">
                           <div className="flex items-center gap-2.5 p-2 rounded-lg bg-white/50 hover:bg-white/80 border border-black/5 hover:border-black/15 transition-all">
                             {/* Avatar */}
-                            <div className="w-9 h-9 rounded-full border-2 border-black bg-[var(--pastel-mint)] flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                              {u.avatar_url ? (
-                                <img src={u.avatar_url} alt={u.username} className="w-full h-full object-cover" />
-                              ) : (
-                                <span className="text-sm font-bold text-gray-700 font-sketch">
-                                  {u.username[0].toUpperCase()}
-                                </span>
-                              )}
+                            <div className="w-9 h-9 rounded-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[2px] flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                              <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                                {u.avatar_url ? (
+                                  <img src={u.avatar_url} alt={u.username} className="w-full h-full object-cover" />
+                                ) : (
+                                  <span className="text-sm font-bold text-gray-700 font-sketch">
+                                    {u.username[0].toUpperCase()}
+                                  </span>
+                                )}
+                              </div>
                             </div>
 
                             {/* Name & Instance */}
@@ -297,7 +299,7 @@ export default function Dashboard() {
                               ) : (
                                 <button
                                   onClick={(e) => handleConnect(e, u.username)}
-                                  className="text-[11px] font-bold px-2.5 py-1 rounded-md bg-black text-white hover:bg-gray-800 active:scale-95 transition-all border-none shadow-[1px_1px_0px_rgba(0,0,0,0.3)] font-hand"
+                                  className="text-[11px] font-bold px-2.5 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all border-none font-hand shadow-sm"
                                 >
                                   Connect+
                                 </button>

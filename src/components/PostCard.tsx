@@ -198,23 +198,27 @@ export default function PostCard({ post: p }: PostCardProps) {
                     <div className="flex items-center gap-3 min-w-0">
                         {isExternal ? (
                             <a href={isMastodon ? `https://mastodon.social/@${username}` : `https://pixelfed.social/${username}`} target="_blank" rel="noopener noreferrer" className="shrink-0">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white shadow-sm flex items-center justify-center font-semibold text-sm overflow-hidden">
-                                    {avatarUrl ? (
-                                        <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <span className="text-gray-600">{username[0]?.toUpperCase()}</span>
-                                    )}
+                                <div className="w-10 h-10 rounded-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[2px] shadow-sm flex items-center justify-center shrink-0">
+                                    <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-semibold text-sm overflow-hidden">
+                                        {avatarUrl ? (
+                                            <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-gray-600">{username[0]?.toUpperCase()}</span>
+                                        )}
+                                    </div>
                                 </div>
                             </a>
 
                         ) : (
                             <Link to={`/profile/${username}`} className="shrink-0">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white shadow-sm flex items-center justify-center font-semibold text-sm overflow-hidden">
-                                    {avatarUrl ? (
-                                        <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <span className="text-gray-600">{username[0]?.toUpperCase()}</span>
-                                    )}
+                                <div className="w-10 h-10 rounded-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[2px] shadow-sm flex items-center justify-center shrink-0">
+                                    <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-semibold text-sm overflow-hidden">
+                                        {avatarUrl ? (
+                                            <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-gray-600">{username[0]?.toUpperCase()}</span>
+                                        )}
+                                    </div>
                                 </div>
                             </Link>
                         )}
