@@ -219,28 +219,29 @@ export default function PostCard({ post: p }: PostCardProps) {
                             </Link>
                         )}
                         <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center text-[15px]">
                                 {isExternal ? (
                                     <a
                                         href={isMastodon ? `https://mastodon.social/@${username}` : `https://pixelfed.social/${username}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="font-semibold text-sm text-gray-900 hover:text-blue-600 transition-colors truncate block"
+                                        className="font-bold text-gray-900 hover:underline transition-colors truncate block"
                                     >
                                         {p.display_name || username}
                                     </a>
                                 ) : (
                                     <Link
                                         to={`/profile/${username}`}
-                                        className="font-semibold text-sm text-gray-900 hover:text-blue-600 transition-colors truncate block"
+                                        className="font-bold text-gray-900 hover:underline transition-colors truncate block"
                                     >
                                         {p.display_name || username}
                                     </Link>
                                 )}
-                                <span className="text-xs text-gray-500 shrink-0">• {timeAgo(p.created_at)}</span>
                             </div>
-                            <div className="text-xs text-gray-500 mt-0.5 truncate block">
-                                @{username}
+                            <div className="flex items-center gap-1.5 text-[13px] text-gray-500 mt-px">
+                                <span className="truncate">@{username}</span>
+                                <span className="flex-shrink-0">•</span>
+                                <span className="flex-shrink-0">{timeAgo(p.created_at)}</span>
                             </div>
                         </div>
                     </div>
