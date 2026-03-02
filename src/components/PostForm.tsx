@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { createPost, completePost, elaboratePost, getUser, moderateImage } from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiMic, FiMicOff } from 'react-icons/fi';
+import { FiMic, FiMicOff, FiGlobe, FiUsers } from 'react-icons/fi';
 
 // Helper component for the Modal
 /**
@@ -337,15 +337,22 @@ const PostModal = ({
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-800 text-base sm:text-lg leading-tight">{username}</h3>
-                    <select
-                      value={visibility}
-                      onChange={(e) => setVisibility(e.target.value)}
-                      className="text-[10px] sm:text-xs text-gray-600 font-medium bg-gray-100 hover:bg-gray-200 px-1.5 sm:px-2 py-0.5 rounded-full mt-0.5 outline-none cursor-pointer appearance-none border border-transparent focus:border-gray-300 transition-colors"
-                      style={{ paddingRight: '1rem', backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234A5568%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right .3rem top 55%', backgroundSize: '.5rem auto' }}
+                    <div
+                      onClick={() => setVisibility(v => v === "public" ? "followers" : "public")}
+                      className="mt-1 flex items-center bg-gray-200 rounded-full p-[2px] cursor-pointer w-14 h-6 relative shadow-inner"
+                      title={visibility === "public" ? "Public" : "Followers Only"}
                     >
-                      <option value="public">Anyone</option>
-                      <option value="followers">Followers Only</option>
-                    </select>
+                      <div
+                        className={`absolute w-[calc(50%-2px)] h-[calc(100%-4px)] bg-white shadow-sm rounded-full transition-all duration-300 ease-out border border-gray-100 ${visibility === "public" ? "left-[2px]" : "left-[calc(50%)]"
+                          }`}
+                      />
+                      <div className="flex-1 flex justify-center z-10">
+                        <FiGlobe size={12} className={`transition-colors duration-200 ${visibility === "public" ? "text-blue-600 drop-shadow-sm" : "text-gray-400"}`} />
+                      </div>
+                      <div className="flex-1 flex justify-center z-10">
+                        <FiUsers size={12} className={`transition-colors duration-200 ${visibility === "followers" ? "text-indigo-600 drop-shadow-sm" : "text-gray-400"}`} />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <button
