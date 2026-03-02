@@ -317,8 +317,14 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <img src="/logo.png" alt="HeliiX Logo" className="w-10 h-10 object-contain" />
-              <h2 className="text-3xl font-sketch text-white">HeliiX</h2>
+              <img
+                  src="/logo.png"
+                  alt="HeliiX"
+                  className="w-10 h-10 sm:w-10 sm:h-10 -my-3 object-contain drop-shadow-sm"
+                  />
+                  <span className="text-xl sm:text-2xl font-normal tracking-wide text-gray-900" style={{ fontFamily: 'var(--font-brand)' }}>
+                  Helii<span style={{ background: 'linear-gradient(135deg, #7c3aed 50%, #0891b2 50%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>X</span>
+                  </span>
             </div>
             <p className="text-gray-400 max-w-sm">
               A decentralized social network built for people, not advertisers. Join the fediverse today.
@@ -345,7 +351,7 @@ export default function Landing() {
         </div>
 
         <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
-          © {new Date().getFullYear()} HeliiX Project. Built with ❤️ and ☕.
+          © {new Date().getFullYear()} HeliiX.
         </div>
       </footer >
 
