@@ -88,7 +88,8 @@ export const loginUser = (username: string, password: string) =>
 export const createPost = (
   content: string,
   username?: string,
-  image?: File
+  image?: File,
+  visibility: string = "public"
 ) => {
   const form = new FormData();
   form.append("content", content);
@@ -96,6 +97,7 @@ export const createPost = (
   if (image) form.append("image", image);
 
   return getApi().post("/posts", form, {
+    params: { visibility },
     headers: { "Content-Type": undefined }, // let axios auto-set multipart/form-data
     timeout: image ? 60000 : 30000, // 60s for image uploads, 30s otherwise
   });
