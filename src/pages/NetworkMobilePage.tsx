@@ -9,6 +9,7 @@ export default function NetworkMobilePage() {
     const [pendingInvites, setPendingInvites] = useState<any[]>([]);
     const [suggestedUsers, setSuggestedUsers] = useState<any[]>([]);
     const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
+    const [acceptingIds, setAcceptingIds] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -40,11 +41,18 @@ export default function NetworkMobilePage() {
     }, []);
 
     const handleAccept = async (connectionId: string) => {
+        setAcceptingIds(prev => new Set(prev).add(connectionId));
         try {
             await acceptConnection(connectionId);
             setPendingInvites(prev => prev.filter(i => i.connection_id !== connectionId));
         } catch (err) {
             console.error("Failed to accept", err);
+        } finally {
+            setAcceptingIds(prev => {
+                const next = new Set(prev);
+                next.delete(connectionId);
+                return next;
+            });
         }
     };
 
@@ -102,9 +110,23 @@ export default function NetworkMobilePage() {
                                     </div>
                                     <button
                                         onClick={() => handleAccept(invite.connection_id)}
-                                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-md font-bold text-sm shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-px active:shadow-none transition-all flex items-center gap-1"
+                                        disabled={acceptingIds.has(invite.connection_id)}
+                                        className={`px-4 py-1.5 rounded-md font-bold text-sm transition-all flex items-center gap-1 ${acceptingIds.has(invite.connection_id)
+                                                ? 'bg-green-200 text-green-600 cursor-wait shadow-none'
+                                                : 'bg-green-500 hover:bg-green-600 text-white shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-px active:shadow-none'
+                                            }`}
                                     >
-                                        <FiCheck /> Accept
+                                        {acceptingIds.has(invite.connection_id) ? (
+                                            <>
+                                                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                </svg>
+                                                Accepting...
+                                            </>
+                                        ) : (
+                                            <><FiCheck /> Accept</>
+                                        )}
                                     </button>
                                 </div>
                             ))}

@@ -313,7 +313,8 @@ export default function PostCard({ post: p }: PostCardProps) {
 
                                 {/* Expanding ring */}
                                 <motion.div
-                                    className="absolute rounded-full border-2 border-red-400"
+                                    className="absolute rounded-full"
+                                    style={{ border: '2px solid #7c3aed' }}
                                     initial={{ width: 0, height: 0, opacity: 0.8 }}
                                     animate={{ width: 160, height: 160, opacity: 0 }}
                                     transition={{ duration: 0.7, ease: "easeOut" }}
@@ -323,7 +324,7 @@ export default function PostCard({ post: p }: PostCardProps) {
                                 <motion.svg
                                     viewBox="0 0 24 24"
                                     className="w-28 h-28 sm:w-32 sm:h-32"
-                                    style={{ filter: 'drop-shadow(0 0 20px rgba(239, 68, 68, 0.6))' }}
+                                    style={{ filter: 'drop-shadow(0 0 20px rgba(124, 58, 237, 0.5))' }}
                                     initial={{ scale: 0, rotate: -15 }}
                                     animate={{
                                         scale: [0, 1.4, 0.95, 1.1, 1],
@@ -337,9 +338,15 @@ export default function PostCard({ post: p }: PostCardProps) {
                                         ease: "easeOut",
                                     }}
                                 >
+                                    <defs>
+                                        <linearGradient id="heart-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="50%" stopColor="#7c3aed" />
+                                            <stop offset="50%" stopColor="#0891b2" />
+                                        </linearGradient>
+                                    </defs>
                                     <path
                                         d={heartPath}
-                                        fill="#ef4444"
+                                        fill="url(#heart-gradient)"
                                         stroke="white"
                                         strokeWidth="0.5"
                                     />
@@ -349,7 +356,7 @@ export default function PostCard({ post: p }: PostCardProps) {
                                 {[...Array(8)].map((_, i) => {
                                     const angle = (i * 45 * Math.PI) / 180;
                                     const distance = 55 + (i % 3) * 15;
-                                    const colors = ['#ef4444', '#f97316', '#ec4899', '#f43f5e', '#fb923c', '#e11d48', '#f87171', '#fbbf24'];
+                                    const colors = ['#7c3aed', '#8b5cf6', '#0891b2', '#06b6d4', '#7c3aed', '#a78bfa', '#0e7490', '#22d3ee'];
                                     const size = i % 2 === 0 ? 8 : 6;
                                     return (
                                         <motion.div
@@ -388,7 +395,7 @@ export default function PostCard({ post: p }: PostCardProps) {
                                 onClick={handleLikeToggle}
                                 disabled={likeLoading}
                                 style={{
-                                    color: isLiked ? '#ef4444' : '#6b7280',
+                                    color: isLiked ? '#7c3aed' : '#6b7280',
                                     border: 'none',
                                     boxShadow: 'none',
                                     background: 'none',
@@ -407,10 +414,16 @@ export default function PostCard({ post: p }: PostCardProps) {
                                     <svg
                                         className="w-5 h-5 group-hover:scale-110 transition-transform"
                                         viewBox="0 0 24 24"
-                                        fill={isLiked ? "#ef4444" : "none"}
-                                        stroke={isLiked ? "#ef4444" : "#6b7280"}
+                                        fill={isLiked ? "url(#like-btn-gradient)" : "none"}
+                                        stroke={isLiked ? "#7c3aed" : "#6b7280"}
                                         strokeWidth="1.8"
                                     >
+                                        <defs>
+                                            <linearGradient id="like-btn-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="50%" stopColor="#7c3aed" />
+                                                <stop offset="50%" stopColor="#0891b2" />
+                                            </linearGradient>
+                                        </defs>
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"

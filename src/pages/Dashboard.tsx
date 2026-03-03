@@ -83,6 +83,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<'global' | 'following'>('global');
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
   const [pendingInvites, setPendingInvites] = useState<any[]>([]);
+  const [acceptingIds, setAcceptingIds] = useState<Set<string>>(new Set());
   const [followedPosts, setFollowedPosts] = useState<Post[]>([]);
   const [loadingFollowing, setLoadingFollowing] = useState(false);
 
@@ -114,11 +115,18 @@ export default function Dashboard() {
   };
 
   const handleAccept = async (connectionId: string) => {
+    setAcceptingIds(prev => new Set(prev).add(connectionId));
     try {
       await acceptConnection(connectionId);
       setPendingInvites(prev => prev.filter(i => i.connection_id !== connectionId));
     } catch (err) {
       console.error("Failed to accept", err);
+    } finally {
+      setAcceptingIds(prev => {
+        const next = new Set(prev);
+        next.delete(connectionId);
+        return next;
+      });
     }
   };
 
@@ -481,9 +489,21 @@ export default function Dashboard() {
                     </div>
                     <button
                       onClick={() => handleAccept(invite.connection_id)}
-                      className="bg-white border border-black/20 hover:bg-green-100 text-xs px-2 py-1 rounded font-bold text-green-700 shadow-sm"
+                      disabled={acceptingIds.has(invite.connection_id)}
+                      className={`text-xs px-2 py-1 rounded font-bold shadow-sm flex items-center gap-1 ${acceptingIds.has(invite.connection_id)
+                          ? 'bg-green-50 border border-green-300 text-green-500 cursor-wait'
+                          : 'bg-white border border-black/20 hover:bg-green-100 text-green-700'
+                        }`}
                     >
-                      Accept
+                      {acceptingIds.has(invite.connection_id) ? (
+                        <>
+                          <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          
+                        </>
+                      ) : 'Accept'}
                     </button>
                   </div>
                 ))
