@@ -15,6 +15,7 @@ interface UserSearchModalProps {
     onClose: () => void;
 }
 
+
 type ConnectionStatus = "none" | "connected" | "pending" | "self";
 
 interface SearchResult {
