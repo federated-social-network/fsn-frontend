@@ -281,3 +281,4 @@ const Hands = ({ isPasswordFocused, showPassword }: any) => {
         </g>
     );
 };
+
