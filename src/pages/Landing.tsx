@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { INSTANCES } from "../config/instances";
 import SketchCard from "../components/SketchCard";
 import { motion } from "framer-motion";
 import { FiGlobe, FiCode, FiShield, FiShare2 } from "react-icons/fi";
+import { getToken } from "../utils/tokenStorage";
 /**
  * Landing page component.
  * Displays the hero section, features, testimonials, and allows users to choose an instance.
@@ -11,6 +13,16 @@ import { FiGlobe, FiCode, FiShield, FiShare2 } from "react-icons/fi";
  */
 export default function Landing() {
   const navigate = useNavigate();
+
+  // Auto-redirect to dashboard if already authenticated
+  useEffect(() => {
+    const token = getToken();
+    const username = localStorage.getItem("username");
+    const instance = localStorage.getItem("INSTANCE_BASE_URL");
+    if (token && username && instance) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
 
   const chooseInstance = (url: string) => {
     localStorage.setItem("INSTANCE_BASE_URL", url);
@@ -318,13 +330,13 @@ export default function Landing() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
               <img
-                  src="/logo.png"
-                  alt="HeliiX"
-                  className="w-10 h-10 sm:w-10 sm:h-10 -my-3 object-contain drop-shadow-sm"
-                  />
-                  <span className="text-xl sm:text-2xl font-normal tracking-wide text-gray-900" style={{ fontFamily: 'var(--font-brand)' }}>
-                  Helii<span style={{ background: 'linear-gradient(135deg, #7c3aed 50%, #0891b2 50%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>X</span>
-                  </span>
+                src="/logo.png"
+                alt="HeliiX"
+                className="w-10 h-10 sm:w-10 sm:h-10 -my-3 object-contain drop-shadow-sm"
+              />
+              <span className="text-xl sm:text-2xl font-normal tracking-wide text-gray-900" style={{ fontFamily: 'var(--font-brand)' }}>
+                Helii<span style={{ background: 'linear-gradient(135deg, #7c3aed 50%, #0891b2 50%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>X</span>
+              </span>
             </div>
             <p className="text-gray-400 max-w-sm">
               A decentralized social network built for people, not advertisers. Join the fediverse today.

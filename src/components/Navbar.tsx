@@ -4,6 +4,7 @@ import { getInstanceName } from "../config/instances";
 import { useState, useEffect } from "react";
 import ConfirmationModal from "./ConfirmationModal";
 import { getUser } from "../api/api";
+import { removeToken } from "../utils/tokenStorage";
 import { FiLogOut, FiUser } from "react-icons/fi";
 
 /**
@@ -35,8 +36,7 @@ export default function Navbar() {
     const performLogout = () => {
         localStorage.removeItem("username");
         localStorage.removeItem("password");
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("AUTH_TOKEN");
+        removeToken();
         window.location.href = "/";
     };
 

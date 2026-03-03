@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance } from "axios";
+import { getToken } from "../utils/tokenStorage";
 
 
 /**
@@ -25,8 +26,7 @@ export const getApi = (): AxiosInstance => {
   // Optional: request interceptor (for future JWT support)
   api.interceptors.request.use(
     (config) => {
-      // Support either key name so login can store `access_token` or `AUTH_TOKEN`.
-      const token = localStorage.getItem("AUTH_TOKEN") || localStorage.getItem("access_token");
+      const token = getToken();
       if (token) {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
@@ -170,9 +170,9 @@ export const getUser = async (username: string, token?: string) => {
   }
 
   // If a token is provided explicitly, send it on this request; otherwise
-  // the instance-level interceptor will add a token from localStorage.
+  // the instance-level interceptor will add a token from the cookie.
   const headers: Record<string, string> = {};
-  const authToken = token || localStorage.getItem("AUTH_TOKEN") || localStorage.getItem("access_token");
+  const authToken = token || getToken();
   if (authToken) {
     headers.Authorization = `Bearer ${authToken}`;
   }
