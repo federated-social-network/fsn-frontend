@@ -12,6 +12,7 @@ import UserSearchModal from "../components/UserSearchModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiSearch, FiRefreshCw, FiArrowUp, FiUsers, FiAlertTriangle } from "react-icons/fi";
 import ConfirmationModal from "../components/ConfirmationModal";
+import { removeToken } from "../utils/tokenStorage";
 
 
 
@@ -216,8 +217,7 @@ export default function Dashboard() {
   const performSwitchInstance = () => {
     if (!pendingInstanceUrl) return;
     // Clear auth tokens before switching instance
-    localStorage.removeItem("AUTH_TOKEN");
-    localStorage.removeItem("access_token");
+    removeToken();
     localStorage.removeItem("username");
     // Set the new instance URL
     localStorage.setItem("INSTANCE_BASE_URL", pendingInstanceUrl);

@@ -1,10 +1,22 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { INSTANCES } from "../config/instances";
 import { motion } from "framer-motion";
 import { FiGlobe, FiCode, FiShield, FiShare2, FiArrowRight } from "react-icons/fi";
+import { getToken } from "../utils/tokenStorage";
 
 export default function MobileLanding() {
     const navigate = useNavigate();
+
+    // Auto-redirect to dashboard if already authenticated
+    useEffect(() => {
+        const token = getToken();
+        const username = localStorage.getItem("username");
+        const instance = localStorage.getItem("INSTANCE_BASE_URL");
+        if (token && username && instance) {
+            navigate("/dashboard", { replace: true });
+        }
+    }, [navigate]);
 
     const chooseInstance = (url: string) => {
         localStorage.setItem("INSTANCE_BASE_URL", url);

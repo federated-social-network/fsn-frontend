@@ -4,6 +4,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 import { loginUser, registerUser, uploadAvatar } from "../api/api";
 import { getInstanceName } from "../config/instances";
+import { setToken, removeToken, getToken } from "../utils/tokenStorage";
 import SketchCard from "../components/SketchCard";
 import Mascot from "../components/Mascot";
 
@@ -44,6 +45,17 @@ const AuthPage = () => {
         setAvatarFile(null);
         setAvatarPreview(null);
     }, [isRegisterMode]);
+
+    // Auto-redirect to dashboard if already authenticated (login page only)
+    useEffect(() => {
+        if (isRegisterMode) return; // Don't redirect on register page
+        const token = getToken();
+        const storedUsername = localStorage.getItem("username");
+        const instance = localStorage.getItem("INSTANCE_BASE_URL");
+        if (token && storedUsername && instance) {
+            navigate("/dashboard", { replace: true });
+        }
+    }, [navigate, isRegisterMode]);
 
     // Validation Helpers
     const validateUsername = (u: string) => (!u || !u.trim() ? "Username is required" : null);
@@ -91,16 +103,14 @@ const AuthPage = () => {
                             const loginRes = await loginUser(trimmedUsername, password);
                             if (loginRes?.status === 200) {
                                 const data = loginRes.data || loginRes;
-                                localStorage.setItem("access_token", data.access_token);
-                                localStorage.setItem("AUTH_TOKEN", data.access_token);
+                                setToken(data.access_token);
                                 await uploadAvatar(avatarFile);
                             }
                         } catch (avatarErr) {
                             console.error("Avatar upload failed:", avatarErr);
                         } finally {
                             // Clear auth state — user should log in manually
-                            localStorage.removeItem("access_token");
-                            localStorage.removeItem("AUTH_TOKEN");
+                            removeToken();
                             localStorage.removeItem("username");
                         }
                     }
@@ -116,8 +126,7 @@ const AuthPage = () => {
                     const data = res.data || res;
                     localStorage.setItem("username", trimmedUsername);
                     if (data?.access_token) {
-                        localStorage.setItem("access_token", data.access_token);
-                        localStorage.setItem("AUTH_TOKEN", data.access_token);
+                        setToken(data.access_token);
                     }
                     navigate("/dashboard");
                 } else {

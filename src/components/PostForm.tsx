@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { createPost, completePost, elaboratePost, getUser, moderateImage } from "../api/api";
+import { getToken } from "../utils/tokenStorage";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiMic, FiMicOff, FiGlobe, FiUsers } from 'react-icons/fi';
 
@@ -257,7 +258,7 @@ const PostModal = ({
   const handlePost = async () => {
     setError("");
 
-    const token = localStorage.getItem("AUTH_TOKEN") || localStorage.getItem("access_token");
+    const token = getToken();
     if (!username || !token) {
       setError("Log in to post!");
       return;
