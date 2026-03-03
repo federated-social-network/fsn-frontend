@@ -299,7 +299,7 @@ export default function Dashboard() {
                               ) : (
                                 <button
                                   onClick={(e) => handleConnect(e, u.username)}
-                                  className="text-[11px] font-bold px-2.5 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all border-none font-hand shadow-sm"
+                                  className="text-[11px] font-bold px-2.5 py-1 rounded-md bg-blue-800 text-white hover:bg-blue-900 active:scale-95 transition-all border-none font-hand shadow-sm"
                                 >
                                   Connect+
                                 </button>
