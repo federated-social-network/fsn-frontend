@@ -34,6 +34,7 @@ export default function Profile() {
 
   // Edit mode state
   const [editMode, setEditMode] = useState(false);
+  const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const [form, setForm] = useState({ display_name: "", bio: "", email: "" });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -254,6 +255,65 @@ export default function Profile() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
+
+      {/* ─── Avatar Lightbox (top-level so fixed covers full screen) ─── */}
+      <AnimatePresence>
+        {showAvatarPopup && (
+          <motion.div
+            key="avatar-popup-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md"
+            onClick={() => setShowAvatarPopup(false)}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setShowAvatarPopup(false)}
+              className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-xl transition-colors z-10"
+              aria-label="Close"
+            >
+              <FiX />
+            </button>
+
+            {/* Circular image */}
+            <motion.div
+              key="avatar-popup-img"
+              initial={{ scale: 0.4, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.4, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+              className="w-64 h-64 sm:w-80 sm:h-80 rounded-full overflow-hidden border-4 border-white shadow-2xl"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+            >
+              {user?.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt="Profile picture"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] flex items-center justify-center text-white text-8xl font-sketch">
+                  {(user?.username || username)[0].toUpperCase()}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Username label below circle */}
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: 0.1 }}
+              className="absolute bottom-12 font-hand text-white text-xl drop-shadow"
+            >
+              @{parseUsername(user?.username || "").username || username}
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Mobile: Back button at very top */}
       <div className="md:hidden shrink-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-200 px-4 py-3">
         <Link to="/dashboard" className="font-hand text-lg hover:text-[var(--primary)] transition-colors inline-flex items-center gap-2">
@@ -397,7 +457,10 @@ export default function Profile() {
             {/* Avatar & Name - Instagram Style on Mobile */}
             <div className="flex flex-row md:flex-col items-center md:items-center gap-4 md:gap-0 md:text-center relative">
               {/* Avatar */}
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[3px] sm:p-1 shadow-xl md:mb-4 shrink-0 group/avatar">
+              <div
+                className={`relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[3px] sm:p-1 shadow-xl md:mb-4 shrink-0 group/avatar ${!editMode ? 'cursor-pointer' : ''}`}
+                onClick={() => { if (!editMode) setShowAvatarPopup(true); }}
+              >
                 {editMode && avatarPreview ? (
                   <img src={avatarPreview} alt="avatar preview" className="w-full h-full object-cover rounded-full bg-white" />
                 ) : (
@@ -408,6 +471,15 @@ export default function Profile() {
                       {(user?.username || username)[0].toUpperCase()}
                     </div>
                   )
+                )}
+                {/* View icon hint on hover (non-edit mode) */}
+                {!editMode && (
+                  <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/0 group-hover/avatar:bg-black/30 transition-all duration-200 z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="text-white text-xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 drop-shadow-lg w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </div>
                 )}
                 {editMode && (
                   <label className="absolute inset-0 rounded-full cursor-pointer flex items-center justify-center bg-black/0 group-hover/avatar:bg-black/40 transition-all duration-200 z-10">
@@ -434,6 +506,8 @@ export default function Profile() {
                   </label>
                 )}
               </div>
+
+
 
               {/* Name & Handle - Right of avatar on mobile, Below on desktop */}
               <div className="flex-1 md:flex-none text-left md:text-center min-w-0">
