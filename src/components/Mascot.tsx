@@ -11,6 +11,7 @@ interface MascotProps {
     showPassword?: boolean;
 }
 
+
 /**
  * An interactive Mascot component that reacts to mouse movement and password field state.
  * It features a hand-drawn sketch style with animated facial expressions.
