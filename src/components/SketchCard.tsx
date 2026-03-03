@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 /**
  * Props for the SketchCard component.
@@ -9,6 +9,8 @@ interface SketchCardProps {
     children: ReactNode;
     /** Additional CSS classes. */
     className?: string;
+    /** Inline styles applied to the card element. */
+    style?: CSSProperties;
     /** The visual variant of the card (paper, sticky note, or polaroid). */
     variant?: "paper" | "sticky" | "polaroid";
     /** Rotation angle (not currently used for visuals, kept for API compatibility). */
@@ -31,6 +33,7 @@ interface SketchCardProps {
 export default function SketchCard({
     children,
     className = "",
+    style,
     variant = "paper",
     taped = false,
     pinned = false,
@@ -65,7 +68,7 @@ export default function SketchCard({
             className={`${baseClasses}`}
             initial={{ rotate: 0 }}
             whileHover={{ scale: 1.005 }}
-            style={variant === 'sticky' ? { borderRadius: '4px' } : {}}
+            style={variant === 'sticky' ? { borderRadius: '4px', ...style } : style}
         >
             {/* Tape effect - Made straight and simpler */}
             {showTape && !pinned && (

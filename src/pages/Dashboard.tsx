@@ -236,7 +236,7 @@ export default function Dashboard() {
 
         {/* --- LEFT SIDEBAR: Available Users --- */}
         <aside className="md:col-span-3 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-6">
-          <div className="relative rounded-xl border-2 border-black overflow-hidden" style={{ backgroundColor: '#fef9c3' }}>
+          <div className="relative rounded-xl border-2 border-black overflow-hidden bg-[var(--pastel-blue)]">
 
             {/* Header */}
             <div className="px-4 pt-4 pb-3 flex items-center justify-between border-b-2 border-black/10">
@@ -496,7 +496,7 @@ export default function Dashboard() {
           </SketchCard>
 
           {/* Available Instances - New Card */}
-          <SketchCard variant="paper" className="p-4 bg-[var(--pastel-blue)]">
+          <SketchCard variant="paper" className="p-4" style={{ backgroundColor: '#fef9c3' }}>
             <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Available Instances</h3>
             <div className="space-y-3">
               {INSTANCES.map((inst, index) => {
