@@ -9,6 +9,7 @@ import MobileNavbar from "./components/MobileNavbar";
 import NetworkMobilePage from "./pages/NetworkMobilePage";
 import CreatePostMobilePage from "./pages/CreatePostMobilePage";
 import SearchMobilePage from "./pages/SearchMobilePage";
+import CreateCommunityDocs from "./pages/CreateCommunityDocs";
 
 /**
  * Layout mapping to include MobileNavbar on authenticated routes.
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/auth/register" element={<AuthPage />} />
         <Route path="/auth/login" element={<AuthPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/docs/create-community" element={<CreateCommunityDocs />} />
 
         {/* Routes with Mobile Bottom Navbar */}
         <Route element={<AuthenticatedLayout />}>

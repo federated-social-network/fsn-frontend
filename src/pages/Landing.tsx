@@ -208,29 +208,51 @@ export default function Landing() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 w-full px-4">
 
-            {INSTANCES.map((inst, index) => (
-              <div onClick={() => chooseInstance(inst.url)} key={index} className="h-full">
-                <SketchCard
-                  variant="paper"
-                  className={`h-full flex flex-col justify-between cursor-pointer transition-transform hover:-translate-y-2 active:scale-[0.98] ${inst.color} border-2 border-black`}
-                >
-                  <div className="p-6 sm:p-8 flex flex-col h-full">
-                    <div className="flex justify-between items-start mb-4">
-                      <h2 className="text-2xl sm:text-3xl font-bold font-sketch">{inst.name}</h2>
-                      <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-black ${inst.name.includes('A') ? 'bg-cyan-400' : 'bg-purple-400'}`} />
-                    </div>
-
-                    <p className="text-base sm:text-lg text-gray-800 font-hand flex-grow">
-                      {inst.description}
-                    </p>
-
-                    <button className="w-full py-2.5 sm:py-3 mt-6 border-2 border-black bg-white hover:bg-black hover:text-white transition-colors font-bold text-lg font-sketch rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-x-0 hover:translate-x-[2px] hover:translate-y-[2px]">
-                      Join Now &rarr;
-                    </button>
+            {/* Social Community Card */}
+            <div onClick={() => chooseInstance(INSTANCES[0].url)} className="h-full">
+              <SketchCard
+                variant="paper"
+                className={`h-full flex flex-col justify-between cursor-pointer transition-transform hover:-translate-y-2 active:scale-[0.98] ${INSTANCES[0].color} border-2 border-black`}
+              >
+                <div className="p-6 sm:p-8 flex flex-col h-full">
+                  <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold font-sketch">{INSTANCES[0].name}</h2>
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-black bg-cyan-400" />
                   </div>
-                </SketchCard>
-              </div>
-            ))}
+
+                  <p className="text-base sm:text-lg text-gray-800 font-hand flex-grow">
+                    {INSTANCES[0].description}
+                  </p>
+
+                  <button className="w-full py-2.5 sm:py-3 mt-6 border-2 border-black bg-white hover:bg-black hover:text-white transition-colors font-bold text-lg font-sketch rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-x-0 hover:translate-x-[2px] hover:translate-y-[2px]">
+                    Join Now &rarr;
+                  </button>
+                </div>
+              </SketchCard>
+            </div>
+
+            {/* Create Your Own Community Card */}
+            <div onClick={() => navigate("/docs/create-community")} className="h-full">
+              <SketchCard
+                variant="paper"
+                className="h-full flex flex-col justify-between cursor-pointer transition-transform hover:-translate-y-2 active:scale-[0.98] bg-purple-100 border-purple-300 border-2 border-black"
+              >
+                <div className="p-6 sm:p-8 flex flex-col h-full">
+                  <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold font-sketch">Create Your Own</h2>
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-black bg-purple-400" />
+                  </div>
+
+                  <p className="text-base sm:text-lg text-gray-800 font-hand flex-grow">
+                    Deploy your own community instance. Full control over your data, your rules, your community.
+                  </p>
+
+                  <button className="w-full py-2.5 sm:py-3 mt-6 border-2 border-black bg-white hover:bg-black hover:text-white transition-colors font-bold text-lg font-sketch rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-x-0 hover:translate-x-[2px] hover:translate-y-[2px]">
+                    Create Your Own Community &rarr;
+                  </button>
+                </div>
+              </SketchCard>
+            </div>
 
           </div>
 

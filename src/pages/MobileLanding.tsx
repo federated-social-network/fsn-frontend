@@ -64,33 +64,51 @@ export default function MobileLanding() {
             {/* Instances / Servers */}
             <section className="px-6 py-12">
                 <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Choose a Server</h2>
-                    <p className="text-gray-500 text-sm">Select a community to join and start connecting.</p>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Join a Community</h2>
+                    <p className="text-gray-500 text-sm">Connect, share, and discover with others.</p>
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    {INSTANCES.map((inst, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 }}
-                            onClick={() => chooseInstance(inst.url)}
-                            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
-                        >
-                            <div className="flex justify-between items-center mb-1">
-                                <h3 className="text-xl font-bold text-gray-900">{inst.name}</h3>
-                                <div className={`w-3 h-3 rounded-full ${inst.name.includes('A') ? 'bg-cyan-500' : 'bg-purple-500'}`} />
-                            </div>
-                            <p className="text-gray-600 text-sm leading-relaxed mb-2">
-                                {inst.description}
-                            </p>
-                            <div className="flex items-center text-blue-600 font-semibold text-sm">
-                                Join {inst.name} <FiArrowRight strokeWidth={2.5} className="ml-1.5" />
-                            </div>
-                        </motion.div>
-                    ))}
+                    {/* Social Community Card */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        onClick={() => chooseInstance(INSTANCES[0].url)}
+                        className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
+                    >
+                        <div className="flex justify-between items-center mb-1">
+                            <h3 className="text-xl font-bold text-gray-900">{INSTANCES[0].name}</h3>
+                            <div className="w-3 h-3 rounded-full bg-cyan-500" />
+                        </div>
+                        <p className="text-gray-600 text-sm leading-relaxed mb-2">
+                            {INSTANCES[0].description}
+                        </p>
+                        <div className="flex items-center text-blue-600 font-semibold text-sm">
+                            Join {INSTANCES[0].name} <FiArrowRight strokeWidth={2.5} className="ml-1.5" />
+                        </div>
+                    </motion.div>
+
+                    {/* Create Your Own Community */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 }}
+                        onClick={() => navigate("/docs/create-community")}
+                        className="bg-purple-50 rounded-2xl p-6 shadow-sm border border-purple-100 flex flex-col gap-4 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
+                    >
+                        <div className="flex justify-between items-center mb-1">
+                            <h3 className="text-xl font-bold text-gray-900">Create Your Own</h3>
+                            <div className="w-3 h-3 rounded-full bg-purple-500" />
+                        </div>
+                        <p className="text-gray-600 text-sm leading-relaxed mb-2">
+                            Deploy your own community instance. Full control over your data, your rules.
+                        </p>
+                        <div className="flex items-center text-purple-600 font-semibold text-sm">
+                            Create Your Own Community <FiArrowRight strokeWidth={2.5} className="ml-1.5" />
+                        </div>
+                    </motion.div>
                 </div>
             </section>
 

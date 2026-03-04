@@ -3,16 +3,10 @@
  */
 export const INSTANCES = [
     {
-        name: "Instance A",
+        name: "Social Community",
         url: "https://instance-a-1094866630955.us-central1.run.app",
         color: "bg-cyan-100 border-cyan-300",
-        description: "General community instance for everyone."
-    },
-    {
-        name: "Instance B",
-        url: "https://instance-b-1094866630955.us-central1.run.app",
-        color: "bg-purple-100 border-purple-300",
-        description: "Alternate community instance with unique features."
+        description: "The default HeliiX social community — connect, share, and discover."
     }
 ];
 

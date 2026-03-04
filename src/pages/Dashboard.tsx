@@ -491,8 +491,8 @@ export default function Dashboard() {
                       onClick={() => handleAccept(invite.connection_id)}
                       disabled={acceptingIds.has(invite.connection_id)}
                       className={`text-xs px-2 py-1 rounded font-bold shadow-sm flex items-center gap-1 ${acceptingIds.has(invite.connection_id)
-                          ? 'bg-green-50 border border-green-300 text-green-500 cursor-wait'
-                          : 'bg-white border border-black/20 hover:bg-green-100 text-green-700'
+                        ? 'bg-green-50 border border-green-300 text-green-500 cursor-wait'
+                        : 'bg-white border border-black/20 hover:bg-green-100 text-green-700'
                         }`}
                     >
                       {acceptingIds.has(invite.connection_id) ? (
@@ -501,7 +501,7 @@ export default function Dashboard() {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                           </svg>
-                          
+
                         </>
                       ) : 'Accept'}
                     </button>
@@ -515,14 +515,12 @@ export default function Dashboard() {
             </div>
           </SketchCard>
 
-          {/* Available Instances - New Card */}
+          {/* Explore Communities */}
           <SketchCard variant="paper" className="p-4" style={{ backgroundColor: '#fef9c3' }}>
-            <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Available Instances</h3>
+            <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Explore Communities</h3>
             <div className="space-y-3">
               {INSTANCES.map((inst, index) => {
                 const currentUrl = localStorage.getItem("INSTANCE_BASE_URL");
-                // flexible check: match exact string or if current is null/empty assume A (if on A) or simply check if currentUrl contains the instance domain
-                // For safety, let's normalize by removing trailing slash
                 const normalize = (u: string | null) => u?.replace(/\/$/, "") || "";
                 const isCurrent = normalize(currentUrl) === normalize(inst.url);
 
@@ -532,13 +530,14 @@ export default function Dashboard() {
                       <div className="font-bold font-sketch text-md">{inst.name}</div>
                       {isCurrent && <span className="text-[10px] font-bold bg-black/10 px-1.5 rounded-full text-black/60">CURRENT</span>}
                     </div>
+                    <p className="text-xs text-gray-600 font-hand mt-1">{inst.description}</p>
 
                     {!isCurrent ? (
                       <button
                         onClick={() => handleSwitchInstance(inst.url)}
                         className="mt-2 text-xs bg-white border border-black/20 hover:bg-black/5 py-1 px-2 rounded font-bold self-start"
                       >
-                        Switch to Instance
+                        Switch to Community
                       </button>
                     ) : (
                       <div className="mt-2 text-xs font-bold text-gray-400 select-none">
@@ -548,6 +547,18 @@ export default function Dashboard() {
                   </div>
                 );
               })}
+
+              {/* Create Your Own Link */}
+              <a
+                href="/docs/create-community"
+                className="flex items-center gap-2 p-3 rounded-lg border border-dashed border-purple-300 bg-purple-50/50 hover:bg-purple-100/60 transition-colors cursor-pointer group"
+              >
+                <div className="w-8 h-8 rounded-full bg-purple-200 flex items-center justify-center text-purple-700 text-lg font-bold group-hover:scale-110 transition-transform">+</div>
+                <div>
+                  <div className="font-bold font-sketch text-sm text-purple-800">Create Your Own</div>
+                  <div className="text-[10px] text-purple-600 font-hand">Deploy &amp; self-host a community</div>
+                </div>
+              </a>
             </div>
           </SketchCard>
 
