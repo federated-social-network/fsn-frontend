@@ -41,7 +41,7 @@ export default function App() {
         <Route path="/auth/login" element={<AuthPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/docs/create-community" element={<CreateCommunityDocs />} />
-        <Route path="/docs" element={<DocumentationPage />} />
+        <Route path="/documentation" element={<DocumentationPage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsOfServicePage />} />
 
