@@ -58,6 +58,7 @@ export default function PostCard({ post: p }: PostCardProps) {
     const avatarUrl = (p as any).avatar_url;
     const imageUrl = (p as any).image_url;
     const content = p.content || "";
+    const likedByAvatars: string[] = (p as any).liked_by || [];
 
 
 
@@ -389,7 +390,7 @@ export default function PostCard({ post: p }: PostCardProps) {
 
                 {/* ── Footer / Engagement bar ── */}
                 <div className="px-4 py-2.5 border-t border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         {!isExternal && (
                             <button
                                 onClick={handleLikeToggle}
@@ -437,6 +438,42 @@ export default function PostCard({ post: p }: PostCardProps) {
                             </button>
                         )}
                     </div>
+
+                    {/* ── Liked-by avatar circles (right corner) ── */}
+                    {likedByAvatars.length > 0 && (
+                        <div className="flex items-center">
+                            {likedByAvatars.slice(0, 5).map((url, i) => (
+                                <div
+                                    key={i}
+                                    className="relative"
+                                    style={{ marginLeft: i === 0 ? 0 : -6, zIndex: 5 - i }}
+                                >
+                                    <div className="w-7 h-7 rounded-full border-2 border-white shadow-sm overflow-hidden bg-gray-100">
+                                        <img
+                                            src={url}
+                                            alt=""
+                                            className="w-full h-full object-cover"
+                                            loading="lazy"
+                                        />
+                                    </div>
+                                    {/* Tiny heart badge */}
+                                    <div
+                                        className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-sm"
+                                        style={{ background: 'linear-gradient(135deg, #7c3aed, #0891b2)' }}
+                                    >
+                                        <svg viewBox="0 0 24 24" className="w-2 h-2" fill="white">
+                                            <path d={heartPath} />
+                                        </svg>
+                                    </div>
+                                </div>
+                            ))}
+                            {likeCount > likedByAvatars.length && (
+                                <span className="text-[11px] font-semibold text-gray-500 ml-1.5">
+                                    +{likeCount - likedByAvatars.length}
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </motion.div >
