@@ -377,9 +377,9 @@ export default function Landing() {
           <div>
             <h3 className="text-xl font-bold mb-4 text-gray-300">Resources</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white hover:underline decoration-wavy">Documentation</a></li>
-              <li><a href="#" className="hover:text-white hover:underline decoration-wavy">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white hover:underline decoration-wavy">Terms of Service</a></li>
+              <li><a href="/docs" className="hover:text-white hover:underline decoration-wavy">Documentation</a></li>
+              <li><a href="/privacy" className="hover:text-white hover:underline decoration-wavy">Privacy Policy</a></li>
+              <li><a href="/terms" className="hover:text-white hover:underline decoration-wavy">Terms of Service</a></li>
             </ul>
           </div>
         </div>
