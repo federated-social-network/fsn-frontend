@@ -5,7 +5,18 @@
  */
 export function timeAgo(input?: string | Date | number | null): string {
   if (!input) return "unknown";
-  const date = typeof input === 'string' || typeof input === 'number' ? new Date(input) : input;
+
+  let dateInput = input;
+  if (typeof dateInput === 'string') {
+    if (dateInput.includes(' ')) {
+      dateInput = dateInput.replace(' ', 'T');
+    }
+    if (dateInput.includes('T') && !dateInput.endsWith('Z') && !dateInput.match(/[+-]\d{2}(:\d{2})?$/)) {
+      dateInput += 'Z';
+    }
+  }
+
+  const date = typeof dateInput === 'string' || typeof dateInput === 'number' ? new Date(dateInput) : dateInput;
   if (isNaN(date.getTime())) return "unknown";
 
   const now = new Date();

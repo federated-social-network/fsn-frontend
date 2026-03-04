@@ -221,6 +221,34 @@ export const deletePost = (postId: string | number) => {
 };
 
 /**
+ * Creates a comment on a post.
+ * @param {string} postId - The ID of the post to comment on.
+ * @param {string} content - The content of the comment.
+ * @returns {Promise<import("axios").AxiosResponse<any>>} The server response.
+ */
+export const createComment = (postId: string, content: string) => {
+  return getApi().post(`/${postId}/comments`, { content });
+};
+
+/**
+ * Fetches all comments for a post.
+ * @param {string} postId - The ID of the post.
+ * @returns {Promise<import("axios").AxiosResponse<any>>} The server response containing the comments.
+ */
+export const getComments = (postId: string) => {
+  return getApi().get(`/${postId}/comments`);
+};
+
+/**
+ * Deletes a comment.
+ * @param {string} commentId - The ID of the comment to delete.
+ * @returns {Promise<import("axios").AxiosResponse<any>>} The server response.
+ */
+export const deleteComment = (commentId: string) => {
+  return getApi().delete(`/comments/${commentId}`);
+};
+
+/**
  * Fetches a list of users.
  * @returns {Promise<import("axios").AxiosResponse<any>>} The server response containing the list of users.
  */

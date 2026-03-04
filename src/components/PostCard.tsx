@@ -4,7 +4,10 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseUsername } from "../utils/user";
 import { timeAgo } from "../utils/time";
+import { useLikeStore } from "../store/useLikeStore";
 import { likePost, unlikePost } from "../api/api";
+import { FaRegComment } from "react-icons/fa6";
+import CommentSection from "./CommentSection";
 
 interface PostCardProps {
     post: any;
@@ -35,16 +38,20 @@ const setLikedSet = (s: Set<string>) => {
 export default function PostCard({ post: p }: PostCardProps) {
     const [expanded, setExpanded] = useState(false);
     const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [showComments, setShowComments] = useState(false);
     const [isClamped, setIsClamped] = useState(false);
+    const [commentCount, setCommentCount] = useState<number>(p.comment_count ?? 0);
     const contentRef = useRef<HTMLParagraphElement>(null);
 
-    // Like state — server truth wins when present, otherwise fall back to local cache
-    const [isLiked, setIsLiked] = useState<boolean>(() => {
-        if (p.is_liked === true) return true;
-        if (p.is_liked === false) return false;
-        return getLikedSet().has(p.id);
-    });
-    const [likeCount, setLikeCount] = useState<number>(p.like_count ?? 0);
+    const storeLikeCount = useLikeStore(state => state.likes[p.id]);
+    const storeIsLiked = useLikeStore(state => state.isLiked[p.id]);
+    const setLikeData = useLikeStore(state => state.setLikeData);
+
+    const initialLiked = storeIsLiked !== undefined ? storeIsLiked : (p.is_liked === true ? true : (p.is_liked === false ? false : getLikedSet().has(p.id)));
+    const initialLikeCount = storeLikeCount !== undefined ? storeLikeCount : Number(p.like_count || 0);
+
+    const [isLiked, setIsLiked] = useState<boolean>(initialLiked);
+    const [likeCount, setLikeCount] = useState<number>(initialLikeCount);
     const [likeLoading, setLikeLoading] = useState(false);
 
     // Double-tap heart animation state
@@ -64,13 +71,19 @@ export default function PostCard({ post: p }: PostCardProps) {
 
     // Sync when props change — prefer server value, fallback to cache if undefined
     useEffect(() => {
-        if (p.is_liked === true || p.is_liked === false) {
-            setIsLiked(p.is_liked);
-        } else {
-            setIsLiked(getLikedSet().has(p.id));
+        if (storeIsLiked !== undefined && storeLikeCount !== undefined) {
+            setIsLiked(storeIsLiked);
+            setLikeCount(storeLikeCount);
+            return;
         }
-        setLikeCount(p.like_count ?? 0);
-    }, [p.id, p.is_liked, p.like_count]);
+
+        const serverLiked = p.is_liked === true ? true : (p.is_liked === false ? false : getLikedSet().has(p.id));
+        const serverCount = Number(p.like_count || 0);
+
+        setIsLiked(serverLiked);
+        setLikeCount(serverCount);
+        setLikeData(p.id, serverCount, serverLiked);
+    }, [p.id, p.is_liked, p.like_count, storeIsLiked, storeLikeCount, setLikeData]);
 
     // Detect if text overflows 3 lines
     useEffect(() => {
@@ -93,7 +106,11 @@ export default function PostCard({ post: p }: PostCardProps) {
 
         setLikeLoading(true);
         setIsLiked(true);
-        setLikeCount((prev) => prev + 1);
+
+        const nextCount = Number(likeCount || 0) + 1;
+        setLikeCount(nextCount);
+        setLikeData(p.id, nextCount, true);
+
         const liked = getLikedSet();
         liked.add(p.id);
         setLikedSet(liked);
@@ -103,7 +120,11 @@ export default function PostCard({ post: p }: PostCardProps) {
         } catch (err: any) {
             console.error(`[PostCard] Like FAILED for post ${p.id}:`, err?.response?.data || err?.message || err);
             setIsLiked(false);
-            setLikeCount((prev) => Math.max(0, prev - 1));
+
+            const prevCount = Math.max(0, Number(likeCount || 0) - 1);
+            setLikeCount(prevCount);
+            setLikeData(p.id, prevCount, false);
+
             const revert = getLikedSet();
             revert.delete(p.id);
             setLikedSet(revert);
@@ -119,7 +140,12 @@ export default function PostCard({ post: p }: PostCardProps) {
         const wasLiked = isLiked;
 
         setIsLiked(!wasLiked);
-        setLikeCount((prev) => (wasLiked ? Math.max(0, prev - 1) : prev + 1));
+
+        const current = Number(likeCount || 0);
+        const nextCount = wasLiked ? Math.max(0, current - 1) : current + 1;
+        setLikeCount(nextCount);
+        setLikeData(p.id, nextCount, !wasLiked);
+
         const liked = getLikedSet();
         if (wasLiked) liked.delete(p.id); else liked.add(p.id);
         setLikedSet(liked);
@@ -133,7 +159,12 @@ export default function PostCard({ post: p }: PostCardProps) {
         } catch (err: any) {
             console.error(`[PostCard] Like toggle FAILED for post ${p.id}:`, err?.response?.data || err?.message || err);
             setIsLiked(wasLiked);
-            setLikeCount((prev) => (wasLiked ? prev + 1 : Math.max(0, prev - 1)));
+
+            const current = Number(likeCount || 0);
+            const revertCount = wasLiked ? current + 1 : Math.max(0, current - 1);
+            setLikeCount(revertCount);
+            setLikeData(p.id, revertCount, wasLiked);
+
             const revert = getLikedSet();
             if (wasLiked) revert.add(p.id); else revert.delete(p.id);
             setLikedSet(revert);
@@ -437,6 +468,18 @@ export default function PostCard({ post: p }: PostCardProps) {
                                 </span>
                             </button>
                         )}
+                        {!isExternal && (
+                            <button
+                                onClick={() => setShowComments(!showComments)}
+                                className="flex items-center gap-1.5 transition-colors group cursor-pointer text-gray-500 hover:text-blue-600 outline-none focus:outline-none bg-transparent p-0 m-0 border-none shadow-none"
+                                title="Comment"
+                            >
+                                <FaRegComment className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                {commentCount > 0 && (
+                                    <span className="text-xs font-medium">{commentCount}</span>
+                                )}
+                            </button>
+                        )}
                     </div>
 
                     {/* ── Liked-by avatar circles (right corner) ── */}
@@ -475,6 +518,25 @@ export default function PostCard({ post: p }: PostCardProps) {
                         </div>
                     )}
                 </div>
+                {/* ── Comment Section ── */}
+                <AnimatePresence>
+                    {showComments && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                        >
+                            <CommentSection
+                                postId={p.id}
+                                postAuthorUsername={username}
+                                onCommentAdded={() => setCommentCount(prev => prev + 1)}
+                                onCommentDeleted={() => setCommentCount(prev => Math.max(0, prev - 1))}
+                                onCommentsFetched={(count) => setCommentCount(count)}
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </motion.div >
 
