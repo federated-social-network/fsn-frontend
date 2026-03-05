@@ -206,7 +206,7 @@ export const createPost = (
 
   return getApi().post("/posts", form, {
     params: { visibility },
-    headers: { "Content-Type": undefined }, // let axios auto-set multipart/form-data
+    headers: { "Content-Type": "multipart/form-data" }, // let axios auto-set multipart/form-data
     timeout: image ? 60000 : 30000, // 60s for image uploads, 30s otherwise
   });
 };
@@ -220,7 +220,7 @@ export const completePost = (content: string) => {
   const form = new FormData();
   form.append("content", content);
   return getApi().post("/post/completePost", form, {
-    headers: { "Content-Type": undefined }
+    headers: { "Content-Type": "multipart/form-data" }
   });
 };
 
@@ -233,7 +233,7 @@ export const moderateImage = (file: File) => {
   const form = new FormData();
   form.append("file", file);
   return getApi().post("/moderate-image", form, {
-    headers: { "Content-Type": undefined },
+    headers: { "Content-Type": "multipart/form-data" },
     timeout: 30000,
   });
 };
@@ -247,7 +247,7 @@ export const elaboratePost = (content: string) => {
   const form = new FormData();
   form.append("content", content);
   return getApi().post("/post/eloboratePost", form, {
-    headers: { "Content-Type": undefined }
+    headers: { "Content-Type": "multipart/form-data" }
   });
 };
 
@@ -314,7 +314,7 @@ export const uploadAvatar = (file: File) => {
   const form = new FormData();
   form.append("file", file);
   return getApi().post(`/users/avatar`, form, {
-    headers: { "Content-Type": undefined },
+    headers: { "Content-Type": "multipart/form-data" },
     timeout: 60000,
   });
 };
