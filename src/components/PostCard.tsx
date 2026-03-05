@@ -297,25 +297,25 @@ export default function PostCard({ post: p }: PostCardProps) {
                                 </div>
                             </Link>
                         )}
-                        <div className="min-w-0 flex-1 flex flex-col justify-center gap-0.5">
+                        <div className="min-w-0 flex-1">
                             {isExternal ? (
                                 <a
                                     href={isMastodon ? `https://mastodon.social/@${username}` : `https://pixelfed.social/${username}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="font-bold text-[15px] text-gray-900 hover:underline truncate leading-none"
+                                    className="font-bold text-[15px] text-gray-900 hover:underline truncate leading-snug border-b-0 block"
                                 >
                                     {p.display_name || username}
                                 </a>
                             ) : (
                                 <Link
                                     to={`/profile/${username}`}
-                                    className="font-bold text-[15px] text-gray-900 hover:underline truncate leading-none"
+                                    className="font-bold text-[15px] text-gray-900 hover:underline truncate leading-snug border-b-0 block"
                                 >
                                     {p.display_name || username}
                                 </Link>
                             )}
-                            <div className="flex items-center gap-1.5 text-[13px] text-gray-500 truncate leading-none">
+                            <div className="flex items-center gap-1.5 text-[13px] text-gray-500 truncate leading-snug mt-0.5 sm:mt-0">
                                 <span className="truncate">@{username}</span>
                                 <span className="flex-shrink-0">•</span>
                                 <span className="flex-shrink-0">{timeAgo(p.created_at)}</span>
@@ -487,21 +487,31 @@ export default function PostCard({ post: p }: PostCardProps) {
                                     transition={{ type: "spring", stiffness: 500, damping: 15 }}
                                 >
                                     <svg
-                                        className="w-5 h-5 group-hover:scale-110 transition-transform"
+                                        className="w-5 h-5 group-hover:scale-110 transition-transform relative"
                                         viewBox="0 0 24 24"
-                                        fill={isLiked ? "url(#like-btn-gradient)" : "none"}
-                                        stroke={isLiked ? "#7c3aed" : "#6b7280"}
-                                        strokeWidth="1.8"
                                     >
                                         <defs>
-                                            <linearGradient id="like-btn-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <linearGradient id={`like-btn-gradient-${p.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
                                                 <stop offset="50%" stopColor="#7c3aed" />
                                                 <stop offset="50%" stopColor="#0891b2" />
                                             </linearGradient>
                                         </defs>
+                                        {/* Outline always shown, colored if liked */}
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
+                                            stroke={(isLiked || (likeLoading && !isLiked)) ? "#7c3aed" : "#6b7280"}
+                                            strokeWidth="1.8"
+                                            fill="none"
+                                            d={heartPath}
+                                        />
+                                        {/* Filled inner - animated while loading, fully shown when liked & not loading */}
+                                        <path
+                                            className={`${(likeLoading && isLiked) ? "animate-paint-fill" : (likeLoading && !isLiked) ? "animate-paint-drain" : ""}`}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            stroke="none"
+                                            fill={(isLiked || (likeLoading && !isLiked)) ? `url(#like-btn-gradient-${p.id})` : "none"}
                                             d={heartPath}
                                         />
                                     </svg>
