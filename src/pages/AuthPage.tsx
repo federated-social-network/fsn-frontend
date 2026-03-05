@@ -4,7 +4,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 import { loginUser, registerUser, uploadAvatar } from "../api/api";
 import { getInstanceName } from "../config/instances";
-import { setToken, removeToken, getToken } from "../utils/tokenStorage";
+import { setToken, removeToken, getToken, setRefreshToken, removeRefreshToken } from "../utils/tokenStorage";
 import SketchCard from "../components/SketchCard";
 import Mascot from "../components/Mascot";
 
@@ -104,6 +104,7 @@ const AuthPage = () => {
                             if (loginRes?.status === 200) {
                                 const data = loginRes.data || loginRes;
                                 setToken(data.access_token);
+                                if (data.refresh_token) setRefreshToken(data.refresh_token);
                                 await uploadAvatar(avatarFile);
                             }
                         } catch (avatarErr) {
@@ -111,6 +112,7 @@ const AuthPage = () => {
                         } finally {
                             // Clear auth state — user should log in manually
                             removeToken();
+                            removeRefreshToken();
                             localStorage.removeItem("username");
                         }
                     }
@@ -127,6 +129,9 @@ const AuthPage = () => {
                     localStorage.setItem("username", trimmedUsername);
                     if (data?.access_token) {
                         setToken(data.access_token);
+                    }
+                    if (data?.refresh_token) {
+                        setRefreshToken(data.refresh_token);
                     }
                     navigate("/dashboard");
                 } else {

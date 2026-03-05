@@ -12,7 +12,7 @@ import UserSearchModal from "../components/UserSearchModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiSearch, FiRefreshCw, FiArrowUp, FiUsers, FiAlertTriangle } from "react-icons/fi";
 import ConfirmationModal from "../components/ConfirmationModal";
-import { removeToken } from "../utils/tokenStorage";
+import { removeToken, removeRefreshToken } from "../utils/tokenStorage";
 
 
 
@@ -215,6 +215,13 @@ export default function Dashboard() {
     mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Forward wheel events from sidebars to the center feed
+  const forwardWheelToFeed = (e: React.WheelEvent) => {
+    if (mainRef.current) {
+      mainRef.current.scrollTop += e.deltaY;
+    }
+  };
+
 
 
   const handleSwitchInstance = (url: string) => {
@@ -226,6 +233,7 @@ export default function Dashboard() {
     if (!pendingInstanceUrl) return;
     // Clear auth tokens before switching instance
     removeToken();
+    removeRefreshToken();
     localStorage.removeItem("username");
     // Set the new instance URL
     localStorage.setItem("INSTANCE_BASE_URL", pendingInstanceUrl);
@@ -243,7 +251,7 @@ export default function Dashboard() {
       <div className="flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 h-full">
 
         {/* --- LEFT SIDEBAR: Available Users --- */}
-        <aside className="md:col-span-3 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-6">
+        <aside className="md:col-span-3 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-6" onWheel={forwardWheelToFeed}>
           <div className="relative rounded-xl border-2 border-black overflow-hidden bg-[var(--pastel-blue)]">
 
             {/* Header */}
@@ -476,7 +484,7 @@ export default function Dashboard() {
 
 
         {/* --- RIGHT SIDEBAR: Info / Status --- */}
-        <aside className="md:col-span-3 hidden lg:block h-full overflow-y-auto p-4 no-scrollbar space-y-6">
+        <aside className="md:col-span-3 hidden lg:block h-full overflow-y-auto p-4 no-scrollbar space-y-6" onWheel={forwardWheelToFeed}>
           {/* Pending Invites */}
           <SketchCard variant="paper" className="p-4 bg-[var(--pastel-pink)]">
             <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Pending Invites</h3>

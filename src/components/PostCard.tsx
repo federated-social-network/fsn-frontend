@@ -45,7 +45,11 @@ export default function PostCard({ post: p }: PostCardProps) {
 
     const storeLikeCount = useLikeStore(state => state.likes[p.id]);
     const storeIsLiked = useLikeStore(state => state.isLiked[p.id]);
+    const storeLikedByAvatars = useLikeStore(state => state.likedByAvatars[p.id]);
     const setLikeData = useLikeStore(state => state.setLikeData);
+    const setLikedByAvatars = useLikeStore(state => state.setLikedByAvatars);
+    const addLikeAvatar = useLikeStore(state => state.addLikeAvatar);
+    const removeLikeAvatar = useLikeStore(state => state.removeLikeAvatar);
 
     const initialLiked = storeIsLiked !== undefined ? storeIsLiked : (p.is_liked === true ? true : (p.is_liked === false ? false : getLikedSet().has(p.id)));
     const initialLikeCount = storeLikeCount !== undefined ? storeLikeCount : Number(p.like_count || 0);
@@ -65,7 +69,11 @@ export default function PostCard({ post: p }: PostCardProps) {
     const avatarUrl = (p as any).avatar_url;
     const imageUrl = (p as any).image_url;
     const content = p.content || "";
-    const likedByAvatars: string[] = (p as any).liked_by || [];
+    const propLikedBy: string[] = (p as any).liked_by || [];
+    const likedByAvatars: string[] = storeLikedByAvatars ?? propLikedBy;
+
+    // Current user's avatar for optimistic updates
+    const myAvatarUrl = localStorage.getItem("user_avatar_url") || "";
 
 
 
@@ -84,6 +92,13 @@ export default function PostCard({ post: p }: PostCardProps) {
         setLikeCount(serverCount);
         setLikeData(p.id, serverCount, serverLiked);
     }, [p.id, p.is_liked, p.like_count, storeIsLiked, storeLikeCount, setLikeData]);
+
+    // Sync liked-by avatars from prop into store on mount / prop change
+    useEffect(() => {
+        if (storeLikedByAvatars === undefined && propLikedBy.length > 0) {
+            setLikedByAvatars(p.id, propLikedBy);
+        }
+    }, [p.id, propLikedBy, storeLikedByAvatars, setLikedByAvatars]);
 
     // Detect if text overflows 3 lines
     useEffect(() => {
@@ -111,6 +126,11 @@ export default function PostCard({ post: p }: PostCardProps) {
         setLikeCount(nextCount);
         setLikeData(p.id, nextCount, true);
 
+        // Optimistically add current user's avatar
+        if (myAvatarUrl) {
+            addLikeAvatar(p.id, myAvatarUrl);
+        }
+
         const liked = getLikedSet();
         liked.add(p.id);
         setLikedSet(liked);
@@ -124,6 +144,11 @@ export default function PostCard({ post: p }: PostCardProps) {
             const prevCount = Math.max(0, Number(likeCount || 0) - 1);
             setLikeCount(prevCount);
             setLikeData(p.id, prevCount, false);
+
+            // Revert avatar
+            if (myAvatarUrl) {
+                removeLikeAvatar(p.id, myAvatarUrl);
+            }
 
             const revert = getLikedSet();
             revert.delete(p.id);
@@ -144,6 +169,15 @@ export default function PostCard({ post: p }: PostCardProps) {
         const current = Number(likeCount || 0);
         const nextCount = wasLiked ? Math.max(0, current - 1) : current + 1;
         setLikeCount(nextCount);
+
+        // Optimistically update avatars
+        if (myAvatarUrl) {
+            if (wasLiked) {
+                removeLikeAvatar(p.id, myAvatarUrl);
+            } else {
+                addLikeAvatar(p.id, myAvatarUrl);
+            }
+        }
         setLikeData(p.id, nextCount, !wasLiked);
 
         const liked = getLikedSet();
@@ -164,6 +198,15 @@ export default function PostCard({ post: p }: PostCardProps) {
             const revertCount = wasLiked ? current + 1 : Math.max(0, current - 1);
             setLikeCount(revertCount);
             setLikeData(p.id, revertCount, wasLiked);
+
+            // Revert avatar change
+            if (myAvatarUrl) {
+                if (wasLiked) {
+                    addLikeAvatar(p.id, myAvatarUrl);
+                } else {
+                    removeLikeAvatar(p.id, myAvatarUrl);
+                }
+            }
 
             const revert = getLikedSet();
             if (wasLiked) revert.add(p.id); else revert.delete(p.id);

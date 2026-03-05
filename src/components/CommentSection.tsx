@@ -39,7 +39,10 @@ export default function CommentSection({ postId, postAuthorUsername, onCommentAd
             try {
                 const res = await getComments(postId);
                 // Reverse the array to show oldest comments first, newest at the bottom
-                const fetchedComments = res.data || [];
+                const fetchedComments = (res.data || []).map((c: any) => ({
+                    ...c,
+                    avatar_url: c.avatar_url || c.profile_url || "",
+                }));
                 setComments(fetchedComments.reverse());
                 if (onCommentsFetched) {
                     onCommentsFetched(fetchedComments.length);
@@ -69,7 +72,7 @@ export default function CommentSection({ postId, postAuthorUsername, onCommentAd
             content,
             user_id: "temp-user-id", // Not strictly needed for optimistic display, but good for type check
             post_id: postId,
-            avatar_url: "", // In a real app we'd have this from user context, but it's hard to get synchronously here
+            avatar_url: localStorage.getItem("user_avatar_url") || "",
             display_name: currentUser || "You",
             username: currentUser || "unknown",
             created_at: new Date().toISOString(),
@@ -216,9 +219,13 @@ export default function CommentSection({ postId, postAuthorUsername, onCommentAd
             {/* Input Area */}
             <div className="flex gap-3 items-center mt-2">
                 <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 overflow-hidden flex items-center justify-center">
-                    <span className="text-sm font-bold text-gray-500">
-                        {currentUser ? currentUser[0].toUpperCase() : "?"}
-                    </span>
+                    {localStorage.getItem("user_avatar_url") ? (
+                        <img src={localStorage.getItem("user_avatar_url")!} alt={currentUser || ""} className="w-full h-full object-cover" />
+                    ) : (
+                        <span className="text-sm font-bold text-gray-500">
+                            {currentUser ? currentUser[0].toUpperCase() : "?"}
+                        </span>
+                    )}
                 </div>
                 <div className="flex-1 relative">
                     <input

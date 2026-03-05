@@ -1,6 +1,27 @@
-import axios, { type AxiosInstance } from "axios";
-import { getToken } from "../utils/tokenStorage";
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from "axios";
+import { getToken, setToken, removeToken, getRefreshToken, setRefreshToken, removeRefreshToken } from "../utils/tokenStorage";
 
+
+// ─── Singleton API instance ─────────────────────────────────────────────────
+// Using a singleton avoids re-creating interceptors on every call.
+
+let _api: AxiosInstance | null = null;
+let _currentBaseURL: string | null = null;
+
+// Refresh-token state — shared across all requests so we only refresh once
+let _isRefreshing = false;
+let _refreshSubscribers: Array<(token: string) => void> = [];
+
+/** Notify queued requests that a fresh access token is available. */
+function onRefreshed(newToken: string) {
+  _refreshSubscribers.forEach((cb) => cb(newToken));
+  _refreshSubscribers = [];
+}
+
+/** Queue a request that arrived while a refresh was in-flight. */
+function subscribeTokenRefresh(cb: (token: string) => void) {
+  _refreshSubscribers.push(cb);
+}
 
 /**
  * Returns an axios instance bound to the selected backend instance.
@@ -13,7 +34,10 @@ export const getApi = (): AxiosInstance => {
     throw new Error("No instance selected. Please choose an instance first.");
   }
 
-
+  // Re-use existing instance if base URL hasn't changed
+  if (_api && _currentBaseURL === baseURL) {
+    return _api;
+  }
 
   const api = axios.create({
     baseURL,
@@ -23,7 +47,7 @@ export const getApi = (): AxiosInstance => {
     timeout: 30000,
   });
 
-  // Optional: request interceptor (for future JWT support)
+  // ── Request interceptor: attach access token ──
   api.interceptors.request.use(
     (config) => {
       const token = getToken();
@@ -36,19 +60,103 @@ export const getApi = (): AxiosInstance => {
     (error) => Promise.reject(error)
   );
 
-  // Optional: response interceptor (global error handling)
+  // ── Response interceptor: auto-refresh on 401 ──
   api.interceptors.response.use(
     (response) => response,
-    (error) => {
-      if (error.response?.status === 401) {
-        console.warn("Unauthorized  possible invalid login");
+    async (error) => {
+      const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+      // Only attempt refresh for 401 errors that haven't already been retried
+      // and are not themselves refresh/login requests
+      if (
+        error.response?.status === 401 &&
+        !originalRequest._retry &&
+        !originalRequest.url?.includes("/refresh") &&
+        !originalRequest.url?.includes("/auth/login")
+      ) {
+        const refreshToken = getRefreshToken();
+
+        if (!refreshToken) {
+          // No refresh token → force login
+          handleSessionExpired();
+          return Promise.reject(error);
+        }
+
+        if (_isRefreshing) {
+          // Another request is already refreshing — wait for it
+          return new Promise((resolve) => {
+            subscribeTokenRefresh((newToken: string) => {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              resolve(api(originalRequest));
+            });
+          });
+        }
+
+        // Start the refresh
+        originalRequest._retry = true;
+        _isRefreshing = true;
+
+        try {
+          const refreshRes = await axios.post(
+            `${baseURL}/refresh`,
+            {},
+            {
+              headers: { Authorization: `Bearer ${refreshToken}` },
+              timeout: 10000,
+            }
+          );
+
+          const data = refreshRes.data || {};
+          const newAccessToken = data.access_token;
+
+          if (!newAccessToken) {
+            throw new Error("No access_token in refresh response");
+          }
+
+          // Persist the new tokens
+          setToken(newAccessToken);
+          if (data.refresh_token) {
+            setRefreshToken(data.refresh_token);
+          }
+
+          // Retry the original request + all queued requests
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          onRefreshed(newAccessToken);
+          _isRefreshing = false;
+
+          return api(originalRequest);
+        } catch (refreshError) {
+          _isRefreshing = false;
+          _refreshSubscribers = [];
+          // Refresh failed → session is truly expired
+          handleSessionExpired();
+          return Promise.reject(refreshError);
+        }
       }
+
       return Promise.reject(error);
     }
   );
 
+  _api = api;
+  _currentBaseURL = baseURL;
   return api;
 };
+
+/**
+ * Clears all auth state and redirects to login.
+ * Called when both access and refresh tokens are invalid.
+ */
+function handleSessionExpired() {
+  removeToken();
+  removeRefreshToken();
+  localStorage.removeItem("username");
+  localStorage.removeItem("user_avatar_url");
+  // Only redirect if not already on an auth page
+  if (!window.location.pathname.startsWith("/auth")) {
+    window.location.href = "/auth/login";
+  }
+}
 
 
 // Convenience wrappers that use getApi() so callers don't need to create

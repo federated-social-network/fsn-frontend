@@ -4,7 +4,7 @@ import { getInstanceName } from "../config/instances";
 import { useState, useEffect } from "react";
 import ConfirmationModal from "./ConfirmationModal";
 import { getUser } from "../api/api";
-import { removeToken } from "../utils/tokenStorage";
+import { removeToken, removeRefreshToken } from "../utils/tokenStorage";
 import { FiLogOut, FiUser } from "react-icons/fi";
 
 /**
@@ -25,6 +25,9 @@ export default function Navbar() {
                 const data = res.data || {};
                 const url = data.avatar_url || data.profile_url || data.user?.avatar_url || data.user?.profile_url || null;
                 setAvatarUrl(url);
+                // Persist for optimistic like-avatar updates in PostCard
+                if (url) localStorage.setItem("user_avatar_url", url);
+                else localStorage.removeItem("user_avatar_url");
             })
             .catch(() => setAvatarUrl(null));
     }, [username]);
@@ -37,6 +40,7 @@ export default function Navbar() {
         localStorage.removeItem("username");
         localStorage.removeItem("password");
         removeToken();
+        removeRefreshToken();
         window.location.href = "/";
     };
 

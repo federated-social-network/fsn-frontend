@@ -73,6 +73,11 @@ export default function Profile() {
         }
         setUser(userData);
 
+        // Persist own avatar URL for optimistic like-avatar updates in PostCard
+        if (isOwnProfile && userData.avatar_url) {
+          localStorage.setItem("user_avatar_url", userData.avatar_url);
+        }
+
         // Map backend posts to frontend Post type
         // Backend returns: { id, content, created_at, ... }
         const userPosts: Post[] = (userData.posts || []).map((p: any) => ({
@@ -126,6 +131,11 @@ export default function Profile() {
       if (updatedFields.display_name != null) userData.display_name = updatedFields.display_name;
       if (updatedFields.bio != null) userData.bio = updatedFields.bio;
       setUser(userData);
+
+      // Persist updated avatar URL
+      if (userData.avatar_url) {
+        localStorage.setItem("user_avatar_url", userData.avatar_url);
+      }
       setAvatarFile(null);
       setAvatarPreview(null);
       setEditMode(false);
