@@ -3,10 +3,16 @@
  */
 export const INSTANCES = [
     {
-        name: "Social Community",
+        name: "Social Community (Cloud)",
         url: "https://instance-a-1094866630955.us-central1.run.app",
         color: "bg-cyan-100 border-cyan-300",
         description: "The default HeliiX social community — connect, share, and discover."
+    },
+    {
+        name: "Local Dev Backend",
+        url: "http://localhost:8000",
+        color: "bg-yellow-100 border-yellow-300",
+        description: "Your local FastAPI test environment."
     }
 ];
 

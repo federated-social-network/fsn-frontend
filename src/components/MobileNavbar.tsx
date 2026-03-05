@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { FiHome, FiUsers, FiPlusSquare, FiSearch, FiUser } from "react-icons/fi";
+import { FiHome, FiPlusSquare, FiSearch, FiUser, FiMessageSquare } from "react-icons/fi";
 
 export default function MobileNavbar() {
     const location = useLocation();
@@ -24,13 +24,13 @@ export default function MobileNavbar() {
                     <span className="text-[10px] mt-0.5 font-hand">Feed</span>
                 </Link>
 
-                {/* Network (Suggested / Pending) */}
+                {/* Chat */}
                 <Link
-                    to="/network"
-                    className={`flex flex-col items-center justify-center w-1/5 h-full transition-colors ${isActive("/network") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
+                    to="/chat"
+                    className={`flex flex-col items-center justify-center w-1/5 h-full transition-colors ${isActive("/chat") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
                 >
-                    <FiUsers className={`text-2xl ${isActive("/network") ? "fill-current" : ""}`} />
-                    <span className="text-[10px] mt-0.5 font-hand">Network</span>
+                    <FiMessageSquare className={`text-2xl ${isActive("/chat") ? "fill-current" : ""}`} />
+                    <span className="text-[10px] mt-0.5 font-hand">Chat</span>
                 </Link>
 
                 {/* Create Post */}

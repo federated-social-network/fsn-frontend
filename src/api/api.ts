@@ -476,3 +476,33 @@ export const unlikePost = (postId: string) =>
 export const updateProfile = (data: { bio?: string; display_name?: string }) =>
   getApi().post("/update-profile", null, { params: data });
 
+/**
+ * Fetches all conversations for the current user.
+ * @returns {Promise<import("axios").AxiosResponse<any>>} List of conversations with last message info.
+ */
+export const getConversations = () => getApi().get("/conversations");
+
+/**
+ * Fetches message history between two users.
+ * @param {string} user1 - First user's ID/username.
+ * @param {string} user2 - Second user's ID/username.
+ * @returns {Promise<import("axios").AxiosResponse<any>>} Ordered list of messages.
+ */
+export const getMessages = (user1: string, user2: string) =>
+  getApi().get(`/messages/${encodeURIComponent(user1)}/${encodeURIComponent(user2)}`);
+
+/**
+ * Builds the WebSocket URL for the chat endpoint.
+ * Derives ws:// or wss:// from the stored INSTANCE_BASE_URL.
+ * @param {string} userId - The current user's ID (username).
+ * @returns {string} The full WebSocket URL.
+ */
+export const getChatWebSocketUrl = (userId: string): string => {
+  const baseURL = localStorage.getItem("INSTANCE_BASE_URL");
+  if (!baseURL) throw new Error("No instance selected.");
+
+  // Replace http(s):// with ws(s):// AND strip any trailing /api/v1
+  // because the backend chat router is mounted at the root of the server
+  const wsBase = baseURL.replace(/^http/, "ws").replace(/\/api\/v[0-9]+$/, "");
+  return `${wsBase}/ws/chat/${encodeURIComponent(userId)}`;
+};
