@@ -1,10 +1,13 @@
 import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { getToken } from "../utils/tokenStorage";
+import { getRefreshToken } from "../utils/tokenStorage";
 
 /**
  * A wrapper component that restricts access to authenticated users only.
  * Redirects to the login page or landing page if the user is not authenticated or no instance is selected.
+ * Allows access if either the access token or refresh token is present — the API
+ * interceptor will silently refresh the access token when needed.
  *
  * @param {Object} props - The component props.
  * @param {ReactNode} props.children - The child components to render if authorized.
@@ -13,6 +16,7 @@ import { getToken } from "../utils/tokenStorage";
 export default function ProtectedRoute({ children }: { children: ReactNode }) {
   const username = localStorage.getItem("username");
   const token = getToken();
+  const refreshToken = getRefreshToken();
   const base = localStorage.getItem("INSTANCE_BASE_URL");
 
   if (!base) {
@@ -20,7 +24,7 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
     return <Navigate to="/" replace />;
   }
 
-  if (!username || !token) {
+  if (!username || (!token && !refreshToken)) {
     // Not logged in -> send to login
     return <Navigate to="/auth/login" replace />;
   }
