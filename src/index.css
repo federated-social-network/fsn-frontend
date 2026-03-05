@@ -375,3 +375,33 @@ body.modal-open {
   image-rendering: auto;
   will-change: transform;
 }
+
+@layer utilities {
+  .animate-paint-fill {
+    animation: paint-fill 2s ease-in-out forwards;
+  }
+
+  .animate-paint-drain {
+    animation: paint-drain 2s ease-in-out forwards;
+  }
+}
+
+@keyframes paint-fill {
+  0% {
+    clip-path: inset(100% 0 0 0);
+  }
+
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes paint-drain {
+  0% {
+    clip-path: inset(0 0 0 0);
+  }
+
+  100% {
+    clip-path: inset(100% 0 0 0);
+  }
+}
