@@ -72,6 +72,10 @@ body {
     padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
     /* h-14 is 3.5rem */
   }
+
+  body.chat-open {
+    padding-bottom: 0 !important;
+  }
 }
 
 /* Typography Overrides */
@@ -95,6 +99,19 @@ button {
   box-shadow: 2px 2px 0px var(--on-surface);
   transition: all 0.1s ease;
   font-weight: 700;
+}
+
+/* Base override for chat icons so they don't get the neo-brutalist button style */
+.chat-icon-btn {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 50%;
+}
+
+.chat-icon-btn:active {
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 button:active {

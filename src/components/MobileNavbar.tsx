@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { FiHome, FiPlusSquare, FiSearch, FiUser, FiMessageSquare } from "react-icons/fi";
+import { useState, useEffect } from "react";
 
 export default function MobileNavbar() {
     const location = useLocation();
@@ -11,6 +12,24 @@ export default function MobileNavbar() {
         }
         return location.pathname === path;
     };
+
+    // Listen for custom event to hide bottom nav in active chat
+    const [hideNav, setHideNav] = useState(false);
+
+    useEffect(() => {
+        const handleHide = () => setHideNav(true);
+        const handleShow = () => setHideNav(false);
+
+        window.addEventListener("chat:open", handleHide);
+        window.addEventListener("chat:close", handleShow);
+
+        return () => {
+            window.removeEventListener("chat:open", handleHide);
+            window.removeEventListener("chat:close", handleShow);
+        };
+    }, []);
+
+    if (hideNav) return null;
 
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-bottom pb-env(safe-area-inset-bottom)">

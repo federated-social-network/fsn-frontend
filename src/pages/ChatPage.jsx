@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
+import { FiSmile, FiMic } from "react-icons/fi";
+import EmojiPicker from 'emoji-picker-react';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -169,6 +171,7 @@ export default function ChatPage() {
     const [search, setSearch] = useState("");
     const [unread, setUnread] = useState({}); // { username: true }
     const [connectionsOpen, setConnectionsOpen] = useState(true);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     // ── Loading / connection state ──────────────────────────────────────────
     const [loadingConvos, setLoadingConvos] = useState(true);
@@ -372,6 +375,7 @@ export default function ChatPage() {
         }
 
         setInputText("");
+        setShowEmojiPicker(false);
         inputRef.current?.focus();
     }, [inputText, selectedConv, currentUserId]);
 
@@ -380,6 +384,10 @@ export default function ChatPage() {
             e.preventDefault();
             handleSend();
         }
+    };
+
+    const handleEmojiClick = (emojiObject) => {
+        setInputText((prev) => prev + emojiObject.emoji);
     };
 
     // ── Select a conversation ───────────────────────────────────────────────
@@ -427,6 +435,23 @@ export default function ChatPage() {
     // ── Mobile: show list or chat ───────────────────────────────────────────
     const [mobileShowChat, setMobileShowChat] = useState(false);
 
+    // Handle MobileNavbar and Body Padding visibility
+    useEffect(() => {
+        if (mobileShowChat) {
+            window.dispatchEvent(new Event("chat:open"));
+            document.body.classList.add("chat-open");
+        } else {
+            window.dispatchEvent(new Event("chat:close"));
+            document.body.classList.remove("chat-open");
+        }
+
+        // Always ensure navbar is visible and padding restored when leaving the chat page entirely
+        return () => {
+            window.dispatchEvent(new Event("chat:close"));
+            document.body.classList.remove("chat-open");
+        };
+    }, [mobileShowChat]);
+
     const openChat = useCallback(
         (conv) => {
             selectConversation(conv);
@@ -448,7 +473,7 @@ export default function ChatPage() {
             {/* ── LEFT PANEL ─────────────────────────────────────────────────── */}
             <aside
                 className={`${mobileShowChat ? "hidden" : "flex"
-                    } md:flex flex-col w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 shrink-0`}
+                    } md:flex flex-col w-full md:max-w-[320px] lg:w-96 bg-white border-r border-gray-200 shrink-0`}
             >
                 {/* Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-gray-200">
@@ -457,14 +482,14 @@ export default function ChatPage() {
                             {/* Back to dashboard */}
                             <a
                                 href="/dashboard"
-                                className="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors text-gray-500 hover:text-gray-700 shrink-0"
+                                className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors text-gray-500 hover:text-gray-700 shrink-0"
                                 title="Back to Dashboard"
                             >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                                 </svg>
                             </a>
-                            <Avatar name={currentUserId} size={36} online={wsConnected} />
+                            <Avatar name={currentUserId} size={32} online={wsConnected} />
                             <div>
                                 <h2 className="text-sm font-semibold text-gray-900 truncate max-w-[140px]">
                                     Messages
@@ -525,7 +550,7 @@ export default function ChatPage() {
                                             <button
                                                 key={peer}
                                                 onClick={() => openChat(conv)}
-                                                className={`w-full flex items-center gap-3 px-4 py-3.5 transition-all duration-150 ${isActive
+                                                className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 ${isActive
                                                     ? "bg-blue-50 border-l-3 border-blue-500"
                                                     : "border-l-3 border-transparent hover:bg-gray-50"
                                                     }`}
@@ -534,7 +559,7 @@ export default function ChatPage() {
                                                     <Avatar
                                                         name={conv.display_name || conv.username}
                                                         url={conv.avatar_url}
-                                                        size={48}
+                                                        size={44}
                                                     />
                                                     {hasUnread && (
                                                         <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
@@ -678,13 +703,13 @@ export default function ChatPage() {
                         )}
 
                         {/* Chat header */}
-                        <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-gray-200 bg-white shadow-sm">
+                        <div className="shrink-0 flex items-center gap-3 px-4 py-2.5 border-b border-gray-200 bg-white shadow-sm sticky top-0 z-10 w-full">
                             {/* Back button (mobile) */}
                             <button
                                 onClick={backToList}
-                                className="md:hidden w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors text-gray-500"
+                                className="md:hidden w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors text-gray-500 -ml-1"
                             >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                                 </svg>
                             </button>
@@ -692,7 +717,7 @@ export default function ChatPage() {
                             <Avatar
                                 name={selectedConv.display_name || selectedConv.username}
                                 url={selectedConv.avatar_url}
-                                size={42}
+                                size={38}
                                 online={wsConnected}
                             />
                             <div className="flex-1 min-w-0">
@@ -773,9 +798,9 @@ export default function ChatPage() {
                                                         </div>
                                                     )}
                                                     <div
-                                                        className={`max-w-[75%] sm:max-w-[65%] px-4 py-2.5 text-sm leading-relaxed shadow-sm ${isSent
-                                                            ? "bg-blue-500 text-white rounded-2xl rounded-br-md"
-                                                            : "bg-white text-gray-800 rounded-2xl rounded-bl-md border border-gray-100"
+                                                        className={`max-w-[100%] sm:max-w-[75%] px-3.5 py-1.5 text-[14px] leading-snug shadow-sm ${isSent
+                                                            ? "bg-blue-500 text-white rounded-[18px] rounded-br-[4px]"
+                                                            : "bg-white text-gray-800 rounded-[18px] rounded-bl-[4px] border border-gray-100"
                                                             }`}
                                                     >
                                                         <p className="whitespace-pre-wrap break-words">{msg.content}</p>
@@ -795,35 +820,56 @@ export default function ChatPage() {
                         </div>
 
                         {/* Input bar */}
-                        <div className="shrink-0 px-4 py-3 border-t border-gray-200 bg-white/90 backdrop-blur-sm">
-                            <div className="flex items-end gap-3">
-                                <textarea
-                                    ref={inputRef}
-                                    value={inputText}
-                                    onChange={(e) => setInputText(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                    placeholder="Type a message…"
-                                    rows={1}
-                                    className="flex-1 resize-none overflow-hidden bg-gray-100 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 transition-colors leading-relaxed"
-                                    style={{ maxHeight: "120px" }}
-                                    onInput={(e) => {
-                                        const el = e.currentTarget;
-                                        el.style.height = "auto";
-                                        el.style.height = el.scrollHeight + "px";
-                                    }}
-                                />
-                                <button
-                                    onClick={handleSend}
-                                    disabled={!inputText.trim()}
-                                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${inputText.trim()
-                                        ? "bg-blue-500 hover:bg-blue-600 text-white shadow-sm active:scale-95"
-                                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                        }`}
-                                >
-                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                                    </svg>
-                                </button>
+                        <div className="shrink-0 px-3 py-2 border-t border-gray-200 bg-white/90 backdrop-blur-sm relative z-20">
+                            {showEmojiPicker && (
+                                <div className="absolute bottom-16 left-2 shadow-xl rounded-xl overflow-hidden z-50">
+                                    <EmojiPicker height={350} searchDisabled theme="light" onEmojiClick={handleEmojiClick} />
+                                </div>
+                            )}
+                            <div className="flex items-end gap-2">
+                                <div className="flex-1 shrink flex items-end bg-gray-100 border border-gray-200 rounded-3xl transition-colors focus-within:border-blue-400 focus-within:bg-white overflow-hidden min-h-[40px]">
+                                    <button
+                                        onClick={() => setShowEmojiPicker((prev) => !prev)}
+                                        className="chat-icon-btn flex-none flex items-center justify-center pl-3.5 pr-1.5 py-3 text-gray-500 transition-colors self-end mb-0"
+                                        style={{ WebkitTapHighlightColor: "transparent" }}
+                                    >
+                                        <FiSmile className="w-[18px] h-[18px]" />
+                                    </button>
+                                    <textarea
+                                        ref={inputRef}
+                                        value={inputText}
+                                        onChange={(e) => setInputText(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        onFocus={() => setShowEmojiPicker(false)}
+                                        placeholder="Type a message…"
+                                        rows={1}
+                                        className="flex-1 w-full resize-none bg-transparent py-2.5 pr-4 pl-1 text-sm text-gray-900 placeholder-gray-500 focus:outline-none leading-snug"
+                                        style={{ maxHeight: "100px" }}
+                                        onInput={(e) => {
+                                            const el = e.currentTarget;
+                                            el.style.height = "auto";
+                                            el.style.height = el.scrollHeight + "px";
+                                        }}
+                                    />
+                                </div>
+
+                                {inputText.trim() ? (
+                                    <button
+                                        onClick={handleSend}
+                                        className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 bg-blue-500 hover:bg-blue-600 text-white shadow-sm active:scale-95 mb-0"
+                                    >
+                                        <svg className="w-4 h-4 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                        </svg>
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 bg-blue-500 hover:bg-blue-600 text-white shadow-sm active:scale-95 mb-0"
+                                        title="Voice message (coming soon)"
+                                    >
+                                        <FiMic className="w-[18px] h-[18px]" />
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </>
