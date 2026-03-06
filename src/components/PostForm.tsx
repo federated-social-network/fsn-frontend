@@ -4,6 +4,7 @@ import { createPost, completePost, elaboratePost, getUser, moderateImage } from 
 import { getToken } from "../utils/tokenStorage";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiMic, FiMicOff, FiGlobe, FiUsers } from 'react-icons/fi';
+import MentionDropdown from "./MentionDropdown";
 
 // Helper component for the Modal
 /**
@@ -369,20 +370,27 @@ const PostModal = ({
 
               {/* Body */}
               <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-[200px]">
-                <textarea
-                  ref={textareaRef}
-                  className="w-full text-lg sm:text-xl text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
-                  placeholder="What do you want to talk about?"
-                  value={displayContent}
-                  onChange={handleTextareaChange}
-                  style={{ minHeight: imagePreview ? '80px' : '150px', fontSize: '16px' }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handlePost();
-                    }
-                  }}
-                />
+                <div className="relative">
+                  <textarea
+                    ref={textareaRef}
+                    className="w-full text-lg sm:text-xl text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
+                    placeholder="What do you want to talk about?"
+                    value={displayContent}
+                    onChange={handleTextareaChange}
+                    style={{ minHeight: imagePreview ? '80px' : '150px', fontSize: '16px' }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handlePost();
+                      }
+                    }}
+                  />
+                  <MentionDropdown
+                    textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
+                    content={content}
+                    setContent={setContent}
+                  />
+                </div>
 
                 {/* AI Suggestion Area */}
                 <AnimatePresence>

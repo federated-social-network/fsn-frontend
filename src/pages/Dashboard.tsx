@@ -2,17 +2,17 @@ import PostForm from "../components/PostForm";
 import Navbar from "../components/Navbar";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { getPosts, getRandomUsers, initiateConnection, acceptConnection, getPendingConnections, getFollowedPosts } from "../api/api";
-import { INSTANCES } from "../config/instances";
+import { getPosts, getRandomUsers, initiateConnection, acceptConnection, getPendingConnections, getFollowedPosts, getNotifications } from "../api/api";
 import type { Post } from "../types/post";
+import type { Notification } from "../types/notification";
 import SketchCard from "../components/SketchCard";
 import SkeletonPost from "../components/SkeletonPost";
 import PostCard from "../components/PostCard";
+import NotificationsPanel from "../components/NotificationsPanel";
+import { prefetchConnections } from "../components/MentionDropdown";
 import UserSearchModal from "../components/UserSearchModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiSearch, FiRefreshCw, FiArrowUp, FiUsers, FiAlertTriangle, FiMessageSquare } from "react-icons/fi";
-import ConfirmationModal from "../components/ConfirmationModal";
-import { removeToken, removeRefreshToken } from "../utils/tokenStorage";
 
 
 
@@ -26,11 +26,14 @@ import { removeToken, removeRefreshToken } from "../utils/tokenStorage";
 export default function Dashboard() {
 
   const [posts, setPosts] = useState<Post[]>([]);
-  const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const [pendingInstanceUrl, setPendingInstanceUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Notifications state
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
+  const notifFetchedOnce = useRef(false);
 
   const loadPosts = useCallback(async () => {
     setLoading(true);
@@ -61,7 +64,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     let mounted = true;
-    if (mounted) loadPosts();
+    if (mounted) {
+      loadPosts();
+      prefetchConnections(); // cache connections in localStorage for instant @mentions
+    }
 
     const handler = () => {
       loadPosts();
@@ -166,6 +172,27 @@ export default function Dashboard() {
     fetchInvites(); // Initial fetch
   }, []);
 
+  // Notifications polling — 5 second interval, no loading on subsequent fetches
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await getNotifications();
+        setNotifications(Array.isArray(res.data) ? res.data : []);
+      } catch (e) {
+        console.error("Failed to fetch notifications", e);
+      } finally {
+        if (!notifFetchedOnce.current) {
+          notifFetchedOnce.current = true;
+          setNotificationsLoading(false);
+        }
+      }
+    };
+
+    fetchNotifications();
+    const id = setInterval(fetchNotifications, 5000);
+    return () => clearInterval(id);
+  }, []);
+
   // Fetch Following Feed
   useEffect(() => {
     if (activeTab === 'following') {
@@ -223,23 +250,6 @@ export default function Dashboard() {
   };
 
 
-
-  const handleSwitchInstance = (url: string) => {
-    setPendingInstanceUrl(url);
-    setShowSwitchConfirm(true);
-  };
-
-  const performSwitchInstance = () => {
-    if (!pendingInstanceUrl) return;
-    // Clear auth tokens before switching instance
-    removeToken();
-    removeRefreshToken();
-    localStorage.removeItem("username");
-    // Set the new instance URL
-    localStorage.setItem("INSTANCE_BASE_URL", pendingInstanceUrl);
-    // Redirect to login page for the new instance
-    window.location.href = "/auth/login";
-  };
 
   return (
     <div className="h-screen overflow-hidden flex flex-col">
@@ -539,67 +549,14 @@ export default function Dashboard() {
             </div>
           </SketchCard>
 
-          {/* Explore Communities */}
-          <SketchCard variant="paper" className="p-4" style={{ backgroundColor: '#fef9c3' }}>
-            <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Explore Communities</h3>
-            <div className="space-y-3">
-              {INSTANCES.map((inst, index) => {
-                const currentUrl = localStorage.getItem("INSTANCE_BASE_URL");
-                const normalize = (u: string | null) => u?.replace(/\/$/, "") || "";
-                const isCurrent = normalize(currentUrl) === normalize(inst.url);
-
-                return (
-                  <div key={index} className={`p-3 rounded-lg border flex flex-col gap-1 ${inst.color} bg-white/50`}>
-                    <div className="flex justify-between items-center">
-                      <div className="font-bold font-sketch text-md">{inst.name}</div>
-                      {isCurrent && <span className="text-[10px] font-bold bg-black/10 px-1.5 rounded-full text-black/60">CURRENT</span>}
-                    </div>
-                    <p className="text-xs text-gray-600 font-hand mt-1">{inst.description}</p>
-
-                    {!isCurrent ? (
-                      <button
-                        onClick={() => handleSwitchInstance(inst.url)}
-                        className="mt-2 text-xs bg-white border border-black/20 hover:bg-black/5 py-1 px-2 rounded font-bold self-start"
-                      >
-                        Switch to Community
-                      </button>
-                    ) : (
-                      <div className="mt-2 text-xs font-bold text-gray-400 select-none">
-                        You are here
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-
-              {/* Create Your Own Link */}
-              <a
-                href="/docs/create-community"
-                className="flex items-center gap-2 p-3 rounded-lg border border-dashed border-purple-300 bg-purple-50/50 hover:bg-purple-100/60 transition-colors cursor-pointer group"
-              >
-                <div className="w-8 h-8 rounded-full bg-purple-200 flex items-center justify-center text-purple-700 text-lg font-bold group-hover:scale-110 transition-transform">+</div>
-                <div>
-                  <div className="font-bold font-sketch text-sm text-purple-800">Create Your Own</div>
-                  <div className="text-[10px] text-purple-600 font-hand">Deploy &amp; self-host a community</div>
-                </div>
-              </a>
-            </div>
-          </SketchCard>
+          {/* Notifications */}
+          <NotificationsPanel notifications={notifications} loading={notificationsLoading} />
 
         </aside>
 
       </div>
 
-      {/* Instance Switch Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={showSwitchConfirm}
-        onClose={() => setShowSwitchConfirm(false)}
-        onConfirm={performSwitchInstance}
-        title="Switching Instance?"
-        message="You will be logged out first and redirected to the new instance. Are you sure you want to proceed?"
-        confirmText="Yes, Switch"
-        confirmColor="bg-blue-600"
-      />
+
 
       <UserSearchModal isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
 
