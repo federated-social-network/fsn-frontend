@@ -405,3 +405,39 @@ body.modal-open {
     clip-path: inset(100% 0 0 0);
   }
 }
+
+/* ============================================
+   CHAT BUBBLE ANIMATIONS
+   ============================================ */
+
+@keyframes bubble-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(12px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes bubble-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-12px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.chat-bubble-sent {
+  animation: bubble-in-right 0.2s ease-out;
+}
+
+.chat-bubble-received {
+  animation: bubble-in-left 0.2s ease-out;
+}

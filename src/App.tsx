@@ -13,6 +13,7 @@ import CreateCommunityDocs from "./pages/CreateCommunityDocs";
 import DocumentationPage from "./pages/DocumentationPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
+import ChatPage from "./pages/ChatPage.jsx";
 
 /**
  * Layout mapping to include MobileNavbar on authenticated routes.
@@ -80,6 +81,14 @@ export default function App() {
             }
           />
           <Route path="/profile/:identifier" element={<Profile />} />
+          <Route
+            path="/chat/*"
+            element={
+              <ProtectedRoute>
+                <ChatPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>
