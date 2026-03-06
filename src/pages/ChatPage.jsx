@@ -923,8 +923,8 @@ export default function ChatPage() {
                                         onFocus={() => setShowEmojiPicker(false)}
                                         placeholder="Type a message…"
                                         rows={1}
-                                        className="flex-1 w-full resize-none bg-transparent py-2.5 pr-4 pl-1 text-sm text-stone-900 placeholder-gray-500 focus:outline-none leading-snug"
-                                        style={{ maxHeight: "100px" }}
+                                        className="flex-1 w-full resize-none bg-transparent py-2.5 pr-4 pl-1 text-sm text-stone-900 placeholder-gray-500 focus:outline-none leading-snug no-scrollbar"
+                                        style={{ maxHeight: "100px", overflow: "hidden" }}
                                         onInput={(e) => {
                                             const el = e.currentTarget;
                                             el.style.height = "auto";
