@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -712,7 +713,7 @@ export default function ChatPage() {
 
                         {/* Messages — WhatsApp-style subtle pattern background */}
                         <div
-                            className="flex-1 overflow-y-auto px-4 py-4 space-y-1"
+                            className="flex-1 overflow-y-auto overflow-x-hidden relative"
                             style={{
                                 scrollbarWidth: "thin",
                                 scrollbarColor: "#d1d5db transparent",
@@ -730,49 +731,67 @@ export default function ChatPage() {
                                     <p className="text-sm">Say hello! 👋</p>
                                 </div>
                             ) : (
-                                messages.map((msg, i) => {
-                                    const isSent = msg.sender_id === currentUserId;
-                                    const showAvatar =
-                                        !isSent &&
-                                        (i === 0 || messages[i - 1]?.sender_id === currentUserId);
+                                <motion.div
+                                    drag="x"
+                                    dragConstraints={{ left: -60, right: 0 }}
+                                    dragDirectionLock
+                                    dragElastic={0.1}
+                                    className="w-full min-h-full py-4 space-y-1 relative"
+                                >
+                                    {messages.map((msg, i) => {
+                                        const isSent = msg.sender_id === currentUserId;
+                                        const showAvatar =
+                                            !isSent &&
+                                            (i === 0 || messages[i - 1]?.sender_id === currentUserId);
 
-                                    return (
-                                        <div
-                                            key={i}
-                                            className={`flex ${isSent ? "justify-end" : "justify-start"} ${showAvatar && !isSent ? "mt-3" : "mt-0.5"
-                                                }`}
-                                        >
-                                            {/* Peer avatar for grouped messages */}
-                                            {!isSent && (
-                                                <div className="w-8 mr-2 mt-auto mb-1 shrink-0">
-                                                    {showAvatar ? (
-                                                        <Avatar
-                                                            name={selectedConv.username}
-                                                            url={selectedConv.avatar_url}
-                                                            size={28}
-                                                        />
-                                                    ) : null}
-                                                </div>
-                                            )}
-                                            <div
-                                                className={`max-w-[75%] sm:max-w-[65%] px-4 py-2.5 text-sm leading-relaxed shadow-sm ${isSent
-                                                    ? "bg-blue-500 text-white rounded-2xl rounded-br-md"
-                                                    : "bg-white text-gray-800 rounded-2xl rounded-bl-md border border-gray-100"
-                                                    }`}
-                                            >
-                                                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                                                <p
-                                                    className={`text-[10px] mt-1 ${isSent ? "text-blue-100 text-right" : "text-gray-400 text-left"
+                                        const prevMsg = messages[i - 1];
+                                        const showTimeSep = !prevMsg || (new Date(msg.created_at).getTime() - new Date(prevMsg.created_at).getTime() > 60 * 60 * 1000);
+
+                                        return (
+                                            <div key={i} className="group relative w-full">
+                                                {showTimeSep && (
+                                                    <div className="flex justify-center my-4">
+                                                        <span className="text-[11px] font-medium text-gray-500 bg-white/60 px-3 py-1 rounded-full shadow-sm backdrop-blur-sm">
+                                                            {new Date(msg.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                <div
+                                                    className={`flex w-full px-4 relative ${isSent ? "justify-end" : "justify-start"} ${showAvatar && !isSent ? "mt-3" : "mt-0.5"
                                                         }`}
                                                 >
-                                                    {msgTime(msg.created_at)}
-                                                </p>
+                                                    {/* Peer avatar for grouped messages */}
+                                                    {!isSent && (
+                                                        <div className="w-8 mr-2 mt-auto mb-1 shrink-0">
+                                                            {showAvatar ? (
+                                                                <Avatar
+                                                                    name={selectedConv.display_name || selectedConv.username}
+                                                                    url={selectedConv.avatar_url}
+                                                                    size={28}
+                                                                />
+                                                            ) : null}
+                                                        </div>
+                                                    )}
+                                                    <div
+                                                        className={`max-w-[75%] sm:max-w-[65%] px-4 py-2.5 text-sm leading-relaxed shadow-sm ${isSent
+                                                            ? "bg-blue-500 text-white rounded-2xl rounded-br-md"
+                                                            : "bg-white text-gray-800 rounded-2xl rounded-bl-md border border-gray-100"
+                                                            }`}
+                                                    >
+                                                        <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                                                    </div>
+
+                                                    {/* Hidden timestamp column (revealed on swipe or hover) */}
+                                                    <div className="absolute right-[-50px] top-1/2 -translate-y-1/2 text-[10px] text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity w-[50px] text-center select-none pointer-events-none">
+                                                        {msgTime(msg.created_at)}
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    );
-                                })
+                                        );
+                                    })}
+                                    <div ref={messagesEndRef} className="h-4" />
+                                </motion.div>
                             )}
-                            <div ref={messagesEndRef} />
                         </div>
 
                         {/* Input bar */}
