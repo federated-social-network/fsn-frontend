@@ -13,6 +13,7 @@ import CreateCommunityDocs from "./pages/CreateCommunityDocs";
 import DocumentationPage from "./pages/DocumentationPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
+// @ts-ignore
 import ChatPage from "./pages/ChatPage.jsx";
 
 /**
