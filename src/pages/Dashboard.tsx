@@ -10,7 +10,7 @@ import SkeletonPost from "../components/SkeletonPost";
 import PostCard from "../components/PostCard";
 import UserSearchModal from "../components/UserSearchModal";
 import { AnimatePresence, motion } from "framer-motion";
-import { FiSearch, FiRefreshCw, FiArrowUp, FiUsers, FiAlertTriangle } from "react-icons/fi";
+import { FiSearch, FiRefreshCw, FiArrowUp, FiUsers, FiAlertTriangle, FiMessageSquare } from "react-icons/fi";
 import ConfirmationModal from "../components/ConfirmationModal";
 import { removeToken, removeRefreshToken } from "../utils/tokenStorage";
 
@@ -251,7 +251,22 @@ export default function Dashboard() {
       <div className="flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 h-full">
 
         {/* --- LEFT SIDEBAR: Available Users --- */}
-        <aside className="md:col-span-3 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-6" onWheel={forwardWheelToFeed}>
+        <aside className="md:col-span-3 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-4" onWheel={forwardWheelToFeed}>
+          {/* Inbox Card */}
+          <Link to="/chat" className="block group border-none">
+            <div className="relative rounded-xl border-2 border-black overflow-hidden bg-[var(--pastel-mint)] hover:shadow-md transition-shadow cursor-pointer p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/70 flex items-center justify-center shadow-sm">
+                  <FiMessageSquare className="text-xl text-gray-700" />
+                </div>
+                <div>
+                  <h3 className="font-sketch text-lg text-gray-900 leading-tight">Inbox</h3>
+                  <p className="font-hand text-xs text-gray-500">Open your conversations</p>
+                </div>
+              </div>
+            </div>
+          </Link>
+
           <div className="relative rounded-xl border-2 border-black overflow-hidden bg-[var(--pastel-blue)]">
 
             {/* Header */}
@@ -485,6 +500,7 @@ export default function Dashboard() {
 
         {/* --- RIGHT SIDEBAR: Info / Status --- */}
         <aside className="md:col-span-3 hidden lg:block h-full overflow-y-auto p-4 no-scrollbar space-y-6" onWheel={forwardWheelToFeed}>
+
           {/* Pending Invites */}
           <SketchCard variant="paper" className="p-4 bg-[var(--pastel-pink)]">
             <h3 className="font-sketch text-xl mb-3 border-b-2 border-black/10 pb-2">Pending Invites</h3>

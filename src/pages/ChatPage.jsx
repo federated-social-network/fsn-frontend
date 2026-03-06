@@ -70,7 +70,7 @@ function Avatar({ name, url, size = 40, online }) {
             </div>
             {typeof online === "boolean" && (
                 <span
-                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-gray-800 ${online ? "bg-green-400" : "bg-gray-500"
+                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${online ? "bg-green-400" : "bg-gray-400"
                         }`}
                 />
             )}
@@ -81,10 +81,10 @@ function Avatar({ name, url, size = 40, online }) {
 function SkeletonRow() {
     return (
         <div className="flex items-center gap-3 px-4 py-3 animate-pulse">
-            <div className="w-12 h-12 rounded-full bg-gray-700" />
+            <div className="w-12 h-12 rounded-full bg-gray-200" />
             <div className="flex-1 space-y-2">
-                <div className="h-3.5 bg-gray-700 rounded w-1/2" />
-                <div className="h-3 bg-gray-700 rounded w-3/4" />
+                <div className="h-3.5 bg-gray-200 rounded w-1/2" />
+                <div className="h-3 bg-gray-200 rounded w-3/4" />
             </div>
         </div>
     );
@@ -94,19 +94,19 @@ function SkeletonMessages() {
     return (
         <div className="flex-1 flex flex-col gap-3 p-6 animate-pulse">
             <div className="flex justify-start">
-                <div className="h-10 bg-gray-700 rounded-2xl w-48" />
+                <div className="h-10 bg-gray-200 rounded-2xl w-48" />
             </div>
             <div className="flex justify-end">
-                <div className="h-10 bg-blue-900/40 rounded-2xl w-56" />
+                <div className="h-10 bg-blue-100 rounded-2xl w-56" />
             </div>
             <div className="flex justify-start">
-                <div className="h-10 bg-gray-700 rounded-2xl w-40" />
+                <div className="h-10 bg-gray-200 rounded-2xl w-40" />
             </div>
             <div className="flex justify-end">
-                <div className="h-10 bg-blue-900/40 rounded-2xl w-52" />
+                <div className="h-10 bg-blue-100 rounded-2xl w-52" />
             </div>
             <div className="flex justify-start">
-                <div className="h-14 bg-gray-700 rounded-2xl w-64" />
+                <div className="h-14 bg-gray-200 rounded-2xl w-64" />
             </div>
         </div>
     );
@@ -117,7 +117,7 @@ function EmptyChat() {
         <div className="flex-1 flex flex-col items-center justify-center text-center px-8 select-none gap-5">
             {/* Illustration */}
             <div className="relative">
-                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center">
+                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
                     <svg
                         className="w-14 h-14 text-blue-400"
                         fill="none"
@@ -132,10 +132,10 @@ function EmptyChat() {
                         />
                     </svg>
                 </div>
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full animate-ping opacity-30" />
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-400 rounded-full animate-ping opacity-20" />
             </div>
             <div>
-                <h3 className="text-xl font-semibold text-gray-200 mb-1">
+                <h3 className="text-xl font-semibold text-gray-800 mb-1">
                     Start a Conversation
                 </h3>
                 <p className="text-sm text-gray-500 max-w-xs">
@@ -443,56 +443,42 @@ export default function ChatPage() {
     //  RENDER
     // ═══════════════════════════════════════════════════════════════════════
     return (
-        <div className="flex h-screen bg-gray-950 text-gray-100 overflow-hidden font-sans">
+        <div className="flex h-screen bg-gray-50 text-gray-900 overflow-hidden font-sans">
             {/* ── LEFT PANEL ─────────────────────────────────────────────────── */}
             <aside
                 className={`${mobileShowChat ? "hidden" : "flex"
-                    } md:flex flex-col w-full md:w-80 lg:w-96 bg-gray-900 border-r border-gray-800 shrink-0`}
+                    } md:flex flex-col w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 shrink-0`}
             >
                 {/* Header */}
-                <div className="px-4 pt-4 pb-3 border-b border-gray-800">
+                <div className="px-4 pt-4 pb-3 border-b border-gray-200">
                     <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                            <Avatar name={currentUserId} size={40} online={wsConnected} />
+                            {/* Back to dashboard */}
+                            <a
+                                href="/dashboard"
+                                className="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors text-gray-500 hover:text-gray-700 shrink-0"
+                                title="Back to Dashboard"
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </a>
+                            <Avatar name={currentUserId} size={36} online={wsConnected} />
                             <div>
-                                <h2 className="text-sm font-semibold text-gray-100 truncate max-w-[140px]">
-                                    {currentUserId}
+                                <h2 className="text-sm font-semibold text-gray-900 truncate max-w-[140px]">
+                                    Messages
                                 </h2>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-gray-400">
                                     {wsConnected ? "Connected" : "Offline"}
                                 </span>
                             </div>
                         </div>
-                        <button
-                            onClick={() => setShowSettings((s) => !s)}
-                            className="w-9 h-9 rounded-lg hover:bg-gray-800 flex items-center justify-center transition-colors text-gray-400 hover:text-gray-200"
-                            title="Settings"
-                        >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </button>
                     </div>
-
-                    {/* Settings panel — User ID override */}
-                    {showSettings && (
-                        <div className="mb-3 bg-gray-800/60 rounded-xl p-3 border border-gray-700/50">
-                            <label className="text-xs text-gray-400 mb-1 block">User ID</label>
-                            <input
-                                type="text"
-                                value={currentUserId}
-                                onChange={(e) => setCurrentUserId(e.target.value)}
-                                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-blue-500 transition-colors"
-                                placeholder="your_user_id"
-                            />
-                        </div>
-                    )}
 
                     {/* Search bar */}
                     <div className="relative">
                         <svg
-                            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -505,13 +491,13 @@ export default function ChatPage() {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search conversations…"
-                            className="w-full bg-gray-800 border border-gray-700/50 rounded-xl pl-10 pr-4 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors"
+                            className="w-full bg-gray-100 border border-gray-200 rounded-xl pl-10 pr-4 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-400 transition-colors"
                         />
                     </div>
                 </div>
 
                 {/* Conversation list + Connections */}
-                <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#374151 transparent" }}>
+                <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#d1d5db transparent" }}>
                     {loadingConvos ? (
                         <>
                             <SkeletonRow />
@@ -525,7 +511,7 @@ export default function ChatPage() {
                             {filtered.length > 0 && (
                                 <div>
                                     <div className="px-4 pt-3 pb-1">
-                                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Recent Chats</h3>
+                                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Recent Chats</h3>
                                     </div>
                                     {filtered.map((conv) => {
                                         const peer = conv.other_user || conv.username;
@@ -538,37 +524,37 @@ export default function ChatPage() {
                                             <button
                                                 key={peer}
                                                 onClick={() => openChat(conv)}
-                                                className={`w-full flex items-center gap-3 px-4 py-3 transition-all duration-150 ${isActive
-                                                    ? "bg-blue-500/10 border-l-2 border-blue-500"
-                                                    : "border-l-2 border-transparent hover:bg-gray-800/60"
+                                                className={`w-full flex items-center gap-3 px-4 py-3.5 transition-all duration-150 ${isActive
+                                                    ? "bg-blue-50 border-l-3 border-blue-500"
+                                                    : "border-l-3 border-transparent hover:bg-gray-50"
                                                     }`}
                                             >
                                                 <div className="relative">
                                                     <Avatar
-                                                        name={conv.username}
+                                                        name={conv.display_name || conv.username}
                                                         url={conv.avatar_url}
                                                         size={48}
                                                     />
                                                     {hasUnread && (
-                                                        <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-blue-500 rounded-full border-2 border-gray-900" />
+                                                        <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0 text-left">
                                                     <div className="flex items-baseline justify-between gap-2">
                                                         <span
                                                             className={`text-sm truncate ${hasUnread
-                                                                ? "font-semibold text-gray-100"
-                                                                : "font-medium text-gray-300"
+                                                                ? "font-semibold text-gray-900"
+                                                                : "font-medium text-gray-700"
                                                                 }`}
                                                         >
-                                                            {conv.username}
+                                                            {conv.display_name || conv.username}
                                                         </span>
-                                                        <span className="text-xs text-gray-600 shrink-0">
+                                                        <span className="text-[11px] text-gray-400 shrink-0">
                                                             {relativeTime(conv.created_at)}
                                                         </span>
                                                     </div>
                                                     <p
-                                                        className={`text-xs truncate mt-0.5 ${hasUnread ? "text-gray-300" : "text-gray-500"
+                                                        className={`text-xs truncate mt-0.5 ${hasUnread ? "text-gray-600" : "text-gray-400"
                                                             }`}
                                                     >
                                                         {conv.content}
@@ -582,14 +568,14 @@ export default function ChatPage() {
 
                             {/* ── Your Connections ────────────────────────── */}
                             {connections.length > 0 && (
-                                <div className="border-t border-gray-800">
+                                <div className="border-t border-gray-200">
                                     <button
                                         onClick={() => setConnectionsOpen((o) => !o)}
-                                        className="w-full flex items-center justify-between px-4 pt-3 pb-1 hover:bg-gray-800/30 transition-colors"
+                                        className="w-full flex items-center justify-between px-4 pt-3 pb-1 hover:bg-gray-50 transition-colors"
                                     >
-                                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Your Connections</h3>
+                                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Your Connections</h3>
                                         <svg
-                                            className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${connectionsOpen ? "rotate-180" : ""
+                                            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${connectionsOpen ? "rotate-180" : ""
                                                 }`}
                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
                                         >
@@ -600,7 +586,7 @@ export default function ChatPage() {
                                     {connectionsOpen && (
                                         <div className="py-1">
                                             {(search ? newConnections : connections).length === 0 ? (
-                                                <p className="px-4 py-3 text-xs text-gray-600 italic text-center">
+                                                <p className="px-4 py-3 text-xs text-gray-400 italic text-center">
                                                     {search ? "No matching connections" : "All connections have conversations"}
                                                 </p>
                                             ) : (
@@ -615,8 +601,8 @@ export default function ChatPage() {
                                                         <div
                                                             key={peerId}
                                                             className={`flex items-center gap-3 px-4 py-2.5 transition-all duration-150 ${isActive
-                                                                ? "bg-blue-500/10"
-                                                                : "hover:bg-gray-800/40"
+                                                                ? "bg-blue-50"
+                                                                : "hover:bg-gray-50"
                                                                 }`}
                                                         >
                                                             <Avatar
@@ -625,11 +611,11 @@ export default function ChatPage() {
                                                                 size={40}
                                                             />
                                                             <div className="flex-1 min-w-0">
-                                                                <p className="text-sm font-medium text-gray-300 truncate">
+                                                                <p className="text-sm font-medium text-gray-700 truncate">
                                                                     {conn.display_name || conn.username}
                                                                 </p>
                                                                 {conn.display_name && (
-                                                                    <p className="text-xs text-gray-600 truncate">@{conn.username}</p>
+                                                                    <p className="text-xs text-gray-400 truncate">@{conn.username}</p>
                                                                 )}
                                                             </div>
                                                             <button
@@ -638,8 +624,8 @@ export default function ChatPage() {
                                                                     : startNewChat(conn)
                                                                 }
                                                                 className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${alreadyChatted
-                                                                    ? "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-300"
-                                                                    : "bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-500/10 active:scale-95"
+                                                                    ? "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
+                                                                    : "bg-blue-500 text-white hover:bg-blue-600 shadow-sm active:scale-95"
                                                                     }`}
                                                             >
                                                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -659,10 +645,10 @@ export default function ChatPage() {
                             {/* Empty state when both lists are empty */}
                             {filtered.length === 0 && connections.length === 0 && (
                                 <div className="flex flex-col items-center justify-center h-full px-6 text-center">
-                                    <svg className="w-12 h-12 text-gray-700 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                                    <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                     </svg>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-gray-400">
                                         {search ? "No matching results" : "No conversations or connections yet"}
                                     </p>
                                 </div>
@@ -675,27 +661,27 @@ export default function ChatPage() {
             {/* ── RIGHT PANEL ────────────────────────────────────────────────── */}
             <main
                 className={`${!mobileShowChat ? "hidden" : "flex"
-                    } md:flex flex-col flex-1 bg-gray-950 overflow-hidden`}
+                    } md:flex flex-col flex-1 bg-gray-50 overflow-hidden`}
             >
                 {selectedConv ? (
                     <>
                         {/* Reconnecting banner */}
                         {reconnecting && (
-                            <div className="bg-yellow-600/20 border-b border-yellow-600/30 px-4 py-1.5 flex items-center gap-2 shrink-0">
+                            <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-1.5 flex items-center gap-2 shrink-0">
                                 <svg className="animate-spin w-3.5 h-3.5 text-yellow-500" viewBox="0 0 24 24" fill="none">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                                 </svg>
-                                <span className="text-xs text-yellow-400">Reconnecting…</span>
+                                <span className="text-xs text-yellow-600">Reconnecting…</span>
                             </div>
                         )}
 
                         {/* Chat header */}
-                        <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm">
+                        <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-gray-200 bg-white shadow-sm">
                             {/* Back button (mobile) */}
                             <button
                                 onClick={backToList}
-                                className="md:hidden w-9 h-9 rounded-lg hover:bg-gray-800 flex items-center justify-center transition-colors text-gray-400"
+                                className="md:hidden w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors text-gray-500"
                             >
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -703,33 +689,41 @@ export default function ChatPage() {
                             </button>
 
                             <Avatar
-                                name={selectedConv.username}
+                                name={selectedConv.display_name || selectedConv.username}
                                 url={selectedConv.avatar_url}
                                 size={42}
                                 online={wsConnected}
                             />
                             <div className="flex-1 min-w-0">
-                                <h3 className="text-sm font-semibold text-gray-100 truncate">
-                                    {selectedConv.username}
+                                <h3 className="text-sm font-semibold text-gray-900 truncate">
+                                    {selectedConv.display_name || selectedConv.username}
                                 </h3>
                                 <div className="flex items-center gap-1.5">
                                     <span
-                                        className={`w-1.5 h-1.5 rounded-full ${wsConnected ? "bg-green-400" : "bg-gray-500"
+                                        className={`w-1.5 h-1.5 rounded-full ${wsConnected ? "bg-green-400" : "bg-gray-300"
                                             }`}
                                     />
-                                    <span className="text-xs text-gray-500">
+                                    <span className="text-xs text-gray-400">
                                         {wsConnected ? "Online" : "Offline"}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Messages */}
-                        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1" style={{ scrollbarWidth: "thin", scrollbarColor: "#374151 transparent" }}>
+                        {/* Messages — WhatsApp-style subtle pattern background */}
+                        <div
+                            className="flex-1 overflow-y-auto px-4 py-4 space-y-1"
+                            style={{
+                                scrollbarWidth: "thin",
+                                scrollbarColor: "#d1d5db transparent",
+                                backgroundColor: "#efeae2",
+                                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d5cec3' fill-opacity='0.25'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                            }}
+                        >
                             {loadingMsgs ? (
                                 <SkeletonMessages />
                             ) : messages.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center h-full gap-2 text-gray-600">
+                                <div className="flex flex-col items-center justify-center h-full gap-2 text-gray-400">
                                     <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                     </svg>
@@ -761,14 +755,14 @@ export default function ChatPage() {
                                                 </div>
                                             )}
                                             <div
-                                                className={`max-w-[75%] sm:max-w-[65%] px-4 py-2.5 text-sm leading-relaxed ${isSent
-                                                    ? "bg-blue-600 text-white rounded-2xl rounded-br-md"
-                                                    : "bg-gray-800 text-gray-200 rounded-2xl rounded-bl-md"
+                                                className={`max-w-[75%] sm:max-w-[65%] px-4 py-2.5 text-sm leading-relaxed shadow-sm ${isSent
+                                                    ? "bg-blue-500 text-white rounded-2xl rounded-br-md"
+                                                    : "bg-white text-gray-800 rounded-2xl rounded-bl-md border border-gray-100"
                                                     }`}
                                             >
                                                 <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                                                 <p
-                                                    className={`text-[10px] mt-1 ${isSent ? "text-blue-200/60 text-right" : "text-gray-500 text-left"
+                                                    className={`text-[10px] mt-1 ${isSent ? "text-blue-100 text-right" : "text-gray-400 text-left"
                                                         }`}
                                                 >
                                                     {msgTime(msg.created_at)}
@@ -782,7 +776,7 @@ export default function ChatPage() {
                         </div>
 
                         {/* Input bar */}
-                        <div className="shrink-0 px-4 py-3 border-t border-gray-800 bg-gray-900/80 backdrop-blur-sm">
+                        <div className="shrink-0 px-4 py-3 border-t border-gray-200 bg-white/90 backdrop-blur-sm">
                             <div className="flex items-end gap-3">
                                 <textarea
                                     ref={inputRef}
@@ -791,7 +785,7 @@ export default function ChatPage() {
                                     onKeyDown={handleKeyDown}
                                     placeholder="Type a message…"
                                     rows={1}
-                                    className="flex-1 resize-none overflow-hidden bg-gray-800 border border-gray-700/50 rounded-xl px-4 py-2.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors leading-relaxed"
+                                    className="flex-1 resize-none overflow-hidden bg-gray-100 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 transition-colors leading-relaxed"
                                     style={{ maxHeight: "120px" }}
                                     onInput={(e) => {
                                         const el = e.currentTarget;
@@ -803,8 +797,8 @@ export default function ChatPage() {
                                     onClick={handleSend}
                                     disabled={!inputText.trim()}
                                     className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${inputText.trim()
-                                        ? "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20 active:scale-95"
-                                        : "bg-gray-800 text-gray-600 cursor-not-allowed"
+                                        ? "bg-blue-500 hover:bg-blue-600 text-white shadow-sm active:scale-95"
+                                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
                                         }`}
                                 >
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
