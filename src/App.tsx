@@ -9,6 +9,7 @@ import MobileNavbar from "./components/MobileNavbar";
 import NetworkMobilePage from "./pages/NetworkMobilePage";
 import CreatePostMobilePage from "./pages/CreatePostMobilePage";
 import SearchMobilePage from "./pages/SearchMobilePage";
+import NotificationsPage from "./pages/NotificationsPage";
 import CreateCommunityDocs from "./pages/CreateCommunityDocs";
 import DocumentationPage from "./pages/DocumentationPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
@@ -78,6 +79,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <SearchMobilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <NotificationsPage />
               </ProtectedRoute>
             }
           />

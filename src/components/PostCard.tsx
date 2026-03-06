@@ -9,6 +9,44 @@ import { likePost, unlikePost } from "../api/api";
 import { FaRegComment } from "react-icons/fa6";
 import CommentSection from "./CommentSection";
 
+/**
+ * Renders post content with @mentions as bold, clickable profile links.
+ * Splits text on @username patterns and returns a React fragment.
+ */
+function renderContentWithMentions(text: string) {
+    // Match @username (word chars, dots, hyphens — common in usernames)
+    const mentionRegex = /@([\w.-]+)/g;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = mentionRegex.exec(text)) !== null) {
+        // Push text before the match
+        if (match.index > lastIndex) {
+            parts.push(text.slice(lastIndex, match.index));
+        }
+        const mentionedUser = match[1];
+        parts.push(
+            <Link
+                key={`mention-${match.index}`}
+                to={`/profile/${mentionedUser}`}
+                className="font-bold text-indigo-600 hover:text-indigo-800 hover:underline border-none"
+                onClick={(e) => e.stopPropagation()}
+            >
+                @{mentionedUser}
+            </Link>
+        );
+        lastIndex = mentionRegex.lastIndex;
+    }
+
+    // Push remaining text
+    if (lastIndex < text.length) {
+        parts.push(text.slice(lastIndex));
+    }
+
+    return parts.length > 0 ? parts : text;
+}
+
 interface PostCardProps {
     post: any;
 }
@@ -344,7 +382,7 @@ export default function PostCard({ post: p }: PostCardProps) {
                                 ref={contentRef}
                                 className={`text-sm text-gray-800 leading-relaxed whitespace-pre-wrap ${!expanded ? "line-clamp-3" : ""}`}
                             >
-                                {content}
+                                {renderContentWithMentions(content)}
                             </p>
                             {(isClamped || expanded) && (
                                 <button

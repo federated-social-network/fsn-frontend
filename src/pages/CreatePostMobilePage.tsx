@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiArrowLeft, FiImage, FiX, FiMic, FiMicOff, FiGlobe, FiUsers } from "react-icons/fi";
 import { createPost, completePost, elaboratePost, getUser, moderateImage } from "../api/api";
+import MentionDropdown from "../components/MentionDropdown";
 /**
  * Full-screen mobile-first post creation page.
  * Navigated to from the + button in the mobile bottom nav.
@@ -373,20 +374,27 @@ export default function CreatePostMobilePage() {
 
                 {/* Textarea */}
                 <div className="px-4 py-2">
-                    <textarea
-                        ref={textareaRef}
-                        value={displayContent}
-                        onChange={handleTextareaChange}
-                        placeholder="What's on your mind?"
-                        className="w-full text-[16px] text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
-                        style={{ minHeight: "120px" }}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                                e.preventDefault();
-                                handlePost();
-                            }
-                        }}
-                    />
+                    <div className="relative">
+                        <textarea
+                            ref={textareaRef}
+                            value={displayContent}
+                            onChange={handleTextareaChange}
+                            placeholder="What's on your mind?"
+                            className="w-full text-[16px] text-gray-800 placeholder-gray-400 focus:outline-none resize-none bg-transparent leading-relaxed"
+                            style={{ minHeight: "120px" }}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handlePost();
+                                }
+                            }}
+                        />
+                        <MentionDropdown
+                            textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
+                            content={content}
+                            setContent={setContent}
+                        />
+                    </div>
                 </div>
 
                 {/* AI Suggestion Area */}

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { FiHome, FiPlusSquare, FiSearch, FiUser, FiMessageSquare } from "react-icons/fi";
+import { FiHome, FiPlusSquare, FiBell, FiUser, FiMessageSquare } from "react-icons/fi";
 import { useState, useEffect } from "react";
 
 export default function MobileNavbar() {
@@ -62,13 +62,13 @@ export default function MobileNavbar() {
                     </div>
                 </Link>
 
-                {/* Search */}
+                {/* Notifications */}
                 <Link
-                    to="/search"
-                    className={`flex flex-col items-center justify-center w-1/5 h-full transition-colors ${isActive("/search") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
+                    to="/notifications"
+                    className={`flex flex-col items-center justify-center w-1/5 h-full transition-colors ${isActive("/notifications") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
                 >
-                    <FiSearch className={`text-2xl ${isActive("/search") ? "fill-current" : ""}`} />
-                    <span className="text-[10px] mt-0.5 font-hand">Search</span>
+                    <FiBell className={`text-2xl ${isActive("/notifications") ? "fill-current" : ""}`} />
+                    <span className="text-[10px] mt-0.5 font-hand">Alerts</span>
                 </Link>
 
                 {/* Profile */}
