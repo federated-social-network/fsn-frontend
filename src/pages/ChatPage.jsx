@@ -87,14 +87,17 @@ function getDateSeparator(dateStr) {
 // ─── Sub-components ─────────────────────────────────────────────────────────
 
 function Avatar({ name, url, size = 40, online }) {
+    const apiBase = getApiBase();
+    const fullUrl = url && url.startsWith('/') ? `${apiBase}${url}` : url;
+
     return (
         <div className="relative shrink-0 flex items-center justify-center">
             <div
                 className="rounded-full flex items-center justify-center overflow-hidden bg-stone-100 border border-stone-200 shadow-sm"
                 style={{ width: size, height: size }}
             >
-                {url ? (
-                    <img src={url} alt={name || "User"} className="w-full h-full object-cover" />
+                {fullUrl ? (
+                    <img src={fullUrl} alt={name || "User"} className="w-full h-full object-cover" />
                 ) : (
                     <svg
                         className="w-3/5 h-3/5 text-stone-300 mt-1"
@@ -607,6 +610,8 @@ export default function ChatPage() {
             setLocalStream(stream);
             setCallType(actualType);
             setCallerId(peer);
+            setRemoteDisplayName(selectedConv.display_name || selectedConv.username || peer);
+            setRemoteAvatarUrl(selectedConv.avatar_url);
             setCallState("calling");
 
             const pc = setupPeerConnection(peer);
@@ -622,9 +627,9 @@ export default function ChatPage() {
                     callType: actualType,
                     sdp: pc.localDescription,
                     sender_info: {
-                        display_name: localStorage.getItem("display_name") || currentUserId,
-                        avatar_url: localStorage.getItem("avatar_url"),
-                        username: localStorage.getItem("username")
+                        display_name: localStorage.getItem("display_name") || localStorage.getItem("username") || currentUserId,
+                        avatar_url: localStorage.getItem("user_avatar_url") || localStorage.getItem("avatar_url"),
+                        username: localStorage.getItem("username") || currentUserId
                     }
                 }));
             }
@@ -1302,35 +1307,61 @@ export default function ChatPage() {
 
                         {/* ── Call Overlay ─────────────────────────────────────── */}
                         {callState !== "idle" && (
-                            <div className="fixed bottom-6 right-6 w-80 h-[28rem] z-[100] bg-stone-900 text-white flex flex-col rounded-2xl shadow-2xl overflow-hidden border border-stone-700">
+                            <motion.div
+                                drag={window.innerWidth >= 640} // Only drag on desktop
+                                dragMomentum={false}
+                                className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-80 sm:h-[28rem] z-[100] bg-stone-900 text-white flex flex-col sm:rounded-2xl shadow-2xl overflow-hidden border-0 sm:border sm:border-stone-700 transition-shadow duration-300"
+                            >
+                                {/* Drag Handle (Desktop only) */}
+                                <div className="hidden sm:flex h-8 w-full items-center justify-center cursor-move bg-stone-800/50 hover:bg-stone-800 transition-colors shrink-0">
+                                    <div className="w-12 h-1 bg-stone-600 rounded-full" />
+                                </div>
+
                                 {callState === "receiving" ? (
-                                    <div className="flex-1 flex flex-col items-center justify-center gap-6 p-6">
-                                        <div className="relative">
-                                            <div className="absolute inset-0 bg-[#0891b2] rounded-full animate-ping opacity-20" />
-                                            <Avatar name={remoteDisplayName || callerId} url={remoteAvatarUrl} size={88} />
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-8 p-8 relative overflow-hidden">
+                                        {/* Background pulse effect for immersive feel */}
+                                        <div className="absolute inset-0 bg-stone-900 flex items-center justify-center opacity-40">
+                                            <div className="w-64 h-64 bg-[#0891b2] rounded-full blur-[100px] animate-pulse" />
                                         </div>
-                                        <div className="text-center space-y-1">
-                                            <h2 className="text-xl font-semibold leading-tight">Incoming {callType === "video" ? "Video" : "Voice"} Call</h2>
-                                            <p className="text-stone-400 text-sm">from {remoteDisplayName || getDisplayName(callerId)}</p>
+
+                                        <div className="relative z-10 flex flex-col items-center">
+                                            <div className="relative mb-6">
+                                                <div className="absolute inset-0 bg-[#0891b2] rounded-full animate-ping opacity-25" />
+                                                <Avatar name={remoteDisplayName || callerId} url={remoteAvatarUrl} size={100} />
+                                            </div>
+
+                                            <div className="text-center space-y-2">
+                                                <p className="text-[#0891b2] font-semibold tracking-wider text-xs uppercase mb-1">Incoming {callType || "Voice"} Call</p>
+                                                <h2 className="text-2xl font-bold leading-tight">{remoteDisplayName || getDisplayName(callerId)}</h2>
+                                                <p className="text-stone-400 text-sm">{callType === "video" ? "Video calling..." : "Voice calling..."}</p>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-6 mt-4">
-                                            <button
-                                                onClick={declineCall}
-                                                className="w-14 h-14 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-transform hover:scale-105"
-                                            >
-                                                <FiPhoneOff className="w-6 h-6 text-white" />
-                                            </button>
-                                            <button
-                                                onClick={acceptCall}
-                                                className="w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-transform hover:scale-105 animate-bounce"
-                                            >
-                                                <FiPhone className="w-6 h-6 text-white" />
-                                            </button>
+
+                                        <div className="flex items-center gap-8 mt-4 relative z-10">
+                                            <div className="flex flex-col items-center gap-2">
+                                                <button
+                                                    onClick={declineCall}
+                                                    className="w-14 h-14 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95"
+                                                >
+                                                    <FiPhoneOff className="w-6 h-6 text-white" />
+                                                </button>
+                                                <p className="text-xs text-stone-400 font-medium">Decline</p>
+                                            </div>
+
+                                            <div className="flex flex-col items-center gap-2">
+                                                <button
+                                                    onClick={acceptCall}
+                                                    className="w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95 animate-[bounce_2s_infinite]"
+                                                >
+                                                    <FiPhone className="w-6 h-6 text-white" />
+                                                </button>
+                                                <p className="text-xs text-stone-400 font-medium">Accept</p>
+                                            </div>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex-1 relative bg-black flex flex-col">
-                                        {/* Remote Video (takes up background) */}
+                                        {/* Remote Media (takes up background) */}
                                         <div className="flex-1 relative">
                                             {callType === "video" ? (
                                                 <video
@@ -1340,9 +1371,28 @@ export default function ChatPage() {
                                                     className="w-full h-full object-cover"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-stone-800">
-                                                    <Avatar name={remoteDisplayName || callerId || selectedConv?.username} url={remoteAvatarUrl} size={96} />
-                                                    {/* Use audio element for voice calls, visible but zero-size to avoid browser mute issues */}
+                                                <div className="w-full h-full flex flex-col items-center justify-center bg-stone-900 gap-6">
+                                                    {/* Immersive voice background */}
+                                                    <div className="absolute inset-0 opacity-20 pointer-events-none">
+                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#0891b2] rounded-full blur-[120px]" />
+                                                    </div>
+
+                                                    <div className="relative z-10">
+                                                        <Avatar name={remoteDisplayName || callerId || selectedConv?.username} url={remoteAvatarUrl} size={120} />
+                                                        {callState === "calling" && (
+                                                            <div className="absolute inset-0 border-4 border-[#0891b2]/30 rounded-full animate-ping" />
+                                                        )}
+                                                    </div>
+
+                                                    <div className="text-center space-y-2 relative z-10">
+                                                        <h3 className="text-white font-bold text-xl drop-shadow-md">
+                                                            {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
+                                                        </h3>
+                                                        <p className="text-[#0891b2] text-sm font-medium animate-pulse">
+                                                            {callState === "calling" ? "Ringing..." : "Connected"}
+                                                        </p>
+                                                    </div>
+
                                                     <audio
                                                         ref={remoteVideoRef}
                                                         autoPlay
@@ -1354,7 +1404,7 @@ export default function ChatPage() {
                                         </div>
 
                                         {/* Local Video (PiP) */}
-                                        <div className="absolute top-4 right-4 w-20 h-28 bg-stone-800 rounded-lg overflow-hidden shadow-xl border-2 border-stone-700/50 z-10 transition-all">
+                                        <div className="absolute top-6 right-6 w-24 h-36 bg-stone-800 rounded-xl overflow-hidden shadow-2xl border border-white/10 z-20 transition-all hover:scale-105">
                                             {callType === "video" ? (
                                                 <video
                                                     ref={localVideoRef}
@@ -1366,33 +1416,43 @@ export default function ChatPage() {
                                             ) : null}
                                             {(!callType || callType !== "video" || isVideoOff) && (
                                                 <div className="w-full h-full flex items-center justify-center bg-stone-800">
-                                                    <Avatar name={currentUserId} size={40} />
+                                                    <Avatar
+                                                        name={currentUserId}
+                                                        url={localStorage.getItem("user_avatar_url") || localStorage.getItem("avatar_url")}
+                                                        size={48}
+                                                    />
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* Call Title Text overlay */}
-                                        <div className="absolute top-4 left-4 z-10 max-w-[60%]">
-                                            <h3 className="text-white font-medium text-base drop-shadow-md truncate">
-                                                {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
-                                            </h3>
-                                            <p className="text-white/80 text-xs mt-0.5">
-                                                {callState === "calling" ? "Calling..." : "In Call"}
-                                            </p>
-                                        </div>
+                                        {/* Header Info Overlay for Video */}
+                                        {callType === "video" && (
+                                            <div className="absolute top-6 left-6 z-20">
+                                                <h3 className="text-white font-bold text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                                                    {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
+                                                </h3>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <div className={`w-2 h-2 rounded-full ${callState === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-yellow-500 animate-pulse'}`} />
+                                                    <p className="text-white/90 text-xs font-semibold drop-shadow-md">
+                                                        {callState === "calling" ? "Calling..." : "In Call"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
 
-                                        <div className="bg-gradient-to-t from-black/90 to-transparent flex items-center justify-center gap-4 pt-8 pb-5 px-4 absolute bottom-0 w-full z-10">
+                                        {/* Modern Floating Call Controls */}
+                                        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-30 px-5 py-3 bg-stone-900/60 backdrop-blur-xl rounded-full border border-white/10 shadow-2xl">
                                             <button
                                                 onClick={toggleMute}
-                                                className={`w-11 h-11 rounded-full flex items-center justify-center backdrop-blur transition-colors ${isMuted ? 'bg-white text-stone-900' : 'bg-stone-800/80 hover:bg-stone-700 text-white'}`}
+                                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isMuted ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/20 text-white'}`}
                                                 title={isMuted ? "Unmute" : "Mute"}
                                             >
-                                                {isMuted ? <FiMicOff className="w-5 h-5" /> : <FiMic className="w-5 h-5" />}
+                                                {isMuted ? <FiMicOff className="w-4 h-4" /> : <FiMic className="w-4 h-4" />}
                                             </button>
 
                                             <button
                                                 onClick={endCall}
-                                                className="w-12 h-12 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 text-white"
+                                                className="w-12 h-12 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110 active:scale-90 text-white"
                                             >
                                                 <FiPhoneOff className="w-5 h-5" />
                                             </button>
@@ -1400,16 +1460,16 @@ export default function ChatPage() {
                                             {callType === "video" && (
                                                 <button
                                                     onClick={toggleVideo}
-                                                    className={`w-11 h-11 rounded-full flex items-center justify-center backdrop-blur transition-colors ${isVideoOff ? 'bg-white text-stone-900' : 'bg-stone-800/80 hover:bg-stone-700 text-white'}`}
+                                                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isVideoOff ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/20 text-white'}`}
                                                     title={isVideoOff ? "Turn Video On" : "Turn Video Off"}
                                                 >
-                                                    {isVideoOff ? <FiVideoOff className="w-5 h-5" /> : <FiVideo className="w-5 h-5" />}
+                                                    {isVideoOff ? <FiVideoOff className="w-4 h-4" /> : <FiVideo className="w-4 h-4" />}
                                                 </button>
                                             )}
                                         </div>
                                     </div>
                                 )}
-                            </div>
+                            </motion.div>
                         )}
                     </>
                 ) : (
