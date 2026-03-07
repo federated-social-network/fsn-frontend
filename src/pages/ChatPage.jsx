@@ -240,6 +240,10 @@ export default function ChatPage() {
     const [isMuted, setIsMuted] = useState(false);
     const [isVideoOff, setIsVideoOff] = useState(false);
 
+    // Remote identity during call
+    const [remoteDisplayName, setRemoteDisplayName] = useState(null);
+    const [remoteAvatarUrl, setRemoteAvatarUrl] = useState(null);
+
     // Video refs for the UI
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
@@ -405,6 +409,10 @@ export default function ChatPage() {
                 if (data.type === "webrtc_offer") {
                     setCallType(data.callType);
                     setCallerId(data.sender_id);
+                    if (data.sender_info) {
+                        setRemoteDisplayName(data.sender_info.display_name);
+                        setRemoteAvatarUrl(data.sender_info.avatar_url);
+                    }
                     setCallState("receiving");
                     // Store the offer temporarily, we'll setRemoteDescription when user accepts
                     window.pendingOffer = data.sdp;
@@ -413,7 +421,12 @@ export default function ChatPage() {
 
                 if (data.type === "webrtc_answer") {
                     if (peerConnectionRef.current) {
-                        await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                        try {
+                            await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                            setCallState("connected");
+                        } catch (e) {
+                            console.error("Error setting remote description", e);
+                        }
                     }
                     return;
                 }
@@ -522,6 +535,8 @@ export default function ChatPage() {
         setCallState("idle");
         setCallType(null);
         setCallerId(null);
+        setRemoteDisplayName(null);
+        setRemoteAvatarUrl(null);
         setIsMuted(false);
         setIsVideoOff(false);
         window.pendingOffer = null;
@@ -604,8 +619,13 @@ export default function ChatPage() {
                 wsRef.current.send(JSON.stringify({
                     type: "webrtc_offer",
                     receiver_id: peer,
-                    callType: type,
-                    sdp: pc.localDescription
+                    callType: actualType,
+                    sdp: pc.localDescription,
+                    sender_info: {
+                        display_name: localStorage.getItem("display_name") || currentUserId,
+                        avatar_url: localStorage.getItem("avatar_url"),
+                        username: localStorage.getItem("username")
+                    }
                 }));
             }
         } catch (e) {
@@ -1287,11 +1307,11 @@ export default function ChatPage() {
                                     <div className="flex-1 flex flex-col items-center justify-center gap-6 p-6">
                                         <div className="relative">
                                             <div className="absolute inset-0 bg-[#0891b2] rounded-full animate-ping opacity-20" />
-                                            <Avatar name={callerId} size={88} />
+                                            <Avatar name={remoteDisplayName || callerId} url={remoteAvatarUrl} size={88} />
                                         </div>
                                         <div className="text-center space-y-1">
                                             <h2 className="text-xl font-semibold leading-tight">Incoming {callType === "video" ? "Video" : "Voice"} Call</h2>
-                                            <p className="text-stone-400 text-sm">from {getDisplayName(callerId)}</p>
+                                            <p className="text-stone-400 text-sm">from {remoteDisplayName || getDisplayName(callerId)}</p>
                                         </div>
                                         <div className="flex items-center gap-6 mt-4">
                                             <button
@@ -1321,7 +1341,14 @@ export default function ChatPage() {
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-stone-800">
-                                                    <Avatar name={callerId || selectedConv?.username} size={96} />
+                                                    <Avatar name={remoteDisplayName || callerId || selectedConv?.username} url={remoteAvatarUrl} size={96} />
+                                                    {/* Use audio element for voice calls, visible but zero-size to avoid browser mute issues */}
+                                                    <audio
+                                                        ref={remoteVideoRef}
+                                                        autoPlay
+                                                        playsInline
+                                                        className="w-0 h-0 opacity-0 absolute"
+                                                    />
                                                 </div>
                                             )}
                                         </div>
@@ -1347,20 +1374,20 @@ export default function ChatPage() {
                                         {/* Call Title Text overlay */}
                                         <div className="absolute top-4 left-4 z-10 max-w-[60%]">
                                             <h3 className="text-white font-medium text-base drop-shadow-md truncate">
-                                                {getDisplayName(selectedConv ? (selectedConv.other_user || selectedConv.user_id || selectedConv.username) : callerId)}
+                                                {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
                                             </h3>
                                             <p className="text-white/80 text-xs mt-0.5">
                                                 {callState === "calling" ? "Calling..." : "In Call"}
                                             </p>
                                         </div>
 
-                                        {/* Call Controls */}
                                         <div className="bg-gradient-to-t from-black/90 to-transparent flex items-center justify-center gap-4 pt-8 pb-5 px-4 absolute bottom-0 w-full z-10">
                                             <button
                                                 onClick={toggleMute}
                                                 className={`w-11 h-11 rounded-full flex items-center justify-center backdrop-blur transition-colors ${isMuted ? 'bg-white text-stone-900' : 'bg-stone-800/80 hover:bg-stone-700 text-white'}`}
+                                                title={isMuted ? "Unmute" : "Mute"}
                                             >
-                                                <FiMicOff className="w-5 h-5" />
+                                                {isMuted ? <FiMicOff className="w-5 h-5" /> : <FiMic className="w-5 h-5" />}
                                             </button>
 
                                             <button
@@ -1374,8 +1401,9 @@ export default function ChatPage() {
                                                 <button
                                                     onClick={toggleVideo}
                                                     className={`w-11 h-11 rounded-full flex items-center justify-center backdrop-blur transition-colors ${isVideoOff ? 'bg-white text-stone-900' : 'bg-stone-800/80 hover:bg-stone-700 text-white'}`}
+                                                    title={isVideoOff ? "Turn Video On" : "Turn Video Off"}
                                                 >
-                                                    <FiVideoOff className="w-5 h-5" />
+                                                    {isVideoOff ? <FiVideoOff className="w-5 h-5" /> : <FiVideo className="w-5 h-5" />}
                                                 </button>
                                             )}
                                         </div>
