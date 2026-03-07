@@ -268,13 +268,13 @@ export default function ChatPage() {
     }, [authToken]);
 
     // ── Fetch conversations + connections ────────────────────────────────────
-    const fetchConversations = useCallback(async () => {
+    const fetchConversations = useCallback(async (background = false) => {
         if (!authToken) {
             setLoadingConvos(false);
             return;
         }
         try {
-            setLoadingConvos(true);
+            if (!background) setLoadingConvos(true);
             const apiBase = getApiBase();
             const [convRes, connRes] = await Promise.all([
                 fetch(`${apiBase}/conversations`, {
@@ -296,7 +296,7 @@ export default function ChatPage() {
         } catch (err) {
             console.error("Failed to fetch conversations:", err);
         } finally {
-            setLoadingConvos(false);
+            if (!background) setLoadingConvos(false);
         }
     }, [authToken]);
 
@@ -407,8 +407,8 @@ export default function ChatPage() {
                     setUnread((prev) => ({ ...prev, [data.sender_id]: true }));
                 }
 
-                // Refresh conversation list to update last message previews
-                fetchConversations();
+                // Refresh conversation list to update last message previews silently
+                fetchConversations(true);
             } catch {
                 // ignore malformed frames
             }
