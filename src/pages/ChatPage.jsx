@@ -909,21 +909,21 @@ export default function ChatPage() {
                                                             : "bg-[#f4f4f5] text-stone-800 rounded-[20px] rounded-bl-[4px] border border-stone-200"
                                                             }`}
                                                     >
-                                                        <div className="flex flex-col">
+                                                        <div className="flex flex-wrap items-end justify-end gap-x-1.5 gap-y-0.5">
                                                             <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                                                             {isSent && (
-                                                                <div className="flex justify-end mt-1 -mb-1 mr-[-4px]">
+                                                                <div className="flex justify-end shrink-0 pb-0.5">
                                                                     {msg.is_read ? (
-                                                                        <div className="relative w-[18px] h-[14px]" title="Read">
-                                                                            <svg className="absolute left-0 w-[14px] h-[14px] text-[#0891b2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                                        <div className="relative w-[16px] h-[12px]" title="Read">
+                                                                            <svg className="absolute left-0 w-[12px] h-[12px] text-[#0891b2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                                                             </svg>
-                                                                            <svg className="absolute left-[5px] w-[14px] h-[14px] text-[#0891b2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                                            <svg className="absolute left-[4px] w-[12px] h-[12px] text-[#0891b2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                                                             </svg>
                                                                         </div>
                                                                     ) : (
-                                                                        <svg className="w-[14px] h-[14px] text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} title="Sent">
+                                                                        <svg className="w-[12px] h-[12px] text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} title="Sent">
                                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                                                         </svg>
                                                                     )}
