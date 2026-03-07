@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import ConfirmationModal from "./ConfirmationModal";
 import { getUser } from "../api/api";
 import { removeToken, removeRefreshToken } from "../utils/tokenStorage";
-import { FiLogOut, FiUser } from "react-icons/fi";
+import { FiLogOut, FiUser, FiBell } from "react-icons/fi";
 
 /**
  * The main navigation bar.
@@ -85,6 +85,17 @@ export default function Navbar() {
 
                     {/* RIGHT: User Controls */}
                     <div className="flex items-center gap-2 sm:gap-3 ml-auto sm:ml-0">
+
+                        {/* Notifications Link (Mobile Only) */}
+                        <Link
+                            to="/notifications"
+                            className="flex sm:hidden items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100/80 transition-colors text-gray-600 hover:text-gray-900 border-none group"
+                            title="Notifications"
+                        >
+                            <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}>
+                                <FiBell className="text-xl group-hover:fill-gray-100 transition-colors" />
+                            </motion.div>
+                        </Link>
 
                         {/* Profile Link */}
                         <Link

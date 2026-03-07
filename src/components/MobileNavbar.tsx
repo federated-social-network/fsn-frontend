@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { FiHome, FiPlusSquare, FiBell, FiUser, FiMessageSquare } from "react-icons/fi";
+import { FiHome, FiPlusSquare, FiUser, FiMessageSquare, FiSearch } from "react-icons/fi";
 import { useState, useEffect } from "react";
 
 export default function MobileNavbar() {
@@ -37,7 +37,7 @@ export default function MobileNavbar() {
                 {/* Home */}
                 <Link
                     to="/dashboard"
-                    className={`flex flex-col items-center justify-center w-1/5 h-full transition-colors ${isActive("/dashboard") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
+                    className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${isActive("/dashboard") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
                 >
                     <FiHome className={`text-2xl ${isActive("/dashboard") ? "fill-current" : ""}`} />
                     <span className="text-[10px] mt-0.5 font-hand">Feed</span>
@@ -46,7 +46,7 @@ export default function MobileNavbar() {
                 {/* Chat */}
                 <Link
                     to="/chat"
-                    className={`flex flex-col items-center justify-center w-1/5 h-full transition-colors ${isActive("/chat") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
+                    className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${isActive("/chat") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
                 >
                     <FiMessageSquare className={`text-2xl ${isActive("/chat") ? "fill-current" : ""}`} />
                     <span className="text-[10px] mt-0.5 font-hand">Chat</span>
@@ -55,26 +55,26 @@ export default function MobileNavbar() {
                 {/* Create Post */}
                 <Link
                     to="/create"
-                    className={`flex flex-col items-center justify-center w-1/5 h-full transition-colors ${isActive("/create") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
+                    className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${isActive("/create") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
                 >
                     <div className="bg-[var(--pastel-yellow)] text-black border-2 border-black rounded-lg p-1.5 hover:scale-105 active:scale-95 transition-transform shadow-sm">
                         <FiPlusSquare className="text-xl" />
                     </div>
                 </Link>
 
-                {/* Notifications */}
+                {/* Search */}
                 <Link
-                    to="/notifications"
-                    className={`flex flex-col items-center justify-center w-1/5 h-full transition-colors ${isActive("/notifications") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
+                    to="/search"
+                    className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${isActive("/search") ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
                 >
-                    <FiBell className={`text-2xl ${isActive("/notifications") ? "fill-current" : ""}`} />
-                    <span className="text-[10px] mt-0.5 font-hand">Alerts</span>
+                    <FiSearch className={`text-2xl ${isActive("/search") ? "fill-current" : ""}`} />
+                    <span className="text-[10px] mt-0.5 font-hand">Search</span>
                 </Link>
 
                 {/* Profile */}
                 <Link
                     to={`/profile/${username}`}
-                    className={`flex flex-col items-center justify-center w-1/5 h-full transition-colors ${isActive(`/profile/${username}`) ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
+                    className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${isActive(`/profile/${username}`) ? "text-[var(--primary)]" : "text-gray-500 hover:text-black"}`}
                 >
                     <FiUser className={`text-2xl ${isActive(`/profile/${username}`) ? "fill-current" : ""}`} />
                     <span className="text-[10px] mt-0.5 font-hand">Profile</span>
