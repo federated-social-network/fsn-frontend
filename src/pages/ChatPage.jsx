@@ -322,6 +322,13 @@ export default function ChatPage() {
                     created_at: msg.created_at || msg.timestamp || new Date().toISOString()
                 })) : [];
                 setMessages(normalized);
+
+                if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                    wsRef.current.send(JSON.stringify({
+                        type: "read_receipt",
+                        sender_id: peer
+                    }));
+                }
             })
             .catch((err) => console.error("Failed to load messages:", err))
             .finally(() => setLoadingMsgs(false));
@@ -366,17 +373,35 @@ export default function ChatPage() {
                 const activePeer =
                     activeConv?.other_user || activeConv?.user_id || activeConv?.username || null;
 
+                if (data.type === "read_receipt") {
+                    if (data.reader_id === activePeer) {
+                        setMessages((prev) => prev.map(m =>
+                            m.sender_id === currentUserId ? { ...m, is_read: true } : m
+                        ));
+                    }
+                    return;
+                }
+
                 if (data.sender_id === activePeer) {
                     // message belongs to the open conversation → append
                     setMessages((prev) => [
                         ...prev,
                         {
+                            id: data.id,
                             sender_id: data.sender_id,
                             receiver_id: currentUserId,
                             content: data.content,
-                            created_at: new Date().toISOString(),
+                            created_at: data.created_at || new Date().toISOString(),
+                            is_read: data.is_read || false,
                         },
                     ]);
+
+                    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                        wsRef.current.send(JSON.stringify({
+                            type: "read_receipt",
+                            sender_id: data.sender_id
+                        }));
+                    }
                 } else {
                     // message from a different user → mark unread
                     setUnread((prev) => ({ ...prev, [data.sender_id]: true }));
@@ -430,11 +455,12 @@ export default function ChatPage() {
                 receiver_id: peer,
                 content: text,
                 created_at: new Date().toISOString(),
+                is_read: false,
             },
         ]);
 
         // Send via WebSocket
-        const payload = JSON.stringify({ receiver_id: peer, content: text });
+        const payload = JSON.stringify({ type: "chat", receiver_id: peer, content: text });
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
             wsRef.current.send(payload);
         }
@@ -883,7 +909,27 @@ export default function ChatPage() {
                                                             : "bg-[#f4f4f5] text-stone-800 rounded-[20px] rounded-bl-[4px] border border-stone-200"
                                                             }`}
                                                     >
-                                                        <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                                                        <div className="flex flex-col">
+                                                            <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                                                            {isSent && (
+                                                                <div className="flex justify-end mt-1 -mb-1 mr-[-4px]">
+                                                                    {msg.is_read ? (
+                                                                        <div className="relative w-[18px] h-[14px]" title="Read">
+                                                                            <svg className="absolute left-0 w-[14px] h-[14px] text-[#0891b2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                                            </svg>
+                                                                            <svg className="absolute left-[5px] w-[14px] h-[14px] text-[#0891b2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                                            </svg>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <svg className="w-[14px] h-[14px] text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} title="Sent">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                                        </svg>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </motion.div>
 
                                                     {/* Hidden timestamp column (revealed on swipe or hover) */}
