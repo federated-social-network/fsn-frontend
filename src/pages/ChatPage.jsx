@@ -945,7 +945,7 @@ export default function ChatPage() {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search conversations…"
-                            className="w-full bg-stone-100/80 border border-transparent rounded-xl pl-10 pr-4 py-2 text-sm text-stone-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-stone-400 focus:ring-1 focus:ring-stone-400/50 transition-all"
+                            className="w-full bg-stone-100/80 border border-transparent rounded-xl !pl-10 pr-4 py-2 text-sm text-stone-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-stone-400 focus:ring-1 focus:ring-stone-400/50 transition-all"
                         />
                     </div>
                 </div>
