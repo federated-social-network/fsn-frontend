@@ -74,7 +74,7 @@ export default function NotificationsPanel({ notifications, loading }: Notificat
             {/* Notifications list */}
             {!loading && notifications.length > 0 && (
                 <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1" style={{ scrollbarWidth: "thin" }}>
-                    {notifications.map((n, i) => {
+                    {notifications.slice(0, 4).map((n, i) => {
                         const { icon, verb } = typeConfig(n.type);
                         return (
                             <motion.div

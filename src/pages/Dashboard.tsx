@@ -258,10 +258,10 @@ export default function Dashboard() {
       <Navbar />
 
       {/* --- Main Content Grid --- */}
-      <div className="flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 h-full">
+      <div className="flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 h-full">
 
         {/* --- LEFT SIDEBAR: Available Users --- */}
-        <aside className="md:col-span-3 hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-4" onWheel={forwardWheelToFeed}>
+        <aside className="md:w-[260px] hidden md:block h-full overflow-y-auto pb-4 scrollbar-hide space-y-4 shrink-0" onWheel={forwardWheelToFeed}>
           {/* Inbox Card */}
           <Link to="/chat" className="block group border-none">
             <div className="relative rounded-xl border-2 border-black overflow-hidden bg-[var(--pastel-mint)] hover:shadow-md transition-shadow cursor-pointer p-4">
@@ -376,7 +376,7 @@ export default function Dashboard() {
         <main
           ref={mainRef}
           onScroll={handleScroll}
-          className="col-span-1 md:col-span-6 h-full overflow-y-auto px-1 sm:px-2 pb-36 sm:pb-32 no-scrollbar relative mobile-scroll"
+          className="flex-1 min-w-0 h-full overflow-y-auto px-1 sm:px-2 pb-36 sm:pb-32 no-scrollbar relative mobile-scroll"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           <div className="space-y-4">
@@ -509,7 +509,7 @@ export default function Dashboard() {
 
 
         {/* --- RIGHT SIDEBAR: Info / Status --- */}
-        <aside className="md:col-span-3 hidden lg:block h-full overflow-y-auto p-4 no-scrollbar space-y-6" onWheel={forwardWheelToFeed}>
+        <aside className="md:w-[350px] hidden lg:block h-full overflow-y-auto p-4 no-scrollbar space-y-6 shrink-0" onWheel={forwardWheelToFeed}>
 
           {/* Pending Invites */}
           <SketchCard variant="paper" className="p-4 bg-[var(--pastel-pink)]">
