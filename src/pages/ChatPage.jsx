@@ -243,6 +243,44 @@ export default function ChatPage() {
     const [isMuted, setIsMuted] = useState(false);
     const [isVideoOff, setIsVideoOff] = useState(false);
 
+    // Call Resizing State (Desktop only)
+    const [callWidth, setCallWidth] = useState(() => Number(localStorage.getItem("callWidth")) || 320);
+    const [callHeight, setCallHeight] = useState(() => Number(localStorage.getItem("callHeight")) || 448);
+    const [isResizingCall, setIsResizingCall] = useState(false);
+    const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, w: 0, h: 0 });
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            if (!isResizingCall) return;
+
+            // Calculate delta relative to start (Top-Left resize)
+            const deltaX = resizeStart.x - e.clientX;
+            const deltaY = resizeStart.y - e.clientY;
+
+            const newWidth = resizeStart.w + deltaX;
+            const newHeight = resizeStart.h + deltaY;
+
+            if (newWidth >= 280 && newWidth <= 800) {
+                setCallWidth(newWidth);
+                localStorage.setItem("callWidth", newWidth);
+            }
+            if (newHeight >= 350 && newHeight <= 900) {
+                setCallHeight(newHeight);
+                localStorage.setItem("callHeight", newHeight);
+            }
+        };
+        const handleMouseUp = () => setIsResizingCall(false);
+
+        if (isResizingCall) {
+            document.addEventListener("mousemove", handleMouseMove);
+            document.addEventListener("mouseup", handleMouseUp);
+        }
+        return () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+    }, [isResizingCall, resizeStart]);
+
     // Remote identity during call
     const [remoteDisplayName, setRemoteDisplayName] = useState(null);
     const [remoteAvatarUrl, setRemoteAvatarUrl] = useState(null);
@@ -1308,13 +1346,32 @@ export default function ChatPage() {
                         {/* ── Call Overlay ─────────────────────────────────────── */}
                         {callState !== "idle" && (
                             <motion.div
-                                drag={window.innerWidth >= 640} // Only drag on desktop
+                                drag={window.innerWidth >= 640 && !isResizingCall} // Only drag on desktop
                                 dragMomentum={false}
-                                className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-80 sm:h-[28rem] z-[100] bg-stone-900 text-white flex flex-col sm:rounded-2xl shadow-2xl overflow-hidden border-0 sm:border sm:border-stone-700 transition-shadow duration-300"
+                                className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 z-[100] bg-stone-900 text-white flex flex-col sm:rounded-2xl shadow-2xl overflow-hidden border-0 sm:border sm:border-stone-700 transition-shadow duration-300"
+                                style={{
+                                    width: window.innerWidth < 640 ? "100%" : callWidth,
+                                    height: window.innerWidth < 640 ? "100%" : callHeight
+                                }}
                             >
-                                {/* Drag Handle (Desktop only) */}
-                                <div className="hidden sm:flex h-8 w-full items-center justify-center cursor-move bg-stone-800/50 hover:bg-stone-800 transition-colors shrink-0">
-                                    <div className="w-12 h-1 bg-stone-600 rounded-full" />
+                                {/* Resize Handle (Top-Left) - Visible & Tactile */}
+                                <div
+                                    className="hidden sm:flex absolute top-0 left-0 w-8 h-8 cursor-nwse-resize z-[110] items-center justify-center group"
+                                    onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        setResizeStart({ x: e.clientX, y: e.clientY, w: callWidth, h: callHeight });
+                                        setIsResizingCall(true);
+                                    }}
+                                >
+                                    <div className="w-4 h-4 border-t-2 border-l-2 border-white/40 group-hover:border-white transition-colors rounded-tl-sm" />
+                                </div>
+
+                                {/* Drag Handle (Desktop only) - Enhanced Visibility */}
+                                <div className="hidden sm:flex h-10 w-full items-center justify-center cursor-move bg-stone-800 hover:bg-stone-700 transition-colors shrink-0 border-b border-white/5">
+                                    <div className="flex flex-col gap-1 items-center">
+                                        <div className="w-16 h-1 bg-stone-600 rounded-full" />
+                                        <div className="w-10 h-0.5 bg-stone-700 rounded-full" />
+                                    </div>
                                 </div>
 
                                 {callState === "receiving" ? (
