@@ -3,7 +3,7 @@
  */
 export const INSTANCES = [
     {
-        name: "Social Community (Cloud)",
+        name: "Social Community",
         url: "https://instance-a-1094866630955.us-central1.run.app",
         color: "bg-cyan-100 border-cyan-300",
         description: "The default HeliiX social community — connect, share, and discover."
