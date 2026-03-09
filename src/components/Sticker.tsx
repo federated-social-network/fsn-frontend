@@ -10,7 +10,7 @@ export type StickerType =
     | "compass"
     | "stamp";
 
-    
+
 /**
  * Props for the Sticker component.
  */
@@ -53,6 +53,7 @@ export default function Sticker({ type, className = "", style }: StickerProps) {
                 <path d="M 20 32 L 20 40" stroke="#000" strokeWidth="2" opacity="0.5" />
             </svg>
         );
+        
     }
 
     if (type === "plane") {
