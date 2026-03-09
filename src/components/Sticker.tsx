@@ -10,6 +10,7 @@ export type StickerType =
     | "compass"
     | "stamp";
 
+    
 /**
  * Props for the Sticker component.
  */
