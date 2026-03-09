@@ -32,7 +32,6 @@ export default function GlassCard({ children, className = "", hoverEffect = fals
     const baseClasses = `${bgClass} border-2 border-black rounded-xl relative overflow-hidden shadow-[4px_4px_0px_rgba(0,0,0,1)]`;
     const hoverClasses = hoverEffect ? "hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all duration-300" : "";
 
-    
     // If hover effect is enabled, use motion.div for smoother interaction, otherwise simple div
     if (hoverEffect || onClick) {
         return (
