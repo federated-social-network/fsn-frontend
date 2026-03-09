@@ -891,276 +891,102 @@ export default function ChatPage() {
     //  RENDER
     // ═══════════════════════════════════════════════════════════════════════
     return (
-        <div className="flex h-screen bg-stone-50 text-stone-900 overflow-hidden font-sans">
-            {/* ── LEFT PANEL ─────────────────────────────────────────────────── */}
-            <aside
-                className={`${mobileShowChat ? "hidden" : "flex"
-                    } md:flex flex-col bg-white border-r-2 border-stone-800 shrink-0 relative transition-[width] duration-0 shadow-[4px_0_0_0_rgba(0,0,0,0.05)]`}
-                style={{
-                    width: typeof window !== "undefined" && window.innerWidth < 768 ? "100%" : sidebarWidth,
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0z' fill='none'/%3E%3Cpath d='M1 1l1 0M5 5l1 0M10 10l1 0M15 15l1 0M18 18l1 0' stroke='%23000' stroke-opacity='0.02'/%3E%3C/svg%3E")`
-                }}
-            >
-                {/* Drag Handle */}
-                <div
-                    className="absolute top-0 -right-1 w-2.5 h-full cursor-col-resize hover:bg-stone-200/60 transition-colors z-50 flex items-center justify-center group hidden md:flex"
-                    onMouseDown={(e) => {
-                        e.preventDefault();
-                        setIsResizing(true);
-                    }}
-                >
-                    <div className="w-0.5 h-8 bg-stone-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                {/* Header */}
-                <div className="px-4 pt-4 pb-3 border-b border-stone-200">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                            {/* Back to dashboard */}
-                            <a
-                                href="/dashboard"
-                                className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center transition-colors text-stone-500 hover:text-stone-700 shrink-0"
-                                title="Back to Dashboard"
-                            >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </a>
-                            <div>
-                                <h2 className="text-xl font-bold text-stone-900 truncate max-w-[140px]">
-                                    Messages
-                                </h2>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Search bar */}
-                    <div className="relative">
-                        <svg
-                            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
+        <div className="flex flex-col h-screen overflow-hidden bg-[#faf9f6] text-stone-900 font-sans selection:bg-[#0891b2] selection:text-white pb-16 md:pb-0">
+            {/* Top Navigation / Header for the whole Chat Page */}
+            {!selectedConv && (
+                <header className="shrink-0 flex items-center justify-between px-6 py-4 border-b-4 border-stone-800 bg-white" style={{boxShadow: "0 4px 0 0 rgba(28,25,23,1)"}}>
+                    <div className="flex items-center gap-4">
+                        <a
+                            href="/dashboard"
+                            className="w-10 h-10 border-2 border-stone-800 hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0_0_rgba(28,25,23,1)] flex items-center justify-center transition-all bg-[#fef08a] text-stone-900 rounded-none shadow-[2px_2px_0_0_rgba(28,25,23,1)]"
+                            title="Back to Dashboard"
                         >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        <h2 className="text-2xl font-black text-stone-900 uppercase tracking-tight" style={{fontFamily: "'Courier New', Courier, monospace"}}>
+                            Messages
+                        </h2>
+                    </div>
+                    <div className="relative w-full max-w-xs hidden md:block">
+                        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} >
                             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                         <input
                             type="text"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Search conversations…"
-                            className="w-full bg-stone-100/80 border border-transparent rounded-xl !pl-10 pr-4 py-2 text-sm text-stone-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-stone-400 focus:ring-1 focus:ring-stone-400/50 transition-all"
+                            placeholder="FIND SOMEONE..."
+                            className="w-full bg-white border-4 border-stone-800 rounded-none !pl-10 pr-4 py-2 font-bold text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:-translate-y-1 focus:-translate-x-1 transition-transform shadow-[4px_4px_0_0_rgba(28,25,23,1)]"
+                        />
+                    </div>
+                </header>
+            )}
+
+            {/* Mobile Search Bar */}
+            {!selectedConv && (
+                <div className="md:hidden px-4 py-4 border-b-4 border-stone-800 bg-white" style={{boxShadow: "0 4px 0 0 rgba(28,25,23,1)"}}>
+                    <div className="relative w-full">
+                        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="FIND SOMEONE..."
+                            className="w-full bg-white border-4 border-stone-800 rounded-none !pl-10 pr-4 py-3 font-bold text-sm text-stone-900 placeholder-stone-400 focus:outline-none block shadow-[4px_4px_0_0_rgba(28,25,23,1)]"
                         />
                     </div>
                 </div>
+            )}
 
-                {/* Conversation list + Connections */}
-                <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#d1d5db transparent" }}>
-                    {loadingConvos ? (
-                        <>
-                            <SkeletonRow />
-                            <SkeletonRow />
-                            <SkeletonRow />
-                            <SkeletonRow />
-                        </>
-                    ) : (
-                        <>
-                            {/* ── Recent Conversations ────────────────────── */}
-                            {filtered.length > 0 && (
-                                <div>
-                                    <div className="px-4 pt-3 pb-1">
-                                        <h3 className="text-xs font-semibold text-stone-400 uppercase tracking-wider">Recent Chats</h3>
-                                    </div>
-                                    {filtered.map((conv) => {
-                                        const peer = conv.other_user || conv.username;
-                                        const isActive =
-                                            selectedConv &&
-                                            (selectedConv.other_user || selectedConv.username) === peer;
-                                        const unreadCount = unread[peer] || 0;
-                                        const hasUnread = unreadCount > 0;
-
-                                        return (
-                                            <button
-                                                key={peer}
-                                                onClick={() => openChat(conv)}
-                                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors duration-150 border-none outline-none focus:outline-none ${isActive
-                                                    ? "bg-stone-100"
-                                                    : "bg-transparent hover:bg-stone-50/80"
-                                                    }`}
-                                                style={{ boxShadow: "none" }}
-                                            >
-                                                <div className="relative">
-                                                    <Avatar
-                                                        name={conv.display_name || conv.username}
-                                                        url={conv.avatar_url}
-                                                        size={44}
-                                                    />
-                                                    {hasUnread && (
-                                                        <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#0891b2] text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center">
-                                                            {unreadCount > 4 ? "4+" : unreadCount}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="flex-1 min-w-0 text-left">
-                                                    <div className="flex items-baseline justify-between gap-2">
-                                                        <span
-                                                            className={`text-sm truncate ${hasUnread
-                                                                ? "font-bold text-stone-900"
-                                                                : "font-medium text-stone-700"
-                                                                }`}
-                                                        >
-                                                            {conv.display_name || conv.username}
-                                                        </span>
-                                                        <span className="text-[11px] text-stone-400 shrink-0">
-                                                            {relativeTime(conv.created_at)}
-                                                        </span>
-                                                    </div>
-                                                    <p
-                                                        className={`text-xs truncate mt-0.5 ${hasUnread ? "font-bold text-stone-900" : "text-stone-400"
-                                                            }`}
-                                                    >
-                                                        {conv.content}
-                                                    </p>
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            )}
-
-                            {/* ── Your Connections ────────────────────────── */}
-                            {connections.length > 0 && (
-                                <div className="border-t border-stone-200">
-                                    <button
-                                        onClick={() => setConnectionsOpen((o) => !o)}
-                                        className="w-full flex items-center justify-between px-4 pt-4 pb-2 hover:bg-stone-50/80 transition-colors border-none outline-none focus:outline-none"
-                                        style={{ boxShadow: "none" }}
-                                    >
-                                        <h3 className="text-xs font-semibold text-stone-400 uppercase tracking-wider">Your Connections</h3>
-                                        <svg
-                                            className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${connectionsOpen ? "rotate-180" : ""
-                                                }`}
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-                                        >
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </button>
-
-                                    {connectionsOpen && (
-                                        <div className="py-1">
-                                            {(search ? newConnections : connections).length === 0 ? (
-                                                <p className="px-4 py-3 text-xs text-stone-400 italic text-center">
-                                                    {search ? "No matching connections" : "All connections have conversations"}
-                                                </p>
-                                            ) : (
-                                                (search ? newConnections : connections).map((conn) => {
-                                                    const peerId = conn.user_id || conn.username;
-                                                    const isActive =
-                                                        selectedConv &&
-                                                        (selectedConv.other_user || selectedConv.user_id || selectedConv.username) === peerId;
-                                                    const alreadyChatted = existingPeers.has(peerId);
-
-                                                    return (
-                                                        <button
-                                                            key={peerId}
-                                                            onClick={() => alreadyChatted
-                                                                ? openChat(conversations.find((c) => (c.other_user || c.username) === peerId))
-                                                                : startNewChat(conn)
-                                                            }
-                                                            className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 border-none outline-none focus:outline-none text-left ${isActive
-                                                                ? "bg-stone-50"
-                                                                : "hover:bg-stone-50"
-                                                                }`}
-                                                            style={{ boxShadow: "none" }}
-                                                        >
-                                                            <Avatar
-                                                                name={conn.username}
-                                                                url={conn.avatar_url}
-                                                                size={40}
-                                                            />
-                                                            <div className="flex-1 min-w-0">
-                                                                <p className="text-sm font-medium text-stone-700 truncate">
-                                                                    {conn.display_name || conn.username}
-                                                                </p>
-                                                                {conn.display_name && (
-                                                                    <p className="text-xs text-stone-400 truncate">@{conn.username}</p>
-                                                                )}
-                                                            </div>
-                                                        </button>
-                                                    );
-                                                })
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Empty state when both lists are empty */}
-                            {filtered.length === 0 && connections.length === 0 && (
-                                <div className="flex flex-col items-center justify-center h-full px-6 text-center">
-                                    <svg className="w-12 h-12 text-stone-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                    </svg>
-                                    <p className="text-sm text-stone-400">
-                                        {search ? "No matching results" : "No conversations or connections yet"}
-                                    </p>
-                                </div>
-                            )}
-                        </>
-                    )}
-                </div>
-            </aside>
-
-            {/* ── RIGHT PANEL ────────────────────────────────────────────────── */}
-            <main
-                className="flex flex-col flex-1 bg-stone-50 overflow-hidden w-full"
-            >
+            <main className="flex-1 flex flex-col overflow-hidden relative" style={{
+                    backgroundImage: `linear-gradient(#1c1917 1px, transparent 1px), linear-gradient(90deg, #1c1917 1px, transparent 1px)`,
+                    backgroundSize: `40px 40px`,
+                    backgroundPosition: `-10px -10px`,
+                    backgroundColor: `#faf9f6`
+                }}>
+                {/* semi-transparent overlay to make grid subtle */}
+                <div className="absolute inset-0 bg-[#faf9f6]/80 pointer-events-none" />
+                
                 {selectedConv ? (
-                    <>
-                        {/* Reconnecting banner */}
-                        {reconnecting && (
-                            <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-1.5 flex items-center gap-2 shrink-0">
-                                <svg className="animate-spin w-3.5 h-3.5 text-yellow-500" viewBox="0 0 24 24" fill="none">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                </svg>
-                                <span className="text-xs text-yellow-600">Reconnecting…</span>
-                            </div>
-                        )}
-
+                    // ── CHAT VIEW ──────────────────────────────────────────────
+                    <div className="flex-1 flex flex-col bg-white border-x-4 border-stone-900 mx-0 md:mx-auto w-full md:w-3/4 lg:w-2/3 md:my-6 md:shadow-[12px_12px_0_0_rgba(28,25,23,1)] relative overflow-hidden h-full z-10">
                         {/* Chat header */}
-                        <div className="shrink-0 flex items-center gap-3 px-4 py-2.5 border-b border-[#0891b2]/20 bg-[#0891b2]/50 shadow-sm sticky top-0 z-10 w-full">
-                            {/* Back button (mobile) */}
+                        <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b-4 border-stone-900 bg-[#fdfbf7] z-20 w-full relative">
                             <button
-                                onClick={() => setMobileShowChat(false)}
-                                className="md:hidden w-8 h-8 rounded-lg hover:bg-white/20 flex items-center justify-center transition-colors text-stone-900 -ml-2"
+                                onClick={backToList}
+                                className="w-10 h-10 border-2 border-stone-900 hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0_0_rgba(28,25,23,1)] flex items-center justify-center transition-all bg-white text-stone-900 shrink-0 shadow-[2px_2px_0_0_rgba(28,25,23,1)]"
                             >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                                 </svg>
                             </button>
 
                             <a
                                 href={`/profile/${selectedConv.username}`}
-                                className="flex items-center gap-3 hover:opacity-80 transition-opacity min-w-0"
+                                className="flex items-center gap-3 hover:-translate-y-0.5 transition-transform min-w-0"
                             >
-                                <Avatar
-                                    name={selectedConv.display_name || selectedConv.username}
-                                    url={selectedConv.avatar_url}
-                                    size={36}
-                                    online={wsConnected}
-                                />
-
+                                <div className="border-2 border-stone-900 rounded-full bg-white p-0.5 shadow-[2px_2px_0_0_rgba(28,25,23,1)]">
+                                    <Avatar
+                                        name={selectedConv.display_name || selectedConv.username}
+                                        url={selectedConv.avatar_url}
+                                        size={36}
+                                        online={wsConnected}
+                                    />
+                                </div>
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="text-sm font-semibold text-stone-900 truncate">
+                                    <h3 className="text-base font-black text-stone-900 truncate uppercase tracking-tight">
                                         {selectedConv.display_name || selectedConv.username}
                                     </h3>
-                                    <div className="flex items-center gap-1.5">
+                                    <div className="flex items-center gap-1.5 mt-0.5">
                                         <span
-                                            className={`w-1.5 h-1.5 rounded-full ${wsConnected ? "bg-stone-900" : "bg-stone-500"
+                                            className={`w-2.5 h-2.5 border-2 border-stone-900 rounded-full ${wsConnected ? "bg-green-400" : "bg-stone-400"
                                                 }`}
                                         />
-                                        <span className="text-xs text-stone-800 font-medium">
+                                        <span className="text-[10px] text-stone-800 font-bold uppercase tracking-widest">
                                             {wsConnected ? "Online" : "Offline"}
                                         </span>
                                     </div>
@@ -1168,44 +994,52 @@ export default function ChatPage() {
                             </a>
 
                             {/* Call Buttons */}
-                            <div className="ml-auto flex items-center gap-2">
+                            <div className="ml-auto flex items-center gap-3">
                                 <button
                                     onClick={() => startCall("voice")}
                                     disabled={!wsConnected || callState !== "idle"}
-                                    className="w-9 h-9 flex items-center justify-center rounded-full text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 transition-colors disabled:opacity-50"
+                                    className="w-10 h-10 border-2 border-stone-900 flex items-center justify-center bg-[#fef08a] text-stone-900 hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0_0_rgba(28,25,23,1)] transition-all shadow-[2px_2px_0_0_rgba(28,25,23,1)] disabled:opacity-50 disabled:pointer-events-none"
                                     title="Voice Call"
                                 >
-                                    <FiPhone className="w-[18px] h-[18px]" />
+                                    <FiPhone className="w-5 h-5" />
                                 </button>
                                 <button
                                     onClick={() => startCall("video")}
                                     disabled={!wsConnected || callState !== "idle"}
-                                    className="w-9 h-9 flex items-center justify-center rounded-full text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 transition-colors disabled:opacity-50"
+                                    className="w-10 h-10 border-2 border-stone-900 flex items-center justify-center bg-[#0891b2] text-white hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0_0_rgba(28,25,23,1)] transition-all shadow-[2px_2px_0_0_rgba(28,25,23,1)] disabled:opacity-50 disabled:pointer-events-none"
                                     title="Video Call"
                                 >
-                                    <FiVideo className="w-[20px] h-[20px]" />
+                                    <FiVideo className="w-5 h-5" />
                                 </button>
                             </div>
                         </div>
 
-                        {/* Messages — WhatsApp-style subtle pattern background */}
+                        {/* Reconnecting banner inside chat */}
+                        {reconnecting && (
+                            <div className="bg-yellow-400 border-b-4 border-stone-900 px-4 py-2 flex items-center gap-3 shrink-0 uppercase font-black text-sm tracking-wider shadow-[0_4px_0_0_rgba(28,25,23,1)] z-10 rotate-[0.5deg]">
+                                <span className="text-stone-900">Reconnecting…</span>
+                            </div>
+                        )}
+
+                        {/* Messages Area */}
                         <div
-                            className="flex-1 overflow-y-auto overflow-x-hidden relative"
+                            className="flex-1 overflow-y-auto overflow-x-hidden relative p-4"
                             style={{
                                 scrollbarWidth: "thin",
-                                scrollbarColor: "#d1d5db transparent",
-                                backgroundColor: "#efeae2",
-                                backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' opacity='0.04'%3E%3Cpath d='M 20 20 L 25 10 L 30 20 L 40 25 L 30 30 L 25 40 L 20 30 L 10 25 Z' transform='scale(0.5) translate(20, 20) rotate(15)'/%3E%3Cpath d='M15 80l10 0m-5-5l0 10'/%3E%3Cpath d='M 40 50 Q 45 45, 50 50 T 60 50'/%3E%3Cpath d='M70 90l10-10m0 10l-10-10'/%3E%3Ccircle cx='80' cy='20' r='4'/%3E%3Ccircle cx='75' cy='75' r='1' fill='%23000000'/%3E%3Ccircle cx='10' cy='50' r='1' fill='%23000000'/%3E%3Ccircle cx='90' cy='50' r='1' fill='%23000000'/%3E%3Ccircle cx='50' cy='10' r='1' fill='%23000000'/%3E%3Ccircle cx='45' cy='90' r='1' fill='%23000000'/%3E%3C/g%3E%3C/svg%3E")`,
+                                scrollbarColor: "#1c1917 transparent",
+                                backgroundColor: "#fdfbf7",
                             }}
                         >
                             {loadingMsgs ? (
                                 <SkeletonMessages />
                             ) : messages.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center h-full gap-2 text-stone-400">
-                                    <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                    </svg>
-                                    <p className="text-sm">Say hello! 👋</p>
+                                <div className="flex flex-col items-center justify-center h-full gap-4">
+                                    <div className="w-24 h-24 border-4 border-stone-900 bg-white shadow-[8px_8px_0_0_rgba(28,25,23,1)] flex items-center justify-center rotate-[-5deg]">
+                                        <svg className="w-12 h-12 text-stone-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                        </svg>
+                                    </div>
+                                    <p className="font-black text-xl uppercase tracking-widest bg-[#fef08a] px-4 py-1 border-4 border-stone-900 shadow-[4px_4px_0_0_rgba(28,25,23,1)] rotate-[2deg]">Say Hello!</p>
                                 </div>
                             ) : (
                                 <motion.div
@@ -1213,43 +1047,40 @@ export default function ChatPage() {
                                     dragConstraints={{ left: -60, right: 0 }}
                                     dragDirectionLock
                                     dragElastic={0.1}
-                                    className="w-full min-h-full py-4 space-y-1 relative"
+                                    className="w-full min-h-full py-4 space-y-4 relative"
                                 >
                                     {messages.map((msg, i) => {
                                         const isSent = msg.sender_id === currentUserId;
 
                                         const prevMsg = messages[i - 1];
                                         const isNewDay = !prevMsg || !isSameDay(parseDateUtc(msg.created_at), parseDateUtc(prevMsg.created_at));
-
-                                        // 1 hour gap check
                                         const isHourGap = !prevMsg || (parseDateUtc(msg.created_at).getTime() - parseDateUtc(prevMsg.created_at).getTime() > 60 * 60 * 1000);
-                                        const showTimeSep = isNewDay || isHourGap;
-
+                                        
                                         return (
                                             <div key={i} className="group relative w-full">
                                                 {isNewDay && (
-                                                    <div className="flex justify-center my-6">
-                                                        <span className="text-xs font-medium text-stone-500 bg-white border border-stone-200 px-4 py-1.5 rounded-full shadow-sm">
+                                                    <div className="flex justify-center my-8">
+                                                        <span className="text-xs font-black text-stone-900 bg-[#fef08a] border-2 border-stone-900 px-4 py-1.5 shadow-[2px_2px_0_0_rgba(28,25,23,1)] rotate-[-2deg] uppercase tracking-widest">
                                                             {getDateSeparator(msg.created_at)}
                                                         </span>
                                                     </div>
                                                 )}
                                                 {!isNewDay && isHourGap && (
-                                                    <div className="flex justify-center my-4">
-                                                        <span className="text-[11px] font-medium text-stone-400 bg-transparent px-3 py-1">
+                                                    <div className="flex justify-center my-5">
+                                                        <span className="text-[10px] font-black text-stone-500 bg-white border-2 border-stone-900 px-3 py-1 shadow-[2px_2px_0_0_rgba(28,25,23,1)] rotate-[1deg]">
                                                             {msgTime(msg.created_at)}
                                                         </span>
                                                     </div>
                                                 )}
                                                 <div
-                                                    className={`flex w-full px-4 relative mt-1 ${isSent ? "justify-end" : "justify-start"}`}
+                                                    className={`flex w-full px-2 relative mt-2 ${isSent ? "justify-end" : "justify-start"}`}
                                                 >
                                                     {!isSent && (
-                                                        <div className="flex-shrink-0 mr-2 self-end mb-0.5">
+                                                        <div className="flex-shrink-0 mr-3 self-end mb-2 border-2 border-stone-900 rounded-full bg-[#f4f4f5] p-0.5 shadow-[2px_2px_0_0_rgba(28,25,23,1)]">
                                                             <Avatar
                                                                 name={selectedConv.display_name || selectedConv.username}
                                                                 url={selectedConv.avatar_url}
-                                                                size={24}
+                                                                size={28}
                                                             />
                                                         </div>
                                                     )}
@@ -1258,26 +1089,26 @@ export default function ChatPage() {
                                                         dragConstraints={{ left: -50, right: 0 }}
                                                         dragDirectionLock
                                                         dragElastic={0.1}
-                                                        className={`max-w-[100%] sm:max-w-[70%] px-4 py-2 text-[14px] leading-snug shadow-sm relative z-10 ${isSent
-                                                            ? "bg-[#0891b2]/50 text-stone-900 rounded-[20px] rounded-br-[4px]"
-                                                            : "bg-[#f4f4f5] text-stone-800 rounded-[20px] rounded-bl-[4px] border border-stone-200"
+                                                        className={`max-w-[100%] sm:max-w-[75%] px-4 py-3 text-[15px] font-medium leading-relaxed relative z-10 border-2 border-stone-900 transition-transform hover:-translate-y-0.5 ${isSent
+                                                            ? "bg-[#0891b2] text-white shadow-[4px_4px_0_0_rgba(28,25,23,1)] ml-auto"
+                                                            : "bg-white text-stone-900 shadow-[4px_4px_0_0_rgba(28,25,23,1)]"
                                                             }`}
                                                     >
-                                                        <div className="flex flex-wrap items-end justify-end gap-x-1.5 gap-y-0.5">
+                                                        <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
                                                             <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                                                             {isSent && (
-                                                                <div className="flex justify-end shrink-0 pb-0.5">
+                                                                <div className="flex justify-end shrink-0 pb-0.5 ml-auto">
                                                                     {msg.is_read ? (
-                                                                        <div className="relative w-[16px] h-[12px]" title="Read">
-                                                                            <svg className="absolute left-0 w-[12px] h-[12px] text-[#0891b2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                                        <div className="relative w-[18px] h-[14px]" title="Read">
+                                                                            <svg className="absolute left-0 w-[14px] h-[14px] text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
                                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                                                             </svg>
-                                                                            <svg className="absolute left-[4px] w-[12px] h-[12px] text-[#0891b2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                                            <svg className="absolute left-[5px] w-[14px] h-[14px] text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
                                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                                                             </svg>
                                                                         </div>
                                                                     ) : (
-                                                                        <svg className="w-[12px] h-[12px] text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} title="Sent">
+                                                                        <svg className="w-[14px] h-[14px] text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4} title="Sent">
                                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                                                         </svg>
                                                                     )}
@@ -1285,46 +1116,45 @@ export default function ChatPage() {
                                                             )}
                                                         </div>
                                                     </motion.div>
-
-                                                    {/* Hidden timestamp column (revealed on swipe or hover) */}
-                                                    <div className="absolute right-[-45px] top-1/2 -translate-y-1/2 text-[11px] font-medium text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity w-[45px] text-center select-none pointer-events-none z-0">
+                                                    {/* Hidden timestamp */}
+                                                    <div className="absolute right-[-45px] top-1/2 -translate-y-1/2 text-[11px] font-black text-stone-500 opacity-0 group-hover:opacity-100 transition-opacity w-[45px] text-center select-none pointer-events-none z-0">
                                                         {msgTime(msg.created_at)}
                                                     </div>
                                                 </div>
                                             </div>
                                         );
                                     })}
-                                    <div ref={messagesEndRef} className="h-4" />
+                                    <div ref={messagesEndRef} className="h-6" />
                                 </motion.div>
                             )}
                         </div>
 
                         {/* Input bar */}
-                        <div className="shrink-0 px-3 py-2 border-t border-stone-200 bg-white/90 backdrop-blur-sm relative z-20">
+                        <div className="shrink-0 px-4 py-4 border-t-4 border-stone-900 bg-[#fdfbf7] relative z-20">
                             {showEmojiPicker && (
-                                <div className="absolute bottom-16 left-2 shadow-xl rounded-xl overflow-hidden z-50">
+                                <div className="absolute bottom-24 left-4 border-4 border-stone-900 shadow-[8px_8px_0_0_rgba(28,25,23,1)] bg-white rounded-none overflow-hidden z-50 p-1">
                                     <EmojiPicker height={350} searchDisabled theme="light" onEmojiClick={handleEmojiClick} />
                                 </div>
                             )}
-                            <div className="flex items-end gap-2">
-                                <div className="flex-1 shrink flex items-end bg-stone-100 border border-stone-200 rounded-3xl transition-colors focus-within:border-blue-400 focus-within:bg-white overflow-hidden min-h-[40px]">
-                                    <button
-                                        onClick={() => setShowEmojiPicker((prev) => !prev)}
-                                        className="chat-icon-btn flex-none flex items-center justify-center pl-3.5 pr-1.5 py-3 text-stone-500 transition-colors self-end mb-0"
-                                        style={{ WebkitTapHighlightColor: "transparent" }}
-                                    >
-                                        <FiSmile className="w-[18px] h-[18px]" />
-                                    </button>
+                            <div className="flex items-end gap-3">
+                                <button
+                                    onClick={() => setShowEmojiPicker((prev) => !prev)}
+                                    className="w-14 h-14 flex items-center justify-center border-2 border-stone-900 bg-[#fef08a] text-stone-900 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0_0_rgba(28,25,23,1)] transition-all shrink-0 shadow-[2px_2px_0_0_rgba(28,25,23,1)]"
+                                >
+                                    <FiSmile className="w-6 h-6" />
+                                </button>
+                                
+                                <div className="flex-1 flex bg-white border-2 border-stone-900 shadow-[2px_2px_0_0_rgba(28,25,23,1)] focus-within:shadow-[6px_6px_0_0_rgba(28,25,23,1)] focus-within:-translate-y-1 focus-within:-translate-x-1 transition-all overflow-hidden min-h-[56px] p-1">
                                     <textarea
                                         ref={inputRef}
                                         value={inputText}
                                         onChange={(e) => setInputText(e.target.value)}
                                         onKeyDown={handleKeyDown}
                                         onFocus={() => setShowEmojiPicker(false)}
-                                        placeholder="Type a message…"
+                                        placeholder="Write something..."
                                         rows={1}
-                                        className="flex-1 w-full resize-none bg-transparent py-2.5 pr-4 pl-1 text-sm text-stone-900 placeholder-gray-500 focus:outline-none leading-snug no-scrollbar"
-                                        style={{ maxHeight: "100px", overflow: "hidden" }}
+                                        className="flex-1 w-full resize-none bg-transparent py-3 px-3 text-base font-bold text-stone-900 placeholder-stone-400 focus:outline-none leading-snug no-scrollbar"
+                                        style={{ maxHeight: "120px", overflow: "hidden" }}
                                         onInput={(e) => {
                                             const el = e.currentTarget;
                                             el.style.height = "auto";
@@ -1333,35 +1163,32 @@ export default function ChatPage() {
                                     />
                                 </div>
 
-                                <div className="w-[40px] flex justify-center">
-                                    <button
-                                        onClick={handleSend}
-                                        disabled={!inputText.trim()}
-                                        className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 shadow-sm mb-0 ${inputText.trim()
-                                            ? "bg-[#0891b2]/80 hover:bg-[#0891b2] text-white active:scale-95"
-                                            : "bg-[#0891b2]/30 text-white/50 cursor-not-allowed"
-                                            }`}
-                                    >
-                                        <svg className="w-4 h-4 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                        </svg>
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={handleSend}
+                                    disabled={!inputText.trim()}
+                                    className={`w-16 h-14 border-2 border-stone-900 flex items-center justify-center shrink-0 transition-all shadow-[2px_2px_0_0_rgba(28,25,23,1)] ${inputText.trim()
+                                        ? "bg-[#0891b2] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_rgba(28,25,23,1)] text-white active:translate-y-0 active:translate-x-0 active:shadow-none"
+                                        : "bg-stone-200 text-stone-400 cursor-not-allowed"
+                                        }`}
+                                >
+                                    <svg className="w-7 h-7 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
 
-                        {/* ── Call Overlay ─────────────────────────────────────── */}
+                        {/* Call Overlay */}
                         {callState !== "idle" && (
                             <motion.div
-                                drag={window.innerWidth >= 640 && !isResizingCall} // Only drag on desktop
+                                drag={window.innerWidth >= 640 && !isResizingCall}
                                 dragMomentum={false}
-                                className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 z-[100] bg-stone-900 text-white flex flex-col sm:rounded-2xl shadow-2xl overflow-hidden border-0 sm:border sm:border-stone-700 transition-shadow duration-300"
+                                className="fixed inset-0 sm:inset-auto sm:bottom-8 sm:right-8 z-[100] bg-stone-900 text-white flex flex-col border-4 border-stone-900 shadow-[12px_12px_0_0_rgba(28,25,23,1)] overflow-hidden"
                                 style={{
                                     width: window.innerWidth < 640 ? "100%" : callWidth,
                                     height: window.innerWidth < 640 ? "100%" : callHeight
                                 }}
                             >
-                                {/* Resize Handle (Top-Left) - Visible & Tactile */}
                                 <div
                                     className="hidden sm:flex absolute top-0 left-0 w-8 h-8 cursor-nwse-resize z-[110] items-center justify-center group"
                                     onMouseDown={(e) => {
@@ -1370,164 +1197,83 @@ export default function ChatPage() {
                                         setIsResizingCall(true);
                                     }}
                                 >
-                                    <div className="w-4 h-4 border-t-2 border-l-2 border-white/40 group-hover:border-white transition-colors rounded-tl-sm" />
+                                    <div className="w-4 h-4 border-t-4 border-l-4 border-[#0891b2] group-hover:border-white transition-colors" />
                                 </div>
 
-                                {/* Drag Handle (Desktop only) - Enhanced Visibility */}
-                                <div className="hidden sm:flex h-10 w-full items-center justify-center cursor-move bg-stone-800 hover:bg-stone-700 transition-colors shrink-0 border-b border-white/5">
-                                    <div className="flex flex-col gap-1 items-center">
-                                        <div className="w-16 h-1 bg-stone-600 rounded-full" />
-                                        <div className="w-10 h-0.5 bg-stone-700 rounded-full" />
+                                <div className="hidden sm:flex h-10 w-full items-center justify-center cursor-move bg-[#fef08a] border-b-4 border-stone-900 shrink-0">
+                                    <div className="flex gap-2 items-center text-stone-900 font-black uppercase text-xs tracking-widest">
+                                        <div className="w-2 h-2 rounded-full bg-stone-900 animate-pulse" />
+                                        Call Active
                                     </div>
                                 </div>
 
+                                {/* Call internal content */}
                                 {callState === "receiving" ? (
-                                    <div className="flex-1 flex flex-col items-center justify-center gap-8 p-8 relative overflow-hidden">
-                                        {/* Background pulse effect for immersive feel */}
-                                        <div className="absolute inset-0 bg-stone-900 flex items-center justify-center opacity-40">
-                                            <div className="w-64 h-64 bg-[#0891b2] rounded-full blur-[100px] animate-pulse" />
-                                        </div>
-
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-8 p-8 relative bg-[#fdfbf7] text-stone-900 w-full h-full pb-16"
+                                        style={{backgroundImage: `radial-gradient(#1c1917 1px, transparent 1px)`, backgroundSize: `20px 20px`, backgroundPosition: `-10px -10px`}}>
                                         <div className="relative z-10 flex flex-col items-center">
-                                            <div className="relative mb-6">
-                                                <div className="absolute inset-0 bg-[#0891b2] rounded-full animate-ping opacity-25" />
+                                            <div className="border-4 border-stone-900 mb-6 p-2 bg-white shadow-[8px_8px_0_0_rgba(28,25,23,1)] rotate-[3deg]">
                                                 <Avatar name={remoteDisplayName || callerId} url={remoteAvatarUrl} size={100} />
                                             </div>
-
-                                            <div className="text-center space-y-2">
-                                                <p className="text-[#0891b2] font-semibold tracking-wider text-xs uppercase mb-1">Incoming {callType || "Voice"} Call</p>
-                                                <h2 className="text-2xl font-bold leading-tight">{remoteDisplayName || getDisplayName(callerId)}</h2>
-                                                <p className="text-stone-400 text-sm">{callType === "video" ? "Video calling..." : "Voice calling..."}</p>
+                                            <div className="text-center space-y-2 mt-4">
+                                                <p className="font-black tracking-widest text-sm uppercase bg-black text-white inline-block px-3 py-1 shadow-[4px_4px_0_0_rgba(28,25,23,0.2)] rotate-[-2deg]">Incoming {callType || "Voice"} Call</p>
+                                                <h2 className="text-3xl font-black mt-4 uppercase stroke-black">{remoteDisplayName || getDisplayName(callerId)}</h2>
                                             </div>
                                         </div>
-
-                                        <div className="flex items-center gap-8 mt-4 relative z-10">
-                                            <div className="flex flex-col items-center gap-2">
-                                                <button
-                                                    onClick={declineCall}
-                                                    className="w-14 h-14 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95"
-                                                >
-                                                    <FiPhoneOff className="w-6 h-6 text-white" />
-                                                </button>
-                                                <p className="text-xs text-stone-400 font-medium">Decline</p>
-                                            </div>
-
-                                            <div className="flex flex-col items-center gap-2">
-                                                <button
-                                                    onClick={acceptCall}
-                                                    className="w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95 animate-[bounce_2s_infinite]"
-                                                >
-                                                    <FiPhone className="w-6 h-6 text-white" />
-                                                </button>
-                                                <p className="text-xs text-stone-400 font-medium">Accept</p>
-                                            </div>
+                                        <div className="flex items-center gap-8 mt-4">
+                                            <button onClick={declineCall} className="w-16 h-16 bg-red-500 border-4 border-stone-900 flex items-center justify-center shadow-[6px_6px_0_0_rgba(28,25,23,1)] hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(28,25,23,1)] transition-all">
+                                                <FiPhoneOff className="w-8 h-8 text-stone-900" />
+                                            </button>
+                                            <button onClick={acceptCall} className="w-16 h-16 bg-[#4ade80] border-4 border-stone-900 flex items-center justify-center shadow-[6px_6px_0_0_rgba(28,25,23,1)] hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(28,25,23,1)] transition-all animate-bounce">
+                                                <FiPhone className="w-8 h-8 text-stone-900" />
+                                            </button>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex-1 relative bg-black flex flex-col">
-                                        {/* Remote Media (takes up background) */}
+                                    <div className="flex-1 relative bg-stone-900 flex flex-col">
                                         <div className="flex-1 relative">
                                             {callType === "video" ? (
-                                                <video
-                                                    ref={remoteVideoRef}
-                                                    autoPlay
-                                                    playsInline
-                                                    className="w-full h-full object-cover"
-                                                />
+                                                <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover grayscale" style={{filter: 'contrast(1.2)'}} />
                                             ) : (
-                                                <div className="w-full h-full flex flex-col items-center justify-center bg-stone-900 gap-6">
-                                                    {/* Immersive voice background */}
-                                                    <div className="absolute inset-0 opacity-20 pointer-events-none">
-                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#0891b2] rounded-full blur-[120px]" />
-                                                    </div>
-
-                                                    <div className="relative z-10">
+                                                <div className="w-full h-full flex flex-col items-center justify-center bg-[#fdfbf7] gap-6"
+                                                     style={{backgroundImage: `radial-gradient(#1c1917 1px, transparent 1px)`, backgroundSize: `20px 20px`}}>
+                                                    <div className="border-4 border-stone-900 p-2 bg-white shadow-[8px_8px_0_0_rgba(28,25,23,1)] relative z-10 rotate-[-2deg]">
                                                         <Avatar name={remoteDisplayName || callerId || selectedConv?.username} url={remoteAvatarUrl} size={120} />
-                                                        {callState === "calling" && (
-                                                            <div className="absolute inset-0 border-4 border-[#0891b2]/30 rounded-full animate-ping" />
-                                                        )}
                                                     </div>
-
-                                                    <div className="text-center space-y-2 relative z-10">
-                                                        <h3 className="text-white font-bold text-xl drop-shadow-md">
+                                                    <div className="text-center space-y-2 relative z-10 mt-4">
+                                                        <h3 className="text-stone-900 font-black text-2xl uppercase tracking-tighter bg-[#fef08a] border-4 border-stone-900 px-4 py-2 shadow-[4px_4px_0_0_rgba(28,25,23,1)] rotate-[2deg]">
                                                             {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
                                                         </h3>
-                                                        <p className="text-[#0891b2] text-sm font-medium animate-pulse">
+                                                        <p className="bg-black text-white border-2 border-stone-900 inline-block px-4 py-1 font-bold mt-2 rotate-[1deg]">
                                                             {callState === "calling" ? "Ringing..." : "Connected"}
                                                         </p>
                                                     </div>
-
-                                                    <audio
-                                                        ref={remoteVideoRef}
-                                                        autoPlay
-                                                        playsInline
-                                                        className="w-0 h-0 opacity-0 absolute"
-                                                    />
+                                                    <audio ref={remoteVideoRef} autoPlay playsInline className="w-0 h-0 opacity-0 absolute"/>
                                                 </div>
                                             )}
                                         </div>
-
-                                        {/* Local Video (PiP) */}
-                                        <div className="absolute top-6 right-6 w-24 h-36 bg-stone-800 rounded-xl overflow-hidden shadow-2xl border border-white/10 z-20 transition-all hover:scale-105">
+                                        {/* Local Video PiP */}
+                                        <div className="absolute top-6 right-6 w-24 h-36 bg-white border-4 border-stone-900 shadow-[6px_6px_0_0_rgba(28,25,23,1)] z-20 overflow-hidden">
                                             {callType === "video" ? (
-                                                <video
-                                                    ref={localVideoRef}
-                                                    autoPlay
-                                                    playsInline
-                                                    muted
-                                                    className={`w-full h-full object-cover -scale-x-100 ${isVideoOff ? "hidden" : "block"}`}
-                                                />
+                                                <video ref={localVideoRef} autoPlay playsInline muted className={`w-full h-full object-cover -scale-x-100 ${isVideoOff ? "hidden" : "block"}`} />
                                             ) : null}
                                             {(!callType || callType !== "video" || isVideoOff) && (
-                                                <div className="w-full h-full flex items-center justify-center bg-stone-800">
-                                                    <Avatar
-                                                        name={currentUserId}
-                                                        url={localStorage.getItem("user_avatar_url") || localStorage.getItem("avatar_url")}
-                                                        size={48}
-                                                    />
+                                                <div className="w-full h-full flex items-center justify-center bg-[#f4f4f5]">
+                                                    <Avatar name={currentUserId} url={localStorage.getItem("user_avatar_url") || localStorage.getItem("avatar_url")} size={60} />
                                                 </div>
                                             )}
                                         </div>
-
-                                        {/* Header Info Overlay for Video */}
-                                        {callType === "video" && (
-                                            <div className="absolute top-6 left-6 z-20">
-                                                <h3 className="text-white font-bold text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                                                    {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
-                                                </h3>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <div className={`w-2 h-2 rounded-full ${callState === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-yellow-500 animate-pulse'}`} />
-                                                    <p className="text-white/90 text-xs font-semibold drop-shadow-md">
-                                                        {callState === "calling" ? "Calling..." : "In Call"}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Modern Floating Call Controls */}
-                                        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-30 px-5 py-3 bg-stone-900/60 backdrop-blur-xl rounded-full border border-white/10 shadow-2xl">
-                                            <button
-                                                onClick={toggleMute}
-                                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isMuted ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/20 text-white'}`}
-                                                title={isMuted ? "Unmute" : "Mute"}
-                                            >
-                                                {isMuted ? <FiMicOff className="w-4 h-4" /> : <FiMic className="w-4 h-4" />}
+                                        {/* Call Controls */}
+                                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 z-30 p-3 bg-[#fdfbf7] border-4 border-stone-900 shadow-[8px_8px_0_0_rgba(28,25,23,1)]">
+                                            <button onClick={toggleMute} className={`w-12 h-12 border-2 border-stone-900 flex flex-col items-center justify-center transition-all shadow-[4px_4px_0_0_rgba(28,25,23,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_rgba(28,25,23,1)] ${isMuted ? 'bg-[#fef08a]' : 'bg-white'}`}>
+                                                {isMuted ? <FiMicOff className="w-6 h-6 text-stone-900" /> : <FiMic className="w-6 h-6 text-stone-900" />}
                                             </button>
-
-                                            <button
-                                                onClick={endCall}
-                                                className="w-12 h-12 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110 active:scale-90 text-white"
-                                            >
-                                                <FiPhoneOff className="w-5 h-5" />
+                                            <button onClick={endCall} className="w-14 h-14 bg-red-500 border-2 border-stone-900 flex items-center justify-center shadow-[4px_4px_0_0_rgba(28,25,23,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_rgba(28,25,23,1)] transition-all">
+                                                <FiPhoneOff className="w-7 h-7 text-stone-900" />
                                             </button>
-
                                             {callType === "video" && (
-                                                <button
-                                                    onClick={toggleVideo}
-                                                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isVideoOff ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/20 text-white'}`}
-                                                    title={isVideoOff ? "Turn Video On" : "Turn Video Off"}
-                                                >
-                                                    {isVideoOff ? <FiVideoOff className="w-4 h-4" /> : <FiVideo className="w-4 h-4" />}
+                                                <button onClick={toggleVideo} className={`w-12 h-12 border-2 border-stone-900 flex items-center justify-center transition-all shadow-[4px_4px_0_0_rgba(28,25,23,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_rgba(28,25,23,1)] ${isVideoOff ? 'bg-[#fef08a]' : 'bg-white'}`}>
+                                                    {isVideoOff ? <FiVideoOff className="w-6 h-6 text-stone-900" /> : <FiVideo className="w-6 h-6 text-stone-900" />}
                                                 </button>
                                             )}
                                         </div>
@@ -1535,12 +1281,143 @@ export default function ChatPage() {
                                 )}
                             </motion.div>
                         )}
-                    </>
+                    </div>
                 ) : (
-                    <EmptyChat />
-                )
-                }
-            </main >
-        </div >
+                    // ── USER CARDS VIEW ───────────────────────────────────────
+                    <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-transparent min-h-full z-10 w-full relative">
+                        <div className="max-w-6xl mx-auto space-y-12 pb-24">
+                            {/* Loading State */}
+                            {loadingConvos ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                    <SkeletonRow /><SkeletonRow /><SkeletonRow /><SkeletonRow />
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Recent Chats Section */}
+                                    {filtered.length > 0 && (
+                                        <section>
+                                            <div className="inline-block bg-[#0891b2] text-white px-4 py-2 border-2 border-stone-900 shadow-[4px_4px_0_0_rgba(28,25,23,1)] mb-8 rotate-[-1deg]">
+                                                <h2 className="text-xl font-black uppercase tracking-widest text-[#fef08a]">Recent Chats</h2>
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 xl:gap-8">
+                                                {filtered.map((conv) => {
+                                                    const peer = conv.other_user || conv.username;
+                                                    const unreadCount = unread[peer] || 0;
+                                                    const hasUnread = unreadCount > 0;
+                                                    return (
+                                                        <button
+                                                            key={peer}
+                                                            onClick={() => openChat(conv)}
+                                                            className="relative bg-white border-4 border-stone-900 p-5 text-left hover:-translate-y-2 hover:-translate-x-1 transition-all group overflow-hidden"
+                                                            style={{ boxShadow: "8px 8px 0px 0px rgba(28,25,23,1)", borderRadius: "0px" }}
+                                                        >
+                                                            {/* Background accent */}
+                                                            <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-[#0891b2]/20 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
+                                                            <div className="flex gap-4 items-center relative z-10">
+                                                                <div className="relative shrink-0">
+                                                                    <div className="border-4 border-stone-900 rounded-full p-0.5 bg-[#fef08a] shadow-[2px_2px_0_0_rgba(28,25,23,1)]">
+                                                                        <Avatar name={conv.display_name || conv.username} url={conv.avatar_url} size={50} />
+                                                                    </div>
+                                                                    {hasUnread && (
+                                                                        <span className="absolute -top-3 -right-3 w-8 h-8 bg-[#fb7185] border-4 border-stone-900 text-stone-900 text-xs font-black rounded-full flex items-center justify-center pointer-events-none" style={{boxShadow: "2px 2px 0px 0px rgba(28,25,23,1)"}}>
+                                                                            {unreadCount > 9 ? "9+" : unreadCount}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="flex flex-col justify-start items-start mb-1">
+                                                                        <h3 className="font-black text-lg truncate text-stone-900 group-hover:underline decoration-wavy decoration-2 underline-offset-4 decoration-[#0891b2] uppercase tracking-tight">{conv.display_name || conv.username}</h3>
+                                                                        <span className="text-[10px] font-bold text-stone-500 bg-stone-100 px-1.5 py-0.5 border-2 border-stone-900 mt-1">{relativeTime(conv.created_at)}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="line-clamp-2 text-sm mt-3 font-medium text-stone-600 border-t-2 border-stone-900 border-dashed pt-2 min-h-[44px]">
+                                                                {conv.content}
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </section>
+                                    )}
+
+                                    {/* Connections Section */}
+                                    {connections.length > 0 && (
+                                        <section className="pt-8">
+                                            <div className="flex items-center justify-between mb-8">
+                                                <div className="inline-block bg-[#fef08a] text-stone-900 px-4 py-2 border-2 border-stone-900 shadow-[4px_4px_0_0_rgba(28,25,23,1)] rotate-[1deg]">
+                                                    <h2 className="text-xl font-black uppercase tracking-widest">Start New</h2>
+                                                </div>
+                                                <button
+                                                    onClick={() => setConnectionsOpen((o) => !o)}
+                                                    className="w-10 h-10 border-4 border-stone-900 flex items-center justify-center hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(28,25,23,1)] bg-white transition-all shadow-[2px_2px_0_0_rgba(28,25,23,1)]"
+                                                >
+                                                    <svg
+                                                        className={`w-6 h-6 text-stone-900 transition-transform duration-200 ${connectionsOpen ? "rotate-180" : ""}`}
+                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                            {connectionsOpen && (
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+                                                    {(search ? newConnections : connections).length === 0 ? (
+                                                        <div className="col-span-full border-4 border-stone-900 bg-white p-8 text-center shadow-[6px_6px_0_0_rgba(28,25,23,1)] rotate-[-1deg] max-w-md mx-auto">
+                                                            <p className="font-black uppercase tracking-widest text-[#0891b2] text-xl">Nobody new here!</p>
+                                                        </div>
+                                                    ) : (
+                                                        (search ? newConnections : connections).map((conn) => {
+                                                            const peerId = conn.user_id || conn.username;
+                                                            const alreadyChatted = existingPeers.has(peerId);
+                                                            return (
+                                                                <button
+                                                                    key={peerId}
+                                                                    onClick={() => alreadyChatted
+                                                                        ? openChat(conversations.find((c) => (c.other_user || c.username) === peerId))
+                                                                        : startNewChat(conn)
+                                                                    }
+                                                                    className="flex flex-col items-center bg-white border-4 border-stone-900 p-4 hover:-translate-y-2 hover:-translate-x-1 transition-transform shadow-[6px_6px_0_0_rgba(28,25,23,1)] group relative overflow-hidden"
+                                                                >
+                                                                    {/* Decorative background shape */}
+                                                                    <div className="absolute top-0 right-0 w-16 h-16 bg-[#f4f4f5] rounded-bl-full -z-0"></div>
+                                                                    
+                                                                    <div className="border-4 border-stone-900 p-0.5 bg-[#0891b2] shadow-[2px_2px_0_0_rgba(28,25,23,1)] rounded-full mb-3 relative z-10 transition-transform group-hover:scale-110">
+                                                                        <div className="bg-white rounded-full p-0.5">
+                                                                            <Avatar name={conn.display_name || conn.username} url={conn.avatar_url} size={64} />
+                                                                        </div>
+                                                                    </div>
+                                                                    <h3 className="font-black text-sm sm:text-base text-stone-900 w-full text-center uppercase tracking-tight line-clamp-2 min-h-[3rem] z-10">{conn.display_name || conn.username}</h3>
+                                                                    <p className="text-[10px] font-bold text-stone-500 truncate w-full text-center bg-stone-100 border border-stone-300 px-1 mt-1 z-10">@{conn.username}</p>
+                                                                </button>
+                                                            );
+                                                        })
+                                                    )}
+                                                </div>
+                                            )}
+                                        </section>
+                                    )}
+
+                                    {filtered.length === 0 && connections.length === 0 && (
+                                        <div className="flex flex-col items-center justify-center h-[50vh] text-center max-w-lg mx-auto">
+                                            <div className="w-24 h-24 border-4 border-stone-900 bg-[#fef08a] shadow-[8px_8px_0_0_rgba(28,25,23,1)] flex items-center justify-center mb-10 rotate-[5deg] hover:rotate-12 transition-transform cursor-crosshair">
+                                                <svg className="w-12 h-12 text-stone-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                </svg>
+                                            </div>
+                                            <div className="border-4 border-stone-900 p-8 bg-white shadow-[8px_8px_0_0_rgba(28,25,23,1)] rotate-[-2deg]">
+                                                <h3 className="text-3xl font-black mb-4 uppercase tracking-tighter">Quiet Zone</h3>
+                                                <p className="font-bold text-stone-600 text-lg">No conversations or connections found. Try searching for someone or invite friends!</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </main>
+        </div>
     );
 }

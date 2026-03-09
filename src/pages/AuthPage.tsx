@@ -7,6 +7,7 @@ import { getInstanceName } from "../config/instances";
 import { setToken, removeToken, getToken, setRefreshToken, removeRefreshToken } from "../utils/tokenStorage";
 import SketchCard from "../components/SketchCard";
 import Mascot from "../components/Mascot";
+import AvatarNudgeModal from "../components/AvatarNudgeModal";
 
 
 /**
@@ -37,6 +38,10 @@ const AuthPage = () => {
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
+
+    // Avatar nudge modal state
+    const [showAvatarNudge, setShowAvatarNudge] = useState(false);
+    const [pendingCredentials, setPendingCredentials] = useState<{ username: string; password: string } | null>(null);
 
     // Reset state on mode change
     useEffect(() => {
@@ -115,9 +120,12 @@ const AuthPage = () => {
                             removeRefreshToken();
                             localStorage.removeItem("username");
                         }
+                        setTimeout(() => navigate("/auth/login"), 1500);
+                    } else {
+                        // No avatar — show the nudge modal
+                        setPendingCredentials({ username: trimmedUsername, password });
+                        setShowAvatarNudge(true);
                     }
-
-                    setTimeout(() => navigate("/auth/login"), 1500);
                 } else {
                     setErrorMsg("Registration failed");
                 }
@@ -147,6 +155,44 @@ const AuthPage = () => {
         }
     };
 
+    // Avatar nudge modal handlers
+    const handleNudgeUpload = () => {
+        setShowAvatarNudge(false);
+        // Open file picker; the onChange handler below will handle the upload
+        avatarInputRef.current?.click();
+    };
+
+    const handleNudgeSkip = () => {
+        setShowAvatarNudge(false);
+        setPendingCredentials(null);
+        navigate("/auth/login");
+    };
+
+    // After the nudge modal triggers file picker, handle avatar upload
+    const handleNudgeAvatarSelected = async (file: File) => {
+        if (!pendingCredentials) {
+            navigate("/auth/login");
+            return;
+        }
+        try {
+            const loginRes = await loginUser(pendingCredentials.username, pendingCredentials.password);
+            if (loginRes?.status === 200) {
+                const data = loginRes.data || loginRes;
+                setToken(data.access_token);
+                if (data.refresh_token) setRefreshToken(data.refresh_token);
+                await uploadAvatar(file);
+            }
+        } catch (err) {
+            console.error("Avatar upload after nudge failed:", err);
+        } finally {
+            removeToken();
+            removeRefreshToken();
+            localStorage.removeItem("username");
+            setPendingCredentials(null);
+            navigate("/auth/login");
+        }
+    };
+
     const toggleMode = (e: React.MouseEvent) => {
         e.preventDefault();
         navigate(isRegisterMode ? "/auth/login" : "/auth/register");
@@ -165,8 +211,13 @@ const AuthPage = () => {
                     onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                            setAvatarFile(file);
-                            setAvatarPreview(URL.createObjectURL(file));
+                            // If nudge modal triggered this, handle the upload flow
+                            if (pendingCredentials) {
+                                handleNudgeAvatarSelected(file);
+                            } else {
+                                setAvatarFile(file);
+                                setAvatarPreview(URL.createObjectURL(file));
+                            }
                         }
                     }}
                 />
@@ -418,6 +469,13 @@ const AuthPage = () => {
                     </AnimatePresence>
                 </div>
             </div>
+
+            {/* Avatar Nudge Modal */}
+            <AvatarNudgeModal
+                isOpen={showAvatarNudge}
+                onUpload={handleNudgeUpload}
+                onSkip={handleNudgeSkip}
+            />
         </div >
     );
 };
