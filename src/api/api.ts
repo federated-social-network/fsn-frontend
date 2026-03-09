@@ -476,6 +476,7 @@ export const unlikePost = (postId: string) =>
 export const updateProfile = (data: { bio?: string; display_name?: string }) =>
   getApi().post("/update-profile", null, { params: data });
 
+
 /**
  * Fetches all conversations for the current user.
  * @returns {Promise<import("axios").AxiosResponse<any>>} List of conversations with last message info.
