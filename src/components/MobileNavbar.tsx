@@ -12,6 +12,7 @@ export default function MobileNavbar() {
         }
         return location.pathname === path;
     };
+    
 
     // Listen for custom event to hide bottom nav in active chat
     const [hideNav, setHideNav] = useState(false);
