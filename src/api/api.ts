@@ -512,4 +512,5 @@ export const getChatWebSocketUrl = (userId: string): string => {
  * Fetches the latest notifications for the current user.
  * @returns {Promise<import("axios").AxiosResponse<any>>} The server response containing notifications.
  */
+
 export const getNotifications = () => getApi().get("/notifications");
