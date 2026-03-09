@@ -48,6 +48,7 @@ export default function GlassCard({ children, className = "", hoverEffect = fals
             </motion.div>
         );
     }
+    
 
     return (
         <div className={`${baseClasses} ${hoverClasses} ${className}`}>
