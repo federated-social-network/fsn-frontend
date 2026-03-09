@@ -98,7 +98,7 @@ export const getApi = (): AxiosInstance => {
 
         try {
           const refreshRes = await axios.post(
-            `${baseURL}/refresh`,
+            `${baseURL}/auth/refresh`,
             {},
             {
               headers: { Authorization: `Bearer ${refreshToken}` },
