@@ -269,7 +269,6 @@ const Hands = ({ isPasswordFocused, showPassword }: any) => {
                 <motion.circle cx="160" cy="180" r="15" fill="#a5b4fc" stroke="black" initial={{ scale: 0 }} animate={{ scale: 1 }} />
             )}
 
-
             <motion.path
                 variants={rightArmVariants}
                 animate={state}
