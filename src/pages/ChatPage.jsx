@@ -230,7 +230,7 @@ export default function ChatPage() {
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState("");
     const [search, setSearch] = useState("");
-    const [unread, setUnread] = useState({}); // { username: true }
+    const [unread, setUnread] = useState({}); // { username: count }
     const [connectionsOpen, setConnectionsOpen] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -359,6 +359,7 @@ export default function ChatPage() {
                 }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
             ]);
             setConversations(Array.isArray(convRes) ? convRes : []);
+
             // Normalise connections: backend may return array of objects or strings
             const raw = Array.isArray(connRes) ? connRes : connRes?.connections ?? [];
             const mapped = raw.map((c) =>
@@ -524,8 +525,11 @@ export default function ChatPage() {
                         }));
                     }
                 } else {
-                    // message from a different user → mark unread
-                    setUnread((prev) => ({ ...prev, [data.sender_id]: true }));
+                    // message from a different user → increment unread count
+                    setUnread((prev) => ({
+                        ...prev,
+                        [data.sender_id]: (prev[data.sender_id] || 0) + 1
+                    }));
                 }
 
                 // Refresh conversation list to update last message previews silently
@@ -972,7 +976,8 @@ export default function ChatPage() {
                                         const isActive =
                                             selectedConv &&
                                             (selectedConv.other_user || selectedConv.username) === peer;
-                                        const hasUnread = !!unread[peer];
+                                        const unreadCount = unread[peer] || 0;
+                                        const hasUnread = unreadCount > 0;
 
                                         return (
                                             <button
@@ -991,14 +996,16 @@ export default function ChatPage() {
                                                         size={44}
                                                     />
                                                     {hasUnread && (
-                                                        <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-[#0891b2] rounded-full border-2 border-white" />
+                                                        <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#0891b2] text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center">
+                                                            {unreadCount > 4 ? "4+" : unreadCount}
+                                                        </span>
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0 text-left">
                                                     <div className="flex items-baseline justify-between gap-2">
                                                         <span
                                                             className={`text-sm truncate ${hasUnread
-                                                                ? "font-semibold text-stone-900"
+                                                                ? "font-bold text-stone-900"
                                                                 : "font-medium text-stone-700"
                                                                 }`}
                                                         >
@@ -1009,7 +1016,7 @@ export default function ChatPage() {
                                                         </span>
                                                     </div>
                                                     <p
-                                                        className={`text-xs truncate mt-0.5 ${hasUnread ? "text-stone-600" : "text-stone-400"
+                                                        className={`text-xs truncate mt-0.5 ${hasUnread ? "font-bold text-stone-900" : "text-stone-400"
                                                             }`}
                                                     >
                                                         {conv.content}
