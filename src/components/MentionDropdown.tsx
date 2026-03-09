@@ -8,6 +8,7 @@ interface ConnectedUser {
     is_remote: boolean;
 }
 
+
 const CONNECTIONS_CACHE_KEY = "fsn_connections_cache";
 
 /** Read cached connections from localStorage (instant). */
