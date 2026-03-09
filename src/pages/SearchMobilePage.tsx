@@ -11,6 +11,7 @@ interface SearchResult {
     username: string;
     email: string;
     status: ConnectionStatus;
+    avatar_url?: string;
 }
 
 export default function SearchMobilePage() {
@@ -232,7 +233,11 @@ export default function SearchMobilePage() {
                                     {/* Avatar */}
                                     <div className="w-9 h-9 rounded-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[2px] shadow-sm shrink-0">
                                         <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-sketch text-base text-black overflow-hidden">
-                                            {user.username.charAt(0).toUpperCase()}
+                                            {user.avatar_url ? (
+                                                <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+                                            ) : (
+                                                user.username.charAt(0).toUpperCase()
+                                            )}
                                         </div>
                                     </div>
 
@@ -305,8 +310,12 @@ export default function SearchMobilePage() {
                                         <div key={invite.connection_id} className="bg-white/80 p-3 rounded-lg border border-black/10 flex items-center justify-between shadow-sm">
                                             <div className="flex items-center gap-2.5 flex-1 min-w-0">
                                                 <div className="w-9 h-9 rounded-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[2px] shrink-0">
-                                                    <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-sketch text-base text-black">
-                                                        {(invite.from_username || "?")[0].toUpperCase()}
+                                                    <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-sketch text-base text-black overflow-hidden">
+                                                        {invite.avatar_url ? (
+                                                            <img src={invite.avatar_url} alt={invite.from_username} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            (invite.from_username || "?")[0].toUpperCase()
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <span className="font-hand text-sm font-bold truncate text-gray-800">
