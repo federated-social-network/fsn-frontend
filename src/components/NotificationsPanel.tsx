@@ -4,10 +4,22 @@ import { FiBell, FiHeart, FiMessageCircle, FiUserPlus, FiUserCheck, FiAtSign } f
 import type { Notification } from "../types/notification";
 import SketchCard from "./SketchCard";
 
+/** Robust UTC parsing for naive backend strings. */
+function parseDateUtc(dateStr: string): Date {
+    if (!dateStr) return new Date();
+    if (dateStr.endsWith("Z") || dateStr.includes("+")) {
+        return new Date(dateStr);
+    }
+    let cleanStr = dateStr.replace(" ", "T");
+    if (!cleanStr.endsWith("Z")) cleanStr += "Z";
+    return new Date(cleanStr);
+}
+
 /** Human-readable relative time (e.g. "2m ago", "3h ago"). */
 function timeAgo(dateStr: string): string {
     const now = Date.now();
-    const then = new Date(dateStr).getTime();
+    const date = parseDateUtc(dateStr);
+    const then = date.getTime();
     const diff = Math.max(0, now - then);
     const seconds = Math.floor(diff / 1000);
     if (seconds < 60) return "just now";
@@ -17,7 +29,7 @@ function timeAgo(dateStr: string): string {
     if (hours < 24) return `${hours}h ago`;
     const days = Math.floor(hours / 24);
     if (days < 7) return `${days}d ago`;
-    return new Date(dateStr).toLocaleDateString();
+    return date.toLocaleDateString(undefined, { timeZone: "Asia/Kolkata" });
 }
 
 /** Icon + color per notification type. */

@@ -302,10 +302,10 @@ export default function CreatePostMobilePage() {
     return (
         <div className="fixed inset-0 bg-white z-[60] flex flex-col">
             {/* ── Header ── */}
-            <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-white">
+            <div className="shrink-0 flex items-center justify-between px-4 h-14 sm:h-16 border-b border-gray-100 bg-white/95 backdrop-blur-md sticky top-0 z-[100]">
                 <button
                     onClick={() => navigate(-1)}
-                    className="w-10 h-10 rounded-full hover:bg-gray-100 active:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
+                    className="w-10 h-10 rounded-full hover:bg-gray-100 active:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors z-10"
                 >
                     <FiArrowLeft className="text-xl" />
                 </button>

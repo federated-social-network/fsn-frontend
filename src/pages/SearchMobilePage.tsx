@@ -171,25 +171,6 @@ export default function SearchMobilePage() {
 
     return (
         <div className="min-h-screen bg-[var(--paper-white)] pb-20">
-            {/* Header */}
-            <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-[var(--pastel-yellow)] sticky top-0 z-10">
-                <button
-                    onClick={() => window.history.back()}
-                    className="w-10 h-10 rounded-full hover:bg-black/5 active:bg-black/10 flex items-center justify-center text-gray-800 transition-colors"
-                >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 5 12 12 5"></polyline>
-                    </svg>
-                </button>
-
-                <h1 className="text-base font-bold text-black absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 font-sketch">
-                    <FiSearch className="text-lg" /> Search
-                </h1>
-
-                <div className="w-10 h-10" />
-            </div>
-
             <div className="p-4 space-y-5">
                 {/* Search Bar */}
                 <div className="relative">
