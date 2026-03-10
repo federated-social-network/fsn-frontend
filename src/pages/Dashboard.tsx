@@ -144,7 +144,7 @@ export default function Dashboard() {
         const usersData = Array.isArray(res.data) ? res.data : (res.data?.users || []);
         const mappedUsers = usersData.map((u: any) => ({
           username: u.username || u,
-          instance: u.instance || 'local',
+          display_name: u.display_name || null,
           avatar_url: u.avatar_url || null
         }));
         setSuggestedUsers(mappedUsers);
@@ -321,13 +321,13 @@ export default function Dashboard() {
                               </div>
                             </div>
 
-                            {/* Name & Instance */}
+                            {/* Name & Username */}
                             <div className="overflow-hidden flex-1 min-w-0">
                               <div className="font-bold text-sm text-gray-800 truncate leading-tight font-hand">
-                                {u.username}
+                                {u.display_name || u.username}
                               </div>
                               <div className="text-[10px] text-gray-500 truncate mt-0.5 font-hand">
-                                {u.instance || 'local'}
+                                @{u.username}
                               </div>
                             </div>
 

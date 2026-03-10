@@ -325,7 +325,7 @@ export default function Profile() {
       </AnimatePresence>
 
       {/* Mobile: Back button at very top */}
-      <div className="md:hidden shrink-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-200 px-4 py-3">
+      <div className="hidden shrink-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-200 px-4 py-3">
         <Link to="/dashboard" className="font-hand text-lg hover:text-[var(--primary)] transition-colors inline-flex items-center gap-2">
           <FiArrowLeft className="text-xl" /> Back to Feed
         </Link>

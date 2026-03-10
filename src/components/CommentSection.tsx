@@ -132,7 +132,7 @@ export default function CommentSection({ postId, postAuthorUsername, onCommentAd
     };
 
     return (
-        <div className="border-t border-gray-100 bg-gray-50/50 p-4">
+        <div className="border-t border-gray-100 bg-gray-50/50 p-2 sm:p-4">
             {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
 
             {/* Comments List */}
@@ -149,7 +149,7 @@ export default function CommentSection({ postId, postAuthorUsername, onCommentAd
                     {comments.map(comment => {
                         const isCreator = comment.username === postAuthorUsername;
                         const isOwnComment = comment.username === currentUser;
-                        const userProfileLink = isOwnComment ? "/profile" : `/profile/${comment.username}`;
+                        const userProfileLink = `/profile/${comment.username}`;
 
                         return (
                             <div key={comment.id} className="flex gap-3 group">
@@ -167,35 +167,34 @@ export default function CommentSection({ postId, postAuthorUsername, onCommentAd
                                 </Link>
 
                                 {/* Comment Content */}
-                                <div className="flex-1 min-w-0">
-                                    <div className="bg-white rounded-2xl rounded-tl-none px-4 py-2 shadow-sm border border-gray-100 relative group-hover:shadow-md transition-shadow">
-                                        <div className="flex justify-between items-start mb-1 gap-2">
-                                            <div className="min-w-0">
-                                                <Link to={userProfileLink} className="font-bold text-sm text-gray-900 hover:underline hover:text-blue-600 truncate block">
-                                                    {comment.display_name || comment.username}
+                                <div className="flex-1 min-w-0 max-w-full">
+                                    <div className="bg-white rounded-2xl rounded-tl-none px-3 sm:px-4 py-1.5 shadow-sm border border-gray-100 relative group-hover:shadow-md transition-shadow overflow-hidden">
+                                        <div className="flex justify-between items-start gap-2">
+                                            <div className="min-w-0 flex flex-col">
+                                                <Link to={userProfileLink} className="font-bold text-sm text-gray-900 hover:underline hover:text-blue-600 border-none">
+                                                    @{comment.username} <span className="font-normal text-gray-400 ml-1 text-[11px]">• {timeAgo(comment.created_at)}</span>
                                                 </Link>
-                                                <div className="text-xs text-gray-500 truncate flex items-center gap-1">
-                                                    @{comment.username}
-                                                </div>
+                                                {isCreator && (
+                                                    <div className="flex mt-0.5">
+                                                        <span className="bg-blue-100 text-blue-700 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm inline-block leading-none">
+                                                            CREATOR
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="flex items-center gap-2 shrink-0">
-                                                {isCreator && (
-                                                    <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm">
-                                                        CREATOR
-                                                    </span>
-                                                )}
                                                 <span className="text-xs text-gray-400">
-                                                    {timeAgo(comment.created_at)}
+
                                                 </span>
 
-                                                {/* Delete Button (visible on hover) */}
+                                                {/* Delete Button (Ultra-compact circular style) */}
                                                 {isOwnComment && (
                                                     <button
                                                         onClick={() => handleDelete(comment.id)}
-                                                        className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1 rounded-full transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                                        className="w-3.5 h-3.5 flex items-center justify-center rounded-full border border-gray-200 bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 hover:border-red-100 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 shadow-sm"
                                                         aria-label="Delete comment"
                                                     >
-                                                        <X className="w-3.5 h-3.5" />
+                                                        <X className="w-2.5 h-2.5" />
                                                     </button>
                                                 )}
                                             </div>
@@ -217,36 +216,39 @@ export default function CommentSection({ postId, postAuthorUsername, onCommentAd
             )}
 
             {/* Input Area */}
-            <div className="flex gap-3 items-center mt-2">
-                <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 overflow-hidden flex items-center justify-center">
+            <div className="flex gap-2 items-center mt-1.5">
+                <div className="w-7 h-7 rounded-full bg-gray-200 shrink-0 overflow-hidden flex items-center justify-center border border-gray-200 shadow-sm">
                     {localStorage.getItem("user_avatar_url") ? (
                         <img src={localStorage.getItem("user_avatar_url")!} alt={currentUser || ""} className="w-full h-full object-cover" />
                     ) : (
-                        <span className="text-sm font-bold text-gray-500">
+                        <span className="text-[10px] font-bold text-gray-500">
                             {currentUser ? currentUser[0].toUpperCase() : "?"}
                         </span>
                     )}
                 </div>
-                <div className="flex-1 relative">
+                <div className="flex-1 flex gap-2 items-center min-w-0">
                     <input
                         type="text"
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Add a comment..."
-                        className="w-full bg-white border border-gray-300 rounded-full px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        className="flex-1 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#0891b2]/30 focus:border-[#0891b2] transition-all"
                         disabled={submitting}
                     />
                     <button
                         onClick={() => handleSubmit()}
                         disabled={!newComment.trim() || submitting}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 disabled:opacity-50 disabled:hover:text-gray-400 transition-colors p-1"
+                        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all ${newComment.trim()
+                            ? "bg-[#0891b2] text-white shadow-sm hover:scale-105 active:scale-95"
+                            : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            }`}
                         aria-label="Send comment"
                     >
                         {submitting ? (
-                            <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         ) : (
-                            <Send className="w-4 h-4" />
+                            <Send className="w-3.5 h-3.5 fill-current" />
                         )}
                     </button>
                 </div>

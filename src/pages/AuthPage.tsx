@@ -81,44 +81,28 @@ const AuthPage = () => {
         return null;
     };
 
-    /** Actually perform the registration API call + optional avatar upload. */
-    const performRegistration = async (
-        regUsername: string, regPassword: string, regEmail: string, avatar?: File
+    /** Only uploads the avatar and finishes the flow since user is already registered */
+    const completeAvatarUploadAndFinish = async (
+        regUsername: string, regPassword: string, avatar: File
     ) => {
         setIsLoading(true);
         try {
-            const res = await registerUser(regUsername, regPassword, regEmail, avatar);
-            if (res.data?.message || res.status === 200) {
-                setSuccessMsg("Registration successful!");
-
-                // If avatar was provided, silently login to upload it
-                if (avatar) {
-                    try {
-                        const loginRes = await loginUser(regUsername, regPassword);
-                        if (loginRes?.status === 200) {
-                            const data = loginRes.data || loginRes;
-                            setToken(data.access_token);
-                            if (data.refresh_token) setRefreshToken(data.refresh_token);
-                            await uploadAvatar(avatar);
-                        }
-                    } catch (avatarErr) {
-                        console.error("Avatar upload failed:", avatarErr);
-                    } finally {
-                        removeToken();
-                        removeRefreshToken();
-                        localStorage.removeItem("username");
-                    }
-                }
-
-                setTimeout(() => navigate("/auth/login"), 1500);
-            } else {
-                setErrorMsg("Registration failed");
+            const loginRes = await loginUser(regUsername, regPassword);
+            if (loginRes?.status === 200) {
+                const data = loginRes.data || loginRes;
+                setToken(data.access_token);
+                if (data.refresh_token) setRefreshToken(data.refresh_token);
+                await uploadAvatar(avatar);
             }
-        } catch (err: any) {
-            console.error("Registration error:", err);
-            const msg = err?.response?.data?.detail || err?.response?.data?.message || err?.message || "An error occurred";
-            setErrorMsg(msg);
+        } catch (avatarErr) {
+            console.error("Avatar upload failed:", avatarErr);
         } finally {
+            removeToken();
+            removeRefreshToken();
+            localStorage.removeItem("username");
+
+            setSuccessMsg("Registration successful!");
+            setTimeout(() => navigate("/auth/login"), 1500);
             setIsLoading(false);
             setPendingRegistration(null);
         }
@@ -140,13 +124,26 @@ const AuthPage = () => {
         }
 
         if (isRegisterMode) {
-            if (avatarFile) {
-                // Avatar already selected — register immediately
-                await performRegistration(trimmedUsername, password, email, avatarFile);
-            } else {
-                // No avatar — show the nudge modal BEFORE registering
-                setPendingRegistration({ username: trimmedUsername, password, email });
-                setShowAvatarNudge(true);
+            setIsLoading(true);
+            try {
+                // Actually attempt registration first to immediately catch any duplicate errors locally!
+                const res = await registerUser(trimmedUsername, password, email);
+                if (res.data?.message || res.status === 200) {
+                    setIsLoading(false);
+                    // Registration succeeded. Now we proceed with avatar flow
+                    if (avatarFile) {
+                        // User already selected an avatar, just upload it
+                        await completeAvatarUploadAndFinish(trimmedUsername, password, avatarFile);
+                    } else {
+                        // Show the nudge modal for avatar
+                        setPendingRegistration({ username: trimmedUsername, password, email });
+                        setShowAvatarNudge(true);
+                    }
+                }
+            } catch (err: any) {
+                const msg = err?.response?.data?.detail || err?.response?.data?.message || err?.message || "Registration failed";
+                setErrorMsg(msg);
+                setIsLoading(false);
             }
         } else {
             // Login Flow
@@ -185,15 +182,13 @@ const AuthPage = () => {
         avatarInputRef.current?.click();
     };
 
-    /** User double-confirmed they want to skip → register WITHOUT avatar. */
+    /** User double-confirmed they want to skip. Since they're already registered, just finish up. */
     const handleNudgeConfirmSkip = async () => {
         setShowAvatarNudge(false);
         if (pendingRegistration) {
-            await performRegistration(
-                pendingRegistration.username,
-                pendingRegistration.password,
-                pendingRegistration.email
-            );
+            setSuccessMsg("Registration successful!");
+            setTimeout(() => navigate("/auth/login"), 1500);
+            setPendingRegistration(null);
         }
     };
 
@@ -215,18 +210,18 @@ const AuthPage = () => {
                     onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (file) {
+                            setAvatarFile(file);
+                            setAvatarPreview(URL.createObjectURL(file));
+
                             if (pendingRegistration) {
-                                // Nudge modal triggered this — register WITH the avatar
-                                await performRegistration(
-                                    pendingRegistration.username,
-                                    pendingRegistration.password,
-                                    pendingRegistration.email,
-                                    file
-                                );
-                            } else {
-                                // Normal pre-registration avatar selection
-                                setAvatarFile(file);
-                                setAvatarPreview(URL.createObjectURL(file));
+                                // Nudge modal triggered this — we should wait a moment so user sees it then complete avatar upload
+                                setTimeout(async () => {
+                                    await completeAvatarUploadAndFinish(
+                                        pendingRegistration.username,
+                                        pendingRegistration.password,
+                                        file
+                                    );
+                                }, 800)
                             }
                         }
                     }}

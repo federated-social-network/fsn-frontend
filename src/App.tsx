@@ -16,16 +16,17 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 // @ts-ignore
 import ChatPage from "./pages/ChatPage.jsx";
+import SwipeNavigation from "./components/SwipeNavigation";
 
 /**
  * Layout mapping to include MobileNavbar on authenticated routes.
  */
 function AuthenticatedLayout() {
   return (
-    <>
+    <SwipeNavigation>
       <Outlet />
       <MobileNavbar />
-    </>
+    </SwipeNavigation>
   );
 }
 

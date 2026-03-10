@@ -8,10 +8,22 @@ import Navbar from "../components/Navbar";
 
 const POLL_INTERVAL = 5000;
 
+/** Robust UTC parsing for naive backend strings. */
+function parseDateUtc(dateStr: string): Date {
+    if (!dateStr) return new Date();
+    if (dateStr.endsWith("Z") || dateStr.includes("+")) {
+        return new Date(dateStr);
+    }
+    let cleanStr = dateStr.replace(" ", "T");
+    if (!cleanStr.endsWith("Z")) cleanStr += "Z";
+    return new Date(cleanStr);
+}
+
 /** Human-readable relative time. */
 function timeAgo(dateStr: string): string {
     const now = Date.now();
-    const then = new Date(dateStr).getTime();
+    const date = parseDateUtc(dateStr);
+    const then = date.getTime();
     const diff = Math.max(0, now - then);
     const seconds = Math.floor(diff / 1000);
     if (seconds < 60) return "just now";
@@ -21,7 +33,7 @@ function timeAgo(dateStr: string): string {
     if (hours < 24) return `${hours}h ago`;
     const days = Math.floor(hours / 24);
     if (days < 7) return `${days}d ago`;
-    return new Date(dateStr).toLocaleDateString();
+    return date.toLocaleDateString(undefined, { timeZone: "Asia/Kolkata" });
 }
 
 function typeConfig(type: string) {

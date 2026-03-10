@@ -348,7 +348,7 @@ export default function PostCard({ post: p }: PostCardProps) {
                             ) : (
                                 <Link
                                     to={`/profile/${username}`}
-                                    className="font-bold text-[15px] text-gray-900 hover:underline truncate leading-snug border-b-0 block"
+                                    className="font-bold text-[15px] text-gray-900 hover:underline"
                                 >
                                     {p.display_name || username}
                                 </Link>

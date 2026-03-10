@@ -9,6 +9,7 @@ type ConnectionStatus = "none" | "connected" | "pending" | "self";
 interface SearchResult {
     id: string;
     username: string;
+    display_name?: string;
     email: string;
     status: ConnectionStatus;
     avatar_url?: string;
@@ -43,7 +44,7 @@ export default function SearchMobilePage() {
                 const usersData = Array.isArray(usersRes.data) ? usersRes.data : (usersRes.data?.users || []);
                 const mappedUsers = usersData.map((u: any) => ({
                     username: u.username || u,
-                    instance: u.instance || 'local',
+                    display_name: u.display_name || null,
                     avatar_url: u.avatar_url || null
                 }));
                 setSuggestedUsers(mappedUsers);
@@ -172,25 +173,6 @@ export default function SearchMobilePage() {
 
     return (
         <div className="min-h-screen bg-[var(--paper-white)] pb-20">
-            {/* Header */}
-            <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-[var(--pastel-yellow)] sticky top-0 z-10">
-                <button
-                    onClick={() => window.history.back()}
-                    className="w-10 h-10 rounded-full hover:bg-black/5 active:bg-black/10 flex items-center justify-center text-gray-800 transition-colors"
-                >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 5 12 12 5"></polyline>
-                    </svg>
-                </button>
-
-                <h1 className="text-base font-bold text-black absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 font-sketch">
-                    <FiSearch className="text-lg" /> Search
-                </h1>
-
-                <div className="w-10 h-10" />
-            </div>
-
             <div className="p-4 space-y-5">
                 {/* Search Bar */}
                 <div className="relative">
@@ -242,17 +224,14 @@ export default function SearchMobilePage() {
                                     </div>
 
                                     <div className="flex-1 min-w-0">
-                                        <Link
-                                            to={`/profile/${user.username}`}
-                                            className="block"
-                                        >
-                                            <h3 className="font-bold font-hand text-base truncate text-black leading-none mb-1 group-hover:underline decoration-2 decoration-[var(--pastel-blue)]">
-                                                {user.username}
+                                        <Link to={`/profile/${user.username}`}>
+                                            <h3 className="font-bold font-hand text-base sm:text-xl truncate text-black leading-none mb-1 group-hover:underline decoration-2 decoration-[var(--pastel-blue)]">
+                                                {user.display_name || user.username}
                                             </h3>
+                                            <p className="text-[10px] sm:text-xs font-hand text-gray-500 truncate font-bold">
+                                                @{user.username}
+                                            </p>
                                         </Link>
-                                        <p className="text-[10px] font-hand text-gray-500 truncate font-bold">
-                                            {user.email}
-                                        </p>
                                     </div>
 
                                     <div className="shrink-0">
@@ -375,10 +354,10 @@ export default function SearchMobilePage() {
                                                 {/* Info */}
                                                 <div className="overflow-hidden flex-1 min-w-0">
                                                     <div className="font-bold font-hand truncate text-sm leading-tight text-gray-800">
-                                                        {u.username}
+                                                        {u.display_name || u.username}
                                                     </div>
                                                     <div className="text-[10px] text-gray-500 truncate mt-0.5 font-hand">
-                                                        {u.instance || 'local'}
+                                                        @{u.username}
                                                     </div>
                                                 </div>
 

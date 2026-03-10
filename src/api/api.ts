@@ -161,6 +161,7 @@ function handleSessionExpired() {
 
 // Convenience wrappers that use getApi() so callers don't need to create
 // their own axios instances.
+
 /**
  * Registers a new user.
  * @param {string} username - The username for the new account.

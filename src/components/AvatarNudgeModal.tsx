@@ -16,20 +16,16 @@ interface AvatarNudgeModalProps {
 
 /** Funny dialogue lines for Step 1 — the initial nudge. */
 const STEP1_DIALOGUES = [
-    "I've been looking everywhere but I can't find your face… did you forget it at home? 🔍",
     "No profile pic? Are you a ghost? Should I be scared? 👻",
     "I tried to paint your portrait but… you're giving me nothing to work with fam 💀",
     "Smile! …oh wait, there's nobody here. The camera is confused and honestly, so am I 📸",
-    "This mirror is supposed to show how awesome you look… but it's showing static. Help it out? 🪞",
+
 ];
 
 /** Dank "are you sure?!" lines for Step 2 — the guilt trip. */
 const STEP2_DIALOGUES = [
     "bro really said 'no photo' with a straight face... wait, how would we even know? WE CAN'T SEE YOUR FACE 😭",
-    "you're about to be the only profile that looks like a missing persons poster. last chance fr fr 💀",
-    "imagine someone scrolling past your profile and thinking their screen didn't load. that's gonna be you. 🫥",
-    "okay so you want people to think you're an AI bot? because that's how you get people thinking you're an AI bot 🤖",
-    "you sure? your profile is gonna hit different... and by different i mean empty. like a parking lot at 3am. 🅿️",
+    
 ];
 
 /**
@@ -169,7 +165,7 @@ export default function AvatarNudgeModal({ isOpen, onUpload, onConfirmSkip }: Av
                                                         onClick={handleUpload}
                                                         className="px-5 py-2.5 bg-[var(--primary)] text-white font-sketch text-base tracking-wide hover:bg-black transition-colors rounded-lg border-2 border-transparent hover:border-black/20"
                                                     >
-                                                        Fine, here's my face 🙄
+                                                        Fine, here's my face !
                                                     </button>
                                                     <button
                                                         onClick={handleFirstSkip}
@@ -192,7 +188,7 @@ export default function AvatarNudgeModal({ isOpen, onUpload, onConfirmSkip }: Av
                                                         onClick={handleConfirmSkip}
                                                         className="px-5 py-2.5 bg-gray-100 text-gray-500 font-sketch text-sm tracking-wide hover:bg-gray-200 transition-colors rounded-lg border-2 border-dashed border-gray-300"
                                                     >
-                                                        I said what I said 💀
+                                                        I said what I said..
                                                     </button>
                                                 </>
                                             )}
