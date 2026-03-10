@@ -27,14 +27,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run Linter
         run: npm run lint
-        continue-on-error: false
 
       - name: Run Tests
         run: npx vitest run --passWithNoTests
@@ -43,3 +42,33 @@ jobs:
 
       - name: Build Project
         run: npm run build
+
+  deploy:
+    name: Deploy to Cloudflare
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Deploy
+        run: wrangler pages deploy dist --project-name=heliix
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
