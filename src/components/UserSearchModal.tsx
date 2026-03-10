@@ -24,6 +24,7 @@ interface SearchResult {
     display_name?: string;
     email: string;
     status: ConnectionStatus;
+    avatar_url?: string;
 }
 
 /**
@@ -200,7 +201,11 @@ export default function UserSearchModal({ isOpen, onClose }: UserSearchModalProp
                                                 >
                                                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[2px] shadow-sm shrink-0">
                                                         <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-sketch text-base sm:text-lg text-black overflow-hidden">
-                                                            {user.username.charAt(0).toUpperCase()}
+                                                            {user.avatar_url ? (
+                                                                <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                user.username.charAt(0).toUpperCase()
+                                                            )}
                                                         </div>
                                                     </div>
 

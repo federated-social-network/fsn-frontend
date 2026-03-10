@@ -428,7 +428,11 @@ export default function Profile() {
                             <Link to={`/profile/${conn.username}`} onClick={() => setShowConnectionsModal(false)} className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-[linear-gradient(135deg,#7c3aed,#0891b2)] p-[2px] shadow-sm shrink-0">
                                 <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-sketch text-lg text-black overflow-hidden">
-                                  {conn.username[0].toUpperCase()}
+                                  {conn.avatar_url ? (
+                                    <img src={conn.avatar_url} alt={conn.username} className="w-full h-full object-cover" />
+                                  ) : (
+                                    conn.username[0].toUpperCase()
+                                  )}
                                 </div>
                               </div>
                               <span className="font-hand font-bold text-lg">{conn.username}</span>

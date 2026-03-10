@@ -242,13 +242,16 @@ export default function ChatPage() {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     // ── Call state ──────────────────────────────────────────────────────────
-    const [callState, setCallState] = useState("idle"); // idle, calling, receiving, connected
+    const [callState, setCallState] = useState("idle"); // idle, calling, receiving, connecting, connected
     const [callType, setCallType] = useState(null); // video, voice
     const [callerId, setCallerId] = useState(null);
     const [localStream, setLocalStream] = useState(null);
     const [remoteStream, setRemoteStream] = useState(null);
     const [isMuted, setIsMuted] = useState(false);
     const [isVideoOff, setIsVideoOff] = useState(false);
+    const [callStartTime, setCallStartTime] = useState(null);
+    const [callElapsed, setCallElapsed] = useState(0);
+    const [connectingCountdown, setConnectingCountdown] = useState(null);
 
     // Call Resizing State (Desktop only)
     const [callWidth, setCallWidth] = useState(() => Number(localStorage.getItem("callWidth")) || 320);
@@ -298,6 +301,7 @@ export default function ChatPage() {
 
     // PeerConnection ref
     const peerConnectionRef = useRef(null);
+    const iceCandidateBuffer = useRef([]);
 
     // ── Loading / connection state ──────────────────────────────────────────
     const [loadingConvos, setLoadingConvos] = useState(true);
@@ -499,6 +503,16 @@ export default function ChatPage() {
                     if (peerConnectionRef.current) {
                         try {
                             await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                            // Flush any buffered ICE candidates
+                            for (const c of iceCandidateBuffer.current) {
+                                try {
+                                    await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(c));
+                                } catch (e) {
+                                    console.warn("Error adding buffered ice candidate", e);
+                                }
+                            }
+                            iceCandidateBuffer.current = [];
+                            setCallStartTime(Date.now());
                             setCallState("connected");
                         } catch (e) {
                             console.error("Error setting remote description", e);
@@ -508,12 +522,15 @@ export default function ChatPage() {
                 }
 
                 if (data.type === "webrtc_ice_candidate") {
-                    if (peerConnectionRef.current) {
+                    if (peerConnectionRef.current && peerConnectionRef.current.remoteDescription) {
                         try {
                             await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
                         } catch (e) {
                             console.error("Error adding ice candidate", e);
                         }
+                    } else {
+                        // Buffer candidates until remote description is set
+                        iceCandidateBuffer.current.push(data.candidate);
                     }
                     return;
                 }
@@ -609,6 +626,7 @@ export default function ChatPage() {
         if (localStream) {
             localStream.getTracks().forEach(track => track.stop());
         }
+        iceCandidateBuffer.current = [];
         setLocalStream(null);
         setRemoteStream(null);
         setCallState("idle");
@@ -618,6 +636,9 @@ export default function ChatPage() {
         setRemoteAvatarUrl(null);
         setIsMuted(false);
         setIsVideoOff(false);
+        setCallStartTime(null);
+        setCallElapsed(0);
+        setConnectingCountdown(null);
         window.pendingOffer = null;
     }, [localStream]);
 
@@ -638,8 +659,26 @@ export default function ChatPage() {
         const pc = new RTCPeerConnection({
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                {
+                    urls: 'turn:a.relay.metered.ca:80',
+                    username: 'e8dd65a92f6de1da0c7b4b67',
+                    credential: '1PigRibMlFCbZ1Kf'
+                },
+                {
+                    urls: 'turn:a.relay.metered.ca:443',
+                    username: 'e8dd65a92f6de1da0c7b4b67',
+                    credential: '1PigRibMlFCbZ1Kf'
+                },
+                {
+                    urls: 'turn:a.relay.metered.ca:443?transport=tcp',
+                    username: 'e8dd65a92f6de1da0c7b4b67',
+                    credential: '1PigRibMlFCbZ1Kf'
+                }
+            ],
+            iceCandidatePoolSize: 10
         });
 
         pc.onicecandidate = (event) => {
@@ -740,7 +779,9 @@ export default function ChatPage() {
             }
 
             setLocalStream(stream);
-            setCallState("connected");
+            const countdownDuration = actualType === "video" ? 7 : 5;
+            setConnectingCountdown(countdownDuration);
+            setCallState("connecting");
 
             const pc = setupPeerConnection(callerId);
             stream.getTracks().forEach(track => pc.addTrack(track, stream));
@@ -803,6 +844,39 @@ export default function ChatPage() {
             setIsVideoOff(!localStream.getVideoTracks()[0]?.enabled);
         }
     }, [localStream, callType]);
+
+    // ── Call timer ───────────────────────────────────────────────────────────
+    useEffect(() => {
+        if (!callStartTime || callState === "idle") {
+            setCallElapsed(0);
+            return;
+        }
+        const interval = setInterval(() => {
+            setCallElapsed(Math.floor((Date.now() - callStartTime) / 1000));
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [callStartTime, callState]);
+
+    const formatCallTime = useCallback((seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    }, []);
+
+    // ── Connecting countdown (receiver side) ─────────────────────────────────
+    useEffect(() => {
+        if (callState !== "connecting" || connectingCountdown === null) return;
+        if (connectingCountdown <= 0) {
+            setCallStartTime(Date.now());
+            setCallState("connected");
+            setConnectingCountdown(null);
+            return;
+        }
+        const timer = setTimeout(() => {
+            setConnectingCountdown(prev => prev - 1);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [callState, connectingCountdown]);
 
 
     // ── Send message ────────────────────────────────────────────────────────
@@ -1414,7 +1488,7 @@ export default function ChatPage() {
                                     </div>
                                 </div>
 
-                                {callState === "receiving" ? (
+                                {callState === "receiving" || callState === "connecting" ? (
                                     <div className="flex-1 flex flex-col items-center justify-center gap-8 p-8 relative overflow-hidden">
                                         {/* Background pulse effect for immersive feel */}
                                         <div className="absolute inset-0 bg-stone-900 flex items-center justify-center opacity-40">
@@ -1423,50 +1497,123 @@ export default function ChatPage() {
 
                                         <div className="relative z-10 flex flex-col items-center">
                                             <div className="relative mb-6">
-                                                <div className="absolute inset-0 bg-[#0891b2] rounded-full animate-ping opacity-25" />
-                                                <Avatar name={remoteDisplayName || callerId} url={remoteAvatarUrl} size={100} />
+                                                {callState === "connecting" ? (
+                                                    /* Countdown circle around avatar */
+                                                    <>
+                                                        <svg className="absolute -inset-3 w-[calc(100%+24px)] h-[calc(100%+24px)]" viewBox="0 0 120 120">
+                                                            <circle cx="60" cy="60" r="56" fill="none" stroke="rgba(8,145,178,0.15)" strokeWidth="4" />
+                                                            <circle
+                                                                cx="60" cy="60" r="56"
+                                                                fill="none"
+                                                                stroke="#0891b2"
+                                                                strokeWidth="4"
+                                                                strokeLinecap="round"
+                                                                strokeDasharray={`${2 * Math.PI * 56}`}
+                                                                strokeDashoffset={`${2 * Math.PI * 56 * (1 - (connectingCountdown || 0) / (callType === "video" ? 7 : 5))}`}
+                                                                transform="rotate(-90 60 60)"
+                                                                style={{ transition: 'stroke-dashoffset 1s linear' }}
+                                                            />
+                                                        </svg>
+                                                        <Avatar name={remoteDisplayName || callerId} url={remoteAvatarUrl} size={100} />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <div className="absolute inset-0 bg-[#0891b2] rounded-full animate-ping opacity-25" />
+                                                        <Avatar name={remoteDisplayName || callerId} url={remoteAvatarUrl} size={100} />
+                                                    </>
+                                                )}
                                             </div>
 
                                             <div className="text-center space-y-2">
-                                                <p className="text-[#0891b2] font-semibold tracking-wider text-xs uppercase mb-1">Incoming {callType || "Voice"} Call</p>
-                                                <h2 className="text-2xl font-bold leading-tight">{remoteDisplayName || getDisplayName(callerId)}</h2>
-                                                <p className="text-stone-400 text-sm">{callType === "video" ? "Video calling..." : "Voice calling..."}</p>
+                                                {callState === "connecting" ? (
+                                                    <>
+                                                        <p className="text-[#0891b2] font-semibold tracking-wider text-xs uppercase mb-1">Connecting...</p>
+                                                        <h2 className="text-2xl font-bold leading-tight">{remoteDisplayName || getDisplayName(callerId)}</h2>
+                                                        <div className="mt-4">
+                                                            <span className="text-5xl font-bold text-[#0891b2] tabular-nums">{connectingCountdown}</span>
+                                                        </div>
+                                                        {callType === "video" && (
+                                                            <p className="text-stone-400 text-sm mt-3 italic animate-pulse">
+                                                                {connectingCountdown >= 6 ? "Quick! Fix your hair 💇"
+                                                                    : connectingCountdown >= 5 ? "Strike your best angle 📐"
+                                                                        : connectingCountdown >= 4 ? "Smile! You're about to go live ✨"
+                                                                            : connectingCountdown >= 3 ? "Looking good? You better be 😎"
+                                                                                : connectingCountdown >= 2 ? "Last chance to find good lighting 💡"
+                                                                                    : connectingCountdown >= 1 ? "Ready or not, here they come! 🚀"
+                                                                                        : "Let's go! 🎬"}
+                                                            </p>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <p className="text-[#0891b2] font-semibold tracking-wider text-xs uppercase mb-1">Incoming {callType || "Voice"} Call</p>
+                                                        <h2 className="text-2xl font-bold leading-tight">{remoteDisplayName || getDisplayName(callerId)}</h2>
+                                                        <p className="text-stone-400 text-sm">{callType === "video" ? "Video calling..." : "Voice calling..."}</p>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-8 mt-4 relative z-10">
-                                            <div className="flex flex-col items-center gap-2">
-                                                <button
-                                                    onClick={declineCall}
-                                                    className="w-14 h-14 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95"
-                                                >
-                                                    <FiPhoneOff className="w-6 h-6 text-white" />
-                                                </button>
-                                                <p className="text-xs text-stone-400 font-medium">Decline</p>
-                                            </div>
+                                        {callState === "receiving" && (
+                                            <div className="flex items-center gap-8 mt-4 relative z-10">
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <button
+                                                        onClick={declineCall}
+                                                        className="w-14 h-14 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95"
+                                                    >
+                                                        <FiPhoneOff className="w-6 h-6 text-white" />
+                                                    </button>
+                                                    <p className="text-xs text-stone-400 font-medium">Decline</p>
+                                                </div>
 
-                                            <div className="flex flex-col items-center gap-2">
-                                                <button
-                                                    onClick={acceptCall}
-                                                    className="w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95 animate-[bounce_2s_infinite]"
-                                                >
-                                                    <FiPhone className="w-6 h-6 text-white" />
-                                                </button>
-                                                <p className="text-xs text-stone-400 font-medium">Accept</p>
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <button
+                                                        onClick={acceptCall}
+                                                        className="w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95 animate-[bounce_2s_infinite]"
+                                                    >
+                                                        <FiPhone className="w-6 h-6 text-white" />
+                                                    </button>
+                                                    <p className="text-xs text-stone-400 font-medium">Accept</p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="flex-1 relative bg-black flex flex-col">
                                         {/* Remote Media (takes up background) */}
                                         <div className="flex-1 relative">
                                             {callType === "video" ? (
-                                                <video
-                                                    ref={remoteVideoRef}
-                                                    autoPlay
-                                                    playsInline
-                                                    className="w-full h-full object-cover"
-                                                />
+                                                <>
+                                                    <video
+                                                        ref={remoteVideoRef}
+                                                        autoPlay
+                                                        playsInline
+                                                        className={`w-full h-full object-cover ${callState !== "connected" ? "hidden" : ""}`}
+                                                    />
+                                                    {/* Calling overlay — shown until connected */}
+                                                    {callState === "calling" && (
+                                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-stone-900 gap-6 z-10">
+                                                            {/* Immersive background glow */}
+                                                            <div className="absolute inset-0 opacity-20 pointer-events-none">
+                                                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#0891b2] rounded-full blur-[120px]" />
+                                                            </div>
+
+                                                            <div className="relative z-10">
+                                                                <Avatar name={remoteDisplayName || callerId || selectedConv?.username} url={remoteAvatarUrl} size={120} />
+                                                                <div className="absolute inset-0 border-4 border-[#0891b2]/30 rounded-full animate-ping" />
+                                                            </div>
+
+                                                            <div className="text-center space-y-2 relative z-10">
+                                                                <h3 className="text-white font-bold text-xl drop-shadow-md">
+                                                                    {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
+                                                                </h3>
+                                                                <p className="text-[#0891b2] text-sm font-medium animate-pulse">
+                                                                    Calling...
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </>
                                             ) : (
                                                 <div className="w-full h-full flex flex-col items-center justify-center bg-stone-900 gap-6">
                                                     {/* Immersive voice background */}
@@ -1486,7 +1633,7 @@ export default function ChatPage() {
                                                             {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
                                                         </h3>
                                                         <p className="text-[#0891b2] text-sm font-medium animate-pulse">
-                                                            {callState === "calling" ? "Ringing..." : "Connected"}
+                                                            {callState === "calling" ? "Ringing..." : `Connected · ${formatCallTime(callElapsed)}`}
                                                         </p>
                                                     </div>
 
@@ -1523,15 +1670,15 @@ export default function ChatPage() {
                                         </div>
 
                                         {/* Header Info Overlay for Video */}
-                                        {callType === "video" && (
+                                        {callType === "video" && callState === "connected" && (
                                             <div className="absolute top-6 left-6 z-20">
                                                 <h3 className="text-white font-bold text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                                                     {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
                                                 </h3>
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    <div className={`w-2 h-2 rounded-full ${callState === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-yellow-500 animate-pulse'}`} />
+                                                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                                                     <p className="text-white/90 text-xs font-semibold drop-shadow-md">
-                                                        {callState === "calling" ? "Calling..." : "In Call"}
+                                                        In Call · {formatCallTime(callElapsed)}
                                                     </p>
                                                 </div>
                                             </div>
