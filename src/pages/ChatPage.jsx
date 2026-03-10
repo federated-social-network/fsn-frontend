@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { FiSmile, FiMic, FiPhone, FiVideo, FiVideoOff, FiMicOff, FiPhoneOff, FiArrowLeft } from "react-icons/fi";
 import EmojiPicker from 'emoji-picker-react';
+import { getApi } from "../api/api";
+import { getToken } from "../utils/tokenStorage";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -18,10 +20,7 @@ function getWsBase() {
 
 /** Read the JWT token from the auth_token cookie. */
 function getAuthToken() {
-    const match = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("auth_token="));
-    return match ? decodeURIComponent(match.split("=")[1]) : null;
+    return getToken();
 }
 
 function parseDateUtc(dateStr) {
@@ -339,10 +338,8 @@ export default function ChatPage() {
     // ── Fetch current user from backend ─────────────────────────────────────
     useEffect(() => {
         if (!authToken) return;
-        fetch(`${getApiBase()}/get_current_user`, {
-            headers: { Authorization: `Bearer ${authToken}` },
-        })
-            .then((res) => (res.ok ? res.json() : null))
+        getApi().get("/get_current_user")
+            .then((res) => res.data)
             .then((data) => {
                 if (data?.id) {
                     setCurrentUserId(data.id);
@@ -362,14 +359,10 @@ export default function ChatPage() {
         }
         try {
             if (!background) setLoadingConvos(true);
-            const apiBase = getApiBase();
+            const api = getApi();
             const [convRes, connRes] = await Promise.all([
-                fetch(`${apiBase}/conversations`, {
-                    headers: { Authorization: `Bearer ${authToken}` },
-                }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
-                fetch(`${apiBase}/list_connections`, {
-                    headers: { Authorization: `Bearer ${authToken}` },
-                }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
+                api.get("/conversations").then((r) => r.data).catch(() => []),
+                api.get("/list_connections").then((r) => r.data).catch(() => []),
             ]);
             const convs = Array.isArray(convRes) ? convRes : [];
             setConversations(convs);
@@ -383,14 +376,10 @@ export default function ChatPage() {
                     if (activePeerRef.current === peer) return;
 
                     try {
-                        const mRes = await fetch(`${apiBase}/messages/${encodeURIComponent(currentUserId)}/${encodeURIComponent(peer)}`, {
-                            headers: { Authorization: `Bearer ${authToken}` },
-                        });
-                        if (mRes.ok) {
-                            const msgs = await mRes.json();
-                            const count = msgs.filter(m => m.receiver_id === currentUserId && !m.is_read).length;
-                            if (count > 0) initialUnread[peer] = count;
-                        }
+                        const mRes = await api.get(`/messages/${encodeURIComponent(currentUserId)}/${encodeURIComponent(peer)}`);
+                        const msgs = Array.isArray(mRes.data) ? mRes.data : [];
+                        const count = msgs.filter(m => m.receiver_id === currentUserId && !m.is_read).length;
+                        if (count > 0) initialUnread[peer] = count;
                     } catch (e) {
                         console.error("Failed to fetch unread for", peer, e);
                     }
@@ -424,11 +413,9 @@ export default function ChatPage() {
         setLoadingMsgs(true);
         setMessages([]);
 
-        fetch(`${getApiBase()}/messages/${encodeURIComponent(currentUserId)}/${encodeURIComponent(peer)}`, {
-            headers: { Authorization: `Bearer ${authToken}` },
-        })
-            .then((res) => (res.ok ? res.json() : []))
-            .then((data) => {
+        getApi().get(`/messages/${encodeURIComponent(currentUserId)}/${encodeURIComponent(peer)}`)
+            .then((res) => {
+                const data = res.data;
                 // Ensure `created_at` exists (API sometimes uses `timestamp`)
                 const normalized = Array.isArray(data) ? data.map(msg => ({
                     ...msg,
