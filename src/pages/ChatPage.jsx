@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { FiSmile, FiMic, FiPhone, FiVideo, FiVideoOff, FiMicOff, FiPhoneOff } from "react-icons/fi";
+import { FiSmile, FiMic, FiPhone, FiVideo, FiVideoOff, FiMicOff, FiPhoneOff, FiArrowLeft } from "react-icons/fi";
 import EmojiPicker from 'emoji-picker-react';
+import { getApi } from "../api/api";
+import { getToken } from "../utils/tokenStorage";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -18,18 +20,19 @@ function getWsBase() {
 
 /** Read the JWT token from the auth_token cookie. */
 function getAuthToken() {
-    const match = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("auth_token="));
-    return match ? decodeURIComponent(match.split("=")[1]) : null;
+    return getToken();
 }
 
 function parseDateUtc(dateStr) {
     if (!dateStr) return new Date();
     if (typeof dateStr !== "string") return new Date(dateStr);
-    if (dateStr.endsWith("Z") || dateStr.includes("+") || (dateStr.includes("-") && dateStr.length > 20)) {
+
+    // If it already has a timezone indicator, parse it normally
+    if (dateStr.endsWith("Z") || dateStr.includes("+")) {
         return new Date(dateStr);
     }
+
+    // Normalize space to T and ensure it ends with Z to force UTC parsing
     let cleanStr = dateStr.replace(" ", "T");
     if (!cleanStr.endsWith("Z")) cleanStr += "Z";
     return new Date(cleanStr);
@@ -44,6 +47,7 @@ function relativeTime(dateStr) {
         return parseDateUtc(dateStr).toLocaleDateString(undefined, {
             month: "short",
             day: "numeric",
+            timeZone: "Asia/Kolkata",
         });
     } catch {
         return "";
@@ -55,6 +59,7 @@ function msgTime(dateStr) {
         return parseDateUtc(dateStr).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
+            timeZone: "Asia/Kolkata",
         });
     } catch {
         return "";
@@ -80,7 +85,8 @@ function getDateSeparator(dateStr) {
     return date.toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",
-        year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined
+        year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
+        timeZone: "Asia/Kolkata",
     });
 }
 
@@ -230,18 +236,21 @@ export default function ChatPage() {
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState("");
     const [search, setSearch] = useState("");
-    const [unread, setUnread] = useState({}); // { username: true }
+    const [unread, setUnread] = useState({}); // { username: count }
     const [connectionsOpen, setConnectionsOpen] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     // ── Call state ──────────────────────────────────────────────────────────
-    const [callState, setCallState] = useState("idle"); // idle, calling, receiving, connected
+    const [callState, setCallState] = useState("idle"); // idle, calling, receiving, connecting, connected
     const [callType, setCallType] = useState(null); // video, voice
     const [callerId, setCallerId] = useState(null);
     const [localStream, setLocalStream] = useState(null);
     const [remoteStream, setRemoteStream] = useState(null);
     const [isMuted, setIsMuted] = useState(false);
     const [isVideoOff, setIsVideoOff] = useState(false);
+    const [callStartTime, setCallStartTime] = useState(null);
+    const [callElapsed, setCallElapsed] = useState(0);
+    const [connectingCountdown, setConnectingCountdown] = useState(null);
 
     // Call Resizing State (Desktop only)
     const [callWidth, setCallWidth] = useState(() => Number(localStorage.getItem("callWidth")) || 320);
@@ -291,6 +300,7 @@ export default function ChatPage() {
 
     // PeerConnection ref
     const peerConnectionRef = useRef(null);
+    const iceCandidateBuffer = useRef([]);
 
     // ── Loading / connection state ──────────────────────────────────────────
     const [loadingConvos, setLoadingConvos] = useState(true);
@@ -317,19 +327,19 @@ export default function ChatPage() {
     const inputRef = useRef(null);
     const reconnectTimer = useRef(null);
     const selectedConvRef = useRef(selectedConv);
+    const activePeerRef = useRef(null);
 
     // keep ref in sync so WS callback can read latest selectedConv
     useEffect(() => {
         selectedConvRef.current = selectedConv;
+        activePeerRef.current = selectedConv ? (selectedConv.other_user || selectedConv.user_id || selectedConv.username) : null;
     }, [selectedConv]);
 
     // ── Fetch current user from backend ─────────────────────────────────────
     useEffect(() => {
         if (!authToken) return;
-        fetch(`${getApiBase()}/get_current_user`, {
-            headers: { Authorization: `Bearer ${authToken}` },
-        })
-            .then((res) => (res.ok ? res.json() : null))
+        getApi().get("/get_current_user")
+            .then((res) => res.data)
             .then((data) => {
                 if (data?.id) {
                     setCurrentUserId(data.id);
@@ -349,16 +359,34 @@ export default function ChatPage() {
         }
         try {
             if (!background) setLoadingConvos(true);
-            const apiBase = getApiBase();
+            const api = getApi();
             const [convRes, connRes] = await Promise.all([
-                fetch(`${apiBase}/conversations`, {
-                    headers: { Authorization: `Bearer ${authToken}` },
-                }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
-                fetch(`${apiBase}/list_connections`, {
-                    headers: { Authorization: `Bearer ${authToken}` },
-                }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
+                api.get("/conversations").then((r) => r.data).catch(() => []),
+                api.get("/list_connections").then((r) => r.data).catch(() => []),
             ]);
-            setConversations(Array.isArray(convRes) ? convRes : []);
+            const convs = Array.isArray(convRes) ? convRes : [];
+            setConversations(convs);
+
+            // Fetch unread counts manually since backend doesn't provide it
+            if (convs.length > 0 && currentUserId) {
+                const initialUnread = {};
+                await Promise.all(convs.map(async (c) => {
+                    const peer = c.other_user || c.username;
+                    // Don't fetch if it's the active chat (it will be cleared anyway)
+                    if (activePeerRef.current === peer) return;
+
+                    try {
+                        const mRes = await api.get(`/messages/${encodeURIComponent(currentUserId)}/${encodeURIComponent(peer)}`);
+                        const msgs = Array.isArray(mRes.data) ? mRes.data : [];
+                        const count = msgs.filter(m => m.receiver_id === currentUserId && !m.is_read).length;
+                        if (count > 0) initialUnread[peer] = count;
+                    } catch (e) {
+                        console.error("Failed to fetch unread for", peer, e);
+                    }
+                }));
+                setUnread(initialUnread);
+            }
+
             // Normalise connections: backend may return array of objects or strings
             const raw = Array.isArray(connRes) ? connRes : connRes?.connections ?? [];
             const mapped = raw.map((c) =>
@@ -372,7 +400,7 @@ export default function ChatPage() {
         } finally {
             if (!background) setLoadingConvos(false);
         }
-    }, [authToken]);
+    }, [authToken, currentUserId]);
 
     useEffect(() => {
         fetchConversations();
@@ -385,11 +413,9 @@ export default function ChatPage() {
         setLoadingMsgs(true);
         setMessages([]);
 
-        fetch(`${getApiBase()}/messages/${encodeURIComponent(currentUserId)}/${encodeURIComponent(peer)}`, {
-            headers: { Authorization: `Bearer ${authToken}` },
-        })
-            .then((res) => (res.ok ? res.json() : []))
-            .then((data) => {
+        getApi().get(`/messages/${encodeURIComponent(currentUserId)}/${encodeURIComponent(peer)}`)
+            .then((res) => {
+                const data = res.data;
                 // Ensure `created_at` exists (API sometimes uses `timestamp`)
                 const normalized = Array.isArray(data) ? data.map(msg => ({
                     ...msg,
@@ -464,6 +490,16 @@ export default function ChatPage() {
                     if (peerConnectionRef.current) {
                         try {
                             await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                            // Flush any buffered ICE candidates
+                            for (const c of iceCandidateBuffer.current) {
+                                try {
+                                    await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(c));
+                                } catch (e) {
+                                    console.warn("Error adding buffered ice candidate", e);
+                                }
+                            }
+                            iceCandidateBuffer.current = [];
+                            setCallStartTime(Date.now());
                             setCallState("connected");
                         } catch (e) {
                             console.error("Error setting remote description", e);
@@ -473,12 +509,15 @@ export default function ChatPage() {
                 }
 
                 if (data.type === "webrtc_ice_candidate") {
-                    if (peerConnectionRef.current) {
+                    if (peerConnectionRef.current && peerConnectionRef.current.remoteDescription) {
                         try {
                             await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
                         } catch (e) {
                             console.error("Error adding ice candidate", e);
                         }
+                    } else {
+                        // Buffer candidates until remote description is set
+                        iceCandidateBuffer.current.push(data.candidate);
                     }
                     return;
                 }
@@ -524,8 +563,11 @@ export default function ChatPage() {
                         }));
                     }
                 } else {
-                    // message from a different user → mark unread
-                    setUnread((prev) => ({ ...prev, [data.sender_id]: true }));
+                    // message from a different user → increment unread count
+                    setUnread((prev) => ({
+                        ...prev,
+                        [data.sender_id]: (prev[data.sender_id] || 0) + 1
+                    }));
                 }
 
                 // Refresh conversation list to update last message previews silently
@@ -571,6 +613,7 @@ export default function ChatPage() {
         if (localStream) {
             localStream.getTracks().forEach(track => track.stop());
         }
+        iceCandidateBuffer.current = [];
         setLocalStream(null);
         setRemoteStream(null);
         setCallState("idle");
@@ -580,6 +623,9 @@ export default function ChatPage() {
         setRemoteAvatarUrl(null);
         setIsMuted(false);
         setIsVideoOff(false);
+        setCallStartTime(null);
+        setCallElapsed(0);
+        setConnectingCountdown(null);
         window.pendingOffer = null;
     }, [localStream]);
 
@@ -600,8 +646,26 @@ export default function ChatPage() {
         const pc = new RTCPeerConnection({
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                {
+                    urls: 'turn:a.relay.metered.ca:80',
+                    username: 'e8dd65a92f6de1da0c7b4b67',
+                    credential: '1PigRibMlFCbZ1Kf'
+                },
+                {
+                    urls: 'turn:a.relay.metered.ca:443',
+                    username: 'e8dd65a92f6de1da0c7b4b67',
+                    credential: '1PigRibMlFCbZ1Kf'
+                },
+                {
+                    urls: 'turn:a.relay.metered.ca:443?transport=tcp',
+                    username: 'e8dd65a92f6de1da0c7b4b67',
+                    credential: '1PigRibMlFCbZ1Kf'
+                }
+            ],
+            iceCandidatePoolSize: 10
         });
 
         pc.onicecandidate = (event) => {
@@ -702,7 +766,9 @@ export default function ChatPage() {
             }
 
             setLocalStream(stream);
-            setCallState("connected");
+            const countdownDuration = actualType === "video" ? 7 : 5;
+            setConnectingCountdown(countdownDuration);
+            setCallState("connecting");
 
             const pc = setupPeerConnection(callerId);
             stream.getTracks().forEach(track => pc.addTrack(track, stream));
@@ -766,6 +832,39 @@ export default function ChatPage() {
         }
     }, [localStream, callType]);
 
+    // ── Call timer ───────────────────────────────────────────────────────────
+    useEffect(() => {
+        if (!callStartTime || callState === "idle") {
+            setCallElapsed(0);
+            return;
+        }
+        const interval = setInterval(() => {
+            setCallElapsed(Math.floor((Date.now() - callStartTime) / 1000));
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [callStartTime, callState]);
+
+    const formatCallTime = useCallback((seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    }, []);
+
+    // ── Connecting countdown (receiver side) ─────────────────────────────────
+    useEffect(() => {
+        if (callState !== "connecting" || connectingCountdown === null) return;
+        if (connectingCountdown <= 0) {
+            setCallStartTime(Date.now());
+            setCallState("connected");
+            setConnectingCountdown(null);
+            return;
+        }
+        const timer = setTimeout(() => {
+            setConnectingCountdown(prev => prev - 1);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [callState, connectingCountdown]);
+
 
     // ── Send message ────────────────────────────────────────────────────────
     const handleSend = useCallback(() => {
@@ -813,6 +912,7 @@ export default function ChatPage() {
         (conv) => {
             setSelectedConv(conv);
             const peer = conv.other_user || conv.user_id || conv.username;
+            activePeerRef.current = peer;
             setUnread((prev) => {
                 const next = { ...prev };
                 delete next[peer];
@@ -887,7 +987,7 @@ export default function ChatPage() {
     //  RENDER
     // ═══════════════════════════════════════════════════════════════════════
     return (
-        <div className="flex h-screen bg-stone-50 text-stone-900 overflow-hidden font-sans">
+        <div className="flex h-[100dvh] bg-stone-50 text-stone-900 overflow-hidden font-sans">
             {/* ── LEFT PANEL ─────────────────────────────────────────────────── */}
             <aside
                 className={`${mobileShowChat ? "hidden" : "flex"
@@ -908,28 +1008,28 @@ export default function ChatPage() {
                     <div className="w-0.5 h-8 bg-stone-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 {/* Header */}
-                <div className="px-4 pt-4 pb-3 border-b border-stone-200">
-                    <div className="flex items-center justify-between mb-3">
+                <div className="px-4 h-14 sm:h-16 flex items-center border-b border-stone-200 shrink-0 bg-white/95 backdrop-blur-md">
+                    <div className="flex items-center justify-between w-full">
                         <div className="flex items-center gap-3">
                             {/* Back to dashboard */}
                             <a
                                 href="/dashboard"
-                                className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center transition-colors text-stone-500 hover:text-stone-700 shrink-0"
+                                className="w-10 h-10 rounded-full hover:bg-stone-100 flex items-center justify-center transition-colors text-stone-500 hover:text-stone-700 shrink-0"
                                 title="Back to Dashboard"
                             >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                                </svg>
+                                <FiArrowLeft className="text-xl" />
                             </a>
                             <div>
-                                <h2 className="text-xl font-bold text-stone-900 truncate max-w-[140px]">
+                                <h2 className="text-lg font-bold text-stone-900 truncate max-w-[140px]">
                                     Messages
                                 </h2>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* Search bar */}
+                {/* Search bar inside list */}
+                <div className="px-4 py-3 bg-stone-50/50 border-b border-stone-100 backdrop-blur-sm">
                     <div className="relative">
                         <svg
                             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400"
@@ -945,7 +1045,7 @@ export default function ChatPage() {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search conversations…"
-                            className="w-full bg-stone-100/80 border border-transparent rounded-xl !pl-10 pr-4 py-2 text-sm text-stone-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-stone-400 focus:ring-1 focus:ring-stone-400/50 transition-all"
+                            className="w-full bg-white border border-stone-200 rounded-xl !pl-10 pr-4 py-2 text-sm text-stone-800 placeholder-gray-400 focus:outline-none focus:border-stone-400 transition-all shadow-sm"
                         />
                     </div>
                 </div>
@@ -972,7 +1072,8 @@ export default function ChatPage() {
                                         const isActive =
                                             selectedConv &&
                                             (selectedConv.other_user || selectedConv.username) === peer;
-                                        const hasUnread = !!unread[peer];
+                                        const unreadCount = unread[peer] || 0;
+                                        const hasUnread = unreadCount > 0;
 
                                         return (
                                             <button
@@ -991,25 +1092,27 @@ export default function ChatPage() {
                                                         size={44}
                                                     />
                                                     {hasUnread && (
-                                                        <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-[#0891b2] rounded-full border-2 border-white" />
+                                                        <span className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-[#0891b2] text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center whitespace-nowrap shadow-sm min-w-[20px]">
+                                                            {unreadCount > 4 ? "4+" : unreadCount}
+                                                        </span>
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0 text-left">
                                                     <div className="flex items-baseline justify-between gap-2">
                                                         <span
                                                             className={`text-sm truncate ${hasUnread
-                                                                ? "font-semibold text-stone-900"
+                                                                ? "font-bold text-stone-900"
                                                                 : "font-medium text-stone-700"
                                                                 }`}
                                                         >
                                                             {conv.display_name || conv.username}
                                                         </span>
-                                                        <span className="text-[11px] text-stone-400 shrink-0">
+                                                        <span className={`text-[11px] shrink-0 ${hasUnread ? "text-[#0891b2] font-semibold" : "text-stone-400"}`}>
                                                             {relativeTime(conv.created_at)}
                                                         </span>
                                                     </div>
                                                     <p
-                                                        className={`text-xs truncate mt-0.5 ${hasUnread ? "text-stone-600" : "text-stone-400"
+                                                        className={`text-xs truncate mt-0.5 ${hasUnread ? "font-bold text-stone-900" : "text-stone-400"
                                                             }`}
                                                     >
                                                         {conv.content}
@@ -1106,7 +1209,7 @@ export default function ChatPage() {
 
             {/* ── RIGHT PANEL ────────────────────────────────────────────────── */}
             <main
-                className="flex flex-col flex-1 bg-stone-50 overflow-hidden w-full"
+                className="flex flex-col flex-1 bg-stone-50 overflow-hidden w-full min-h-0"
             >
                 {selectedConv ? (
                     <>
@@ -1122,15 +1225,13 @@ export default function ChatPage() {
                         )}
 
                         {/* Chat header */}
-                        <div className="shrink-0 flex items-center gap-3 px-4 py-2.5 border-b border-[#0891b2]/20 bg-[#0891b2]/50 shadow-sm sticky top-0 z-10 w-full">
+                        <div className="shrink-0 flex items-center gap-3 px-4 h-14 sm:h-16 border-b border-[#0891b2]/20 bg-[#0891b2]/80 backdrop-blur-md w-full sticky top-0 z-30">
                             {/* Back button (mobile) */}
                             <button
                                 onClick={() => setMobileShowChat(false)}
-                                className="md:hidden w-8 h-8 rounded-lg hover:bg-white/20 flex items-center justify-center transition-colors text-stone-900 -ml-2"
+                                className="md:hidden w-10 h-10 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors text-stone-900 -ml-2"
                             >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
+                                <FiArrowLeft className="text-xl" />
                             </button>
 
                             <a
@@ -1183,7 +1284,7 @@ export default function ChatPage() {
 
                         {/* Messages — WhatsApp-style subtle pattern background */}
                         <div
-                            className="flex-1 overflow-y-auto overflow-x-hidden relative"
+                            className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0"
                             style={{
                                 scrollbarWidth: "thin",
                                 scrollbarColor: "#d1d5db transparent",
@@ -1293,7 +1394,7 @@ export default function ChatPage() {
                         </div>
 
                         {/* Input bar */}
-                        <div className="shrink-0 px-3 py-2 border-t border-stone-200 bg-white/90 backdrop-blur-sm relative z-20">
+                        <div className="shrink-0 px-3 py-2 border-t border-stone-200 bg-white/90 backdrop-blur-sm relative z-20 pb-[calc(8px+env(safe-area-inset-bottom))] sticky bottom-0">
                             {showEmojiPicker && (
                                 <div className="absolute bottom-16 left-2 shadow-xl rounded-xl overflow-hidden z-50">
                                     <EmojiPicker height={350} searchDisabled theme="light" onEmojiClick={handleEmojiClick} />
@@ -1374,7 +1475,7 @@ export default function ChatPage() {
                                     </div>
                                 </div>
 
-                                {callState === "receiving" ? (
+                                {callState === "receiving" || callState === "connecting" ? (
                                     <div className="flex-1 flex flex-col items-center justify-center gap-8 p-8 relative overflow-hidden">
                                         {/* Background pulse effect for immersive feel */}
                                         <div className="absolute inset-0 bg-stone-900 flex items-center justify-center opacity-40">
@@ -1383,50 +1484,123 @@ export default function ChatPage() {
 
                                         <div className="relative z-10 flex flex-col items-center">
                                             <div className="relative mb-6">
-                                                <div className="absolute inset-0 bg-[#0891b2] rounded-full animate-ping opacity-25" />
-                                                <Avatar name={remoteDisplayName || callerId} url={remoteAvatarUrl} size={100} />
+                                                {callState === "connecting" ? (
+                                                    /* Countdown circle around avatar */
+                                                    <>
+                                                        <svg className="absolute -inset-3 w-[calc(100%+24px)] h-[calc(100%+24px)]" viewBox="0 0 120 120">
+                                                            <circle cx="60" cy="60" r="56" fill="none" stroke="rgba(8,145,178,0.15)" strokeWidth="4" />
+                                                            <circle
+                                                                cx="60" cy="60" r="56"
+                                                                fill="none"
+                                                                stroke="#0891b2"
+                                                                strokeWidth="4"
+                                                                strokeLinecap="round"
+                                                                strokeDasharray={`${2 * Math.PI * 56}`}
+                                                                strokeDashoffset={`${2 * Math.PI * 56 * (1 - (connectingCountdown || 0) / (callType === "video" ? 7 : 5))}`}
+                                                                transform="rotate(-90 60 60)"
+                                                                style={{ transition: 'stroke-dashoffset 1s linear' }}
+                                                            />
+                                                        </svg>
+                                                        <Avatar name={remoteDisplayName || callerId} url={remoteAvatarUrl} size={100} />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <div className="absolute inset-0 bg-[#0891b2] rounded-full animate-ping opacity-25" />
+                                                        <Avatar name={remoteDisplayName || callerId} url={remoteAvatarUrl} size={100} />
+                                                    </>
+                                                )}
                                             </div>
 
                                             <div className="text-center space-y-2">
-                                                <p className="text-[#0891b2] font-semibold tracking-wider text-xs uppercase mb-1">Incoming {callType || "Voice"} Call</p>
-                                                <h2 className="text-2xl font-bold leading-tight">{remoteDisplayName || getDisplayName(callerId)}</h2>
-                                                <p className="text-stone-400 text-sm">{callType === "video" ? "Video calling..." : "Voice calling..."}</p>
+                                                {callState === "connecting" ? (
+                                                    <>
+                                                        <p className="text-[#0891b2] font-semibold tracking-wider text-xs uppercase mb-1">Connecting...</p>
+                                                        <h2 className="text-2xl font-bold leading-tight">{remoteDisplayName || getDisplayName(callerId)}</h2>
+                                                        <div className="mt-4">
+                                                            <span className="text-5xl font-bold text-[#0891b2] tabular-nums">{connectingCountdown}</span>
+                                                        </div>
+                                                        {callType === "video" && (
+                                                            <p className="text-stone-400 text-sm mt-3 italic animate-pulse">
+                                                                {connectingCountdown >= 6 ? "Quick! Fix your hair 💇"
+                                                                    : connectingCountdown >= 5 ? "Strike your best angle 📐"
+                                                                        : connectingCountdown >= 4 ? "Smile! You're about to go live ✨"
+                                                                            : connectingCountdown >= 3 ? "Looking good? You better be 😎"
+                                                                                : connectingCountdown >= 2 ? "Last chance to find good lighting 💡"
+                                                                                    : connectingCountdown >= 1 ? "Ready or not, here they come! 🚀"
+                                                                                        : "Let's go! 🎬"}
+                                                            </p>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <p className="text-[#0891b2] font-semibold tracking-wider text-xs uppercase mb-1">Incoming {callType || "Voice"} Call</p>
+                                                        <h2 className="text-2xl font-bold leading-tight">{remoteDisplayName || getDisplayName(callerId)}</h2>
+                                                        <p className="text-stone-400 text-sm">{callType === "video" ? "Video calling..." : "Voice calling..."}</p>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-8 mt-4 relative z-10">
-                                            <div className="flex flex-col items-center gap-2">
-                                                <button
-                                                    onClick={declineCall}
-                                                    className="w-14 h-14 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95"
-                                                >
-                                                    <FiPhoneOff className="w-6 h-6 text-white" />
-                                                </button>
-                                                <p className="text-xs text-stone-400 font-medium">Decline</p>
-                                            </div>
+                                        {callState === "receiving" && (
+                                            <div className="flex items-center gap-8 mt-4 relative z-10">
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <button
+                                                        onClick={declineCall}
+                                                        className="w-14 h-14 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95"
+                                                    >
+                                                        <FiPhoneOff className="w-6 h-6 text-white" />
+                                                    </button>
+                                                    <p className="text-xs text-stone-400 font-medium">Decline</p>
+                                                </div>
 
-                                            <div className="flex flex-col items-center gap-2">
-                                                <button
-                                                    onClick={acceptCall}
-                                                    className="w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95 animate-[bounce_2s_infinite]"
-                                                >
-                                                    <FiPhone className="w-6 h-6 text-white" />
-                                                </button>
-                                                <p className="text-xs text-stone-400 font-medium">Accept</p>
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <button
+                                                        onClick={acceptCall}
+                                                        className="w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95 animate-[bounce_2s_infinite]"
+                                                    >
+                                                        <FiPhone className="w-6 h-6 text-white" />
+                                                    </button>
+                                                    <p className="text-xs text-stone-400 font-medium">Accept</p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="flex-1 relative bg-black flex flex-col">
                                         {/* Remote Media (takes up background) */}
                                         <div className="flex-1 relative">
                                             {callType === "video" ? (
-                                                <video
-                                                    ref={remoteVideoRef}
-                                                    autoPlay
-                                                    playsInline
-                                                    className="w-full h-full object-cover"
-                                                />
+                                                <>
+                                                    <video
+                                                        ref={remoteVideoRef}
+                                                        autoPlay
+                                                        playsInline
+                                                        className={`w-full h-full object-cover ${callState !== "connected" ? "hidden" : ""}`}
+                                                    />
+                                                    {/* Calling overlay — shown until connected */}
+                                                    {callState === "calling" && (
+                                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-stone-900 gap-6 z-10">
+                                                            {/* Immersive background glow */}
+                                                            <div className="absolute inset-0 opacity-20 pointer-events-none">
+                                                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#0891b2] rounded-full blur-[120px]" />
+                                                            </div>
+
+                                                            <div className="relative z-10">
+                                                                <Avatar name={remoteDisplayName || callerId || selectedConv?.username} url={remoteAvatarUrl} size={120} />
+                                                                <div className="absolute inset-0 border-4 border-[#0891b2]/30 rounded-full animate-ping" />
+                                                            </div>
+
+                                                            <div className="text-center space-y-2 relative z-10">
+                                                                <h3 className="text-white font-bold text-xl drop-shadow-md">
+                                                                    {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
+                                                                </h3>
+                                                                <p className="text-[#0891b2] text-sm font-medium animate-pulse">
+                                                                    Calling...
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </>
                                             ) : (
                                                 <div className="w-full h-full flex flex-col items-center justify-center bg-stone-900 gap-6">
                                                     {/* Immersive voice background */}
@@ -1446,7 +1620,7 @@ export default function ChatPage() {
                                                             {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
                                                         </h3>
                                                         <p className="text-[#0891b2] text-sm font-medium animate-pulse">
-                                                            {callState === "calling" ? "Ringing..." : "Connected"}
+                                                            {callState === "calling" ? "Ringing..." : `Connected · ${formatCallTime(callElapsed)}`}
                                                         </p>
                                                     </div>
 
@@ -1483,15 +1657,15 @@ export default function ChatPage() {
                                         </div>
 
                                         {/* Header Info Overlay for Video */}
-                                        {callType === "video" && (
+                                        {callType === "video" && callState === "connected" && (
                                             <div className="absolute top-6 left-6 z-20">
                                                 <h3 className="text-white font-bold text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                                                     {remoteDisplayName || (selectedConv ? (selectedConv.display_name || selectedConv.username) : getDisplayName(callerId))}
                                                 </h3>
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    <div className={`w-2 h-2 rounded-full ${callState === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-yellow-500 animate-pulse'}`} />
+                                                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                                                     <p className="text-white/90 text-xs font-semibold drop-shadow-md">
-                                                        {callState === "calling" ? "Calling..." : "In Call"}
+                                                        In Call · {formatCallTime(callElapsed)}
                                                     </p>
                                                 </div>
                                             </div>
