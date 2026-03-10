@@ -926,7 +926,7 @@ export default function ChatPage() {
     //  RENDER
     // ═══════════════════════════════════════════════════════════════════════
     return (
-        <div className="flex h-screen bg-stone-50 text-stone-900 overflow-hidden font-sans">
+        <div className="flex h-[100dvh] bg-stone-50 text-stone-900 overflow-hidden font-sans">
             {/* ── LEFT PANEL ─────────────────────────────────────────────────── */}
             <aside
                 className={`${mobileShowChat ? "hidden" : "flex"
@@ -1148,7 +1148,7 @@ export default function ChatPage() {
 
             {/* ── RIGHT PANEL ────────────────────────────────────────────────── */}
             <main
-                className="flex flex-col flex-1 bg-stone-50 overflow-hidden w-full"
+                className="flex flex-col flex-1 bg-stone-50 overflow-hidden w-full min-h-0"
             >
                 {selectedConv ? (
                     <>
@@ -1164,7 +1164,7 @@ export default function ChatPage() {
                         )}
 
                         {/* Chat header */}
-                        <div className="shrink-0 flex items-center gap-3 px-4 h-14 sm:h-16 border-b border-[#0891b2]/20 bg-[#0891b2]/80 backdrop-blur-md w-full">
+                        <div className="shrink-0 flex items-center gap-3 px-4 h-14 sm:h-16 border-b border-[#0891b2]/20 bg-[#0891b2]/80 backdrop-blur-md w-full sticky top-0 z-30">
                             {/* Back button (mobile) */}
                             <button
                                 onClick={() => setMobileShowChat(false)}
@@ -1223,7 +1223,7 @@ export default function ChatPage() {
 
                         {/* Messages — WhatsApp-style subtle pattern background */}
                         <div
-                            className="flex-1 overflow-y-auto overflow-x-hidden relative"
+                            className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0"
                             style={{
                                 scrollbarWidth: "thin",
                                 scrollbarColor: "#d1d5db transparent",
@@ -1333,7 +1333,7 @@ export default function ChatPage() {
                         </div>
 
                         {/* Input bar */}
-                        <div className="shrink-0 px-3 py-2 border-t border-stone-200 bg-white/90 backdrop-blur-sm relative z-20 pb-[calc(8px+env(safe-area-inset-bottom))]">
+                        <div className="shrink-0 px-3 py-2 border-t border-stone-200 bg-white/90 backdrop-blur-sm relative z-20 pb-[calc(8px+env(safe-area-inset-bottom))] sticky bottom-0">
                             {showEmojiPicker && (
                                 <div className="absolute bottom-16 left-2 shadow-xl rounded-xl overflow-hidden z-50">
                                     <EmojiPicker height={350} searchDisabled theme="light" onEmojiClick={handleEmojiClick} />
