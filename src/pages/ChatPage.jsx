@@ -613,6 +613,16 @@ export default function ChatPage() {
         if (localStream) {
             localStream.getTracks().forEach(track => track.stop());
         }
+        if (remoteStream) {
+            remoteStream.getTracks().forEach(track => track.stop());
+        }
+        // Clear video element sources so browser releases camera indicator
+        if (localVideoRef.current) {
+            localVideoRef.current.srcObject = null;
+        }
+        if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = null;
+        }
         iceCandidateBuffer.current = [];
         setLocalStream(null);
         setRemoteStream(null);
@@ -627,7 +637,7 @@ export default function ChatPage() {
         setCallElapsed(0);
         setConnectingCountdown(null);
         window.pendingOffer = null;
-    }, [localStream]);
+    }, [localStream, remoteStream]);
 
     // Ensure video elements get their streams
     useEffect(() => {
