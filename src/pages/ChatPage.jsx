@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { FiSmile, FiMic, FiPhone, FiVideo, FiVideoOff, FiMicOff, FiPhoneOff, FiArrowLeft } from "react-icons/fi";
+import { FiSmile, FiMic, FiPhone, FiVideo, FiVideoOff, FiMicOff, FiPhoneOff } from "react-icons/fi";
 import EmojiPicker from 'emoji-picker-react';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -27,13 +27,9 @@ function getAuthToken() {
 function parseDateUtc(dateStr) {
     if (!dateStr) return new Date();
     if (typeof dateStr !== "string") return new Date(dateStr);
-
-    // If it already has a timezone indicator, parse it normally
-    if (dateStr.endsWith("Z") || dateStr.includes("+")) {
+    if (dateStr.endsWith("Z") || dateStr.includes("+") || (dateStr.includes("-") && dateStr.length > 20)) {
         return new Date(dateStr);
     }
-
-    // Normalize space to T and ensure it ends with Z to force UTC parsing
     let cleanStr = dateStr.replace(" ", "T");
     if (!cleanStr.endsWith("Z")) cleanStr += "Z";
     return new Date(cleanStr);
@@ -48,7 +44,6 @@ function relativeTime(dateStr) {
         return parseDateUtc(dateStr).toLocaleDateString(undefined, {
             month: "short",
             day: "numeric",
-            timeZone: "Asia/Kolkata",
         });
     } catch {
         return "";
@@ -60,7 +55,6 @@ function msgTime(dateStr) {
         return parseDateUtc(dateStr).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
-            timeZone: "Asia/Kolkata",
         });
     } catch {
         return "";
@@ -86,8 +80,7 @@ function getDateSeparator(dateStr) {
     return date.toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",
-        year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
-        timeZone: "Asia/Kolkata",
+        year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined
     });
 }
 
@@ -237,7 +230,7 @@ export default function ChatPage() {
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState("");
     const [search, setSearch] = useState("");
-    const [unread, setUnread] = useState({}); // { username: count }
+    const [unread, setUnread] = useState({}); // { username: true }
     const [connectionsOpen, setConnectionsOpen] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -324,12 +317,10 @@ export default function ChatPage() {
     const inputRef = useRef(null);
     const reconnectTimer = useRef(null);
     const selectedConvRef = useRef(selectedConv);
-    const activePeerRef = useRef(null);
 
     // keep ref in sync so WS callback can read latest selectedConv
     useEffect(() => {
         selectedConvRef.current = selectedConv;
-        activePeerRef.current = selectedConv ? (selectedConv.other_user || selectedConv.user_id || selectedConv.username) : null;
     }, [selectedConv]);
 
     // ── Fetch current user from backend ─────────────────────────────────────
@@ -367,33 +358,7 @@ export default function ChatPage() {
                     headers: { Authorization: `Bearer ${authToken}` },
                 }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
             ]);
-            const convs = Array.isArray(convRes) ? convRes : [];
-            setConversations(convs);
-
-            // Fetch unread counts manually since backend doesn't provide it
-            if (convs.length > 0 && currentUserId) {
-                const initialUnread = {};
-                await Promise.all(convs.map(async (c) => {
-                    const peer = c.other_user || c.username;
-                    // Don't fetch if it's the active chat (it will be cleared anyway)
-                    if (activePeerRef.current === peer) return;
-
-                    try {
-                        const mRes = await fetch(`${apiBase}/messages/${encodeURIComponent(currentUserId)}/${encodeURIComponent(peer)}`, {
-                            headers: { Authorization: `Bearer ${authToken}` },
-                        });
-                        if (mRes.ok) {
-                            const msgs = await mRes.json();
-                            const count = msgs.filter(m => m.receiver_id === currentUserId && !m.is_read).length;
-                            if (count > 0) initialUnread[peer] = count;
-                        }
-                    } catch (e) {
-                        console.error("Failed to fetch unread for", peer, e);
-                    }
-                }));
-                setUnread(initialUnread);
-            }
-
+            setConversations(Array.isArray(convRes) ? convRes : []);
             // Normalise connections: backend may return array of objects or strings
             const raw = Array.isArray(connRes) ? connRes : connRes?.connections ?? [];
             const mapped = raw.map((c) =>
@@ -407,7 +372,7 @@ export default function ChatPage() {
         } finally {
             if (!background) setLoadingConvos(false);
         }
-    }, [authToken, currentUserId]);
+    }, [authToken]);
 
     useEffect(() => {
         fetchConversations();
@@ -559,11 +524,8 @@ export default function ChatPage() {
                         }));
                     }
                 } else {
-                    // message from a different user → increment unread count
-                    setUnread((prev) => ({
-                        ...prev,
-                        [data.sender_id]: (prev[data.sender_id] || 0) + 1
-                    }));
+                    // message from a different user → mark unread
+                    setUnread((prev) => ({ ...prev, [data.sender_id]: true }));
                 }
 
                 // Refresh conversation list to update last message previews silently
@@ -851,7 +813,6 @@ export default function ChatPage() {
         (conv) => {
             setSelectedConv(conv);
             const peer = conv.other_user || conv.user_id || conv.username;
-            activePeerRef.current = peer;
             setUnread((prev) => {
                 const next = { ...prev };
                 delete next[peer];
@@ -926,7 +887,7 @@ export default function ChatPage() {
     //  RENDER
     // ═══════════════════════════════════════════════════════════════════════
     return (
-        <div className="flex h-[100dvh] bg-stone-50 text-stone-900 overflow-hidden font-sans">
+        <div className="flex h-screen bg-stone-50 text-stone-900 overflow-hidden font-sans">
             {/* ── LEFT PANEL ─────────────────────────────────────────────────── */}
             <aside
                 className={`${mobileShowChat ? "hidden" : "flex"
@@ -947,28 +908,28 @@ export default function ChatPage() {
                     <div className="w-0.5 h-8 bg-stone-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 {/* Header */}
-                <div className="px-4 h-14 sm:h-16 flex items-center border-b border-stone-200 shrink-0 bg-white/95 backdrop-blur-md">
-                    <div className="flex items-center justify-between w-full">
+                <div className="px-4 pt-4 pb-3 border-b border-stone-200">
+                    <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                             {/* Back to dashboard */}
                             <a
                                 href="/dashboard"
-                                className="w-10 h-10 rounded-full hover:bg-stone-100 flex items-center justify-center transition-colors text-stone-500 hover:text-stone-700 shrink-0"
+                                className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center transition-colors text-stone-500 hover:text-stone-700 shrink-0"
                                 title="Back to Dashboard"
                             >
-                                <FiArrowLeft className="text-xl" />
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                                </svg>
                             </a>
                             <div>
-                                <h2 className="text-lg font-bold text-stone-900 truncate max-w-[140px]">
+                                <h2 className="text-xl font-bold text-stone-900 truncate max-w-[140px]">
                                     Messages
                                 </h2>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Search bar inside list */}
-                <div className="px-4 py-3 bg-stone-50/50 border-b border-stone-100 backdrop-blur-sm">
+                    {/* Search bar */}
                     <div className="relative">
                         <svg
                             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400"
@@ -984,7 +945,7 @@ export default function ChatPage() {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search conversations…"
-                            className="w-full bg-white border border-stone-200 rounded-xl !pl-10 pr-4 py-2 text-sm text-stone-800 placeholder-gray-400 focus:outline-none focus:border-stone-400 transition-all shadow-sm"
+                            className="w-full bg-stone-100/80 border border-transparent rounded-xl !pl-10 pr-4 py-2 text-sm text-stone-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-stone-400 focus:ring-1 focus:ring-stone-400/50 transition-all"
                         />
                     </div>
                 </div>
@@ -1011,8 +972,7 @@ export default function ChatPage() {
                                         const isActive =
                                             selectedConv &&
                                             (selectedConv.other_user || selectedConv.username) === peer;
-                                        const unreadCount = unread[peer] || 0;
-                                        const hasUnread = unreadCount > 0;
+                                        const hasUnread = !!unread[peer];
 
                                         return (
                                             <button
@@ -1031,27 +991,25 @@ export default function ChatPage() {
                                                         size={44}
                                                     />
                                                     {hasUnread && (
-                                                        <span className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-[#0891b2] text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center whitespace-nowrap shadow-sm min-w-[20px]">
-                                                            {unreadCount > 4 ? "4+" : unreadCount}
-                                                        </span>
+                                                        <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-[#0891b2] rounded-full border-2 border-white" />
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0 text-left">
                                                     <div className="flex items-baseline justify-between gap-2">
                                                         <span
                                                             className={`text-sm truncate ${hasUnread
-                                                                ? "font-bold text-stone-900"
+                                                                ? "font-semibold text-stone-900"
                                                                 : "font-medium text-stone-700"
                                                                 }`}
                                                         >
                                                             {conv.display_name || conv.username}
                                                         </span>
-                                                        <span className={`text-[11px] shrink-0 ${hasUnread ? "text-[#0891b2] font-semibold" : "text-stone-400"}`}>
+                                                        <span className="text-[11px] text-stone-400 shrink-0">
                                                             {relativeTime(conv.created_at)}
                                                         </span>
                                                     </div>
                                                     <p
-                                                        className={`text-xs truncate mt-0.5 ${hasUnread ? "font-bold text-stone-900" : "text-stone-400"
+                                                        className={`text-xs truncate mt-0.5 ${hasUnread ? "text-stone-600" : "text-stone-400"
                                                             }`}
                                                     >
                                                         {conv.content}
@@ -1148,7 +1106,7 @@ export default function ChatPage() {
 
             {/* ── RIGHT PANEL ────────────────────────────────────────────────── */}
             <main
-                className="flex flex-col flex-1 bg-stone-50 overflow-hidden w-full min-h-0"
+                className="flex flex-col flex-1 bg-stone-50 overflow-hidden w-full"
             >
                 {selectedConv ? (
                     <>
@@ -1164,13 +1122,15 @@ export default function ChatPage() {
                         )}
 
                         {/* Chat header */}
-                        <div className="shrink-0 flex items-center gap-3 px-4 h-14 sm:h-16 border-b border-[#0891b2]/20 bg-[#0891b2]/80 backdrop-blur-md w-full sticky top-0 z-30">
+                        <div className="shrink-0 flex items-center gap-3 px-4 py-2.5 border-b border-[#0891b2]/20 bg-[#0891b2]/50 shadow-sm sticky top-0 z-10 w-full">
                             {/* Back button (mobile) */}
                             <button
                                 onClick={() => setMobileShowChat(false)}
-                                className="md:hidden w-10 h-10 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors text-stone-900 -ml-2"
+                                className="md:hidden w-8 h-8 rounded-lg hover:bg-white/20 flex items-center justify-center transition-colors text-stone-900 -ml-2"
                             >
-                                <FiArrowLeft className="text-xl" />
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
                             </button>
 
                             <a
@@ -1223,7 +1183,7 @@ export default function ChatPage() {
 
                         {/* Messages — WhatsApp-style subtle pattern background */}
                         <div
-                            className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0"
+                            className="flex-1 overflow-y-auto overflow-x-hidden relative"
                             style={{
                                 scrollbarWidth: "thin",
                                 scrollbarColor: "#d1d5db transparent",
@@ -1333,7 +1293,7 @@ export default function ChatPage() {
                         </div>
 
                         {/* Input bar */}
-                        <div className="shrink-0 px-3 py-2 border-t border-stone-200 bg-white/90 backdrop-blur-sm relative z-20 pb-[calc(8px+env(safe-area-inset-bottom))] sticky bottom-0">
+                        <div className="shrink-0 px-3 py-2 border-t border-stone-200 bg-white/90 backdrop-blur-sm relative z-20">
                             {showEmojiPicker && (
                                 <div className="absolute bottom-16 left-2 shadow-xl rounded-xl overflow-hidden z-50">
                                     <EmojiPicker height={350} searchDisabled theme="light" onEmojiClick={handleEmojiClick} />
