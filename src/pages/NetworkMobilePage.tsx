@@ -26,7 +26,7 @@ export default function NetworkMobilePage() {
                 const usersData = Array.isArray(usersRes.data) ? usersRes.data : (usersRes.data?.users || []);
                 const mappedUsers = usersData.map((u: any) => ({
                     username: u.username || u,
-                    instance: u.instance || 'local',
+                    display_name: u.display_name || null,
                     avatar_url: u.avatar_url || null
                 }));
                 setSuggestedUsers(mappedUsers);
@@ -112,8 +112,8 @@ export default function NetworkMobilePage() {
                                         onClick={() => handleAccept(invite.connection_id)}
                                         disabled={acceptingIds.has(invite.connection_id)}
                                         className={`px-4 py-1.5 rounded-md font-bold text-sm transition-all flex items-center gap-1 ${acceptingIds.has(invite.connection_id)
-                                                ? 'bg-green-200 text-green-600 cursor-wait shadow-none'
-                                                : 'bg-green-500 hover:bg-green-600 text-white shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-px active:shadow-none'
+                                            ? 'bg-green-200 text-green-600 cursor-wait shadow-none'
+                                            : 'bg-green-500 hover:bg-green-600 text-white shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-px active:shadow-none'
                                             }`}
                                     >
                                         {acceptingIds.has(invite.connection_id) ? (
@@ -160,10 +160,10 @@ export default function NetworkMobilePage() {
                                         {/* Info */}
                                         <div className="overflow-hidden flex-1 flex flex-col justify-center">
                                             <div className="font-bold font-hand truncate text-lg leading-tight text-gray-800">
-                                                {u.username}
+                                                {u.display_name || u.username}
                                             </div>
                                             <div className="text-xs bg-black/5 px-2 py-0.5 rounded-full inline-block truncate w-fit max-w-full text-gray-600 mt-1 border border-black/5">
-                                                {u.instance || 'local'}
+                                                @{u.username}
                                             </div>
                                         </div>
 

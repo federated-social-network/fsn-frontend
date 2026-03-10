@@ -21,6 +21,7 @@ type ConnectionStatus = "none" | "connected" | "pending" | "self";
 interface SearchResult {
     id: string;
     username: string;
+    display_name?: string;
     email: string;
     status: ConnectionStatus;
 }
@@ -210,11 +211,11 @@ export default function UserSearchModal({ isOpen, onClose }: UserSearchModalProp
                                                             className="block"
                                                         >
                                                             <h3 className="font-bold font-hand text-base sm:text-xl truncate text-black leading-none mb-1 group-hover:underline decoration-2 decoration-[var(--pastel-blue)]">
-                                                                {user.username}
+                                                                {user.display_name || user.username}
                                                             </h3>
                                                         </Link>
                                                         <p className="text-[10px] sm:text-xs font-hand text-gray-500 truncate font-bold">
-                                                            {user.email}
+                                                            @{user.username}
                                                         </p>
                                                     </div>
 

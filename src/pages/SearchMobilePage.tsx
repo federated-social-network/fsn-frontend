@@ -9,6 +9,7 @@ type ConnectionStatus = "none" | "connected" | "pending" | "self";
 interface SearchResult {
     id: string;
     username: string;
+    display_name?: string;
     email: string;
     status: ConnectionStatus;
 }
@@ -42,7 +43,7 @@ export default function SearchMobilePage() {
                 const usersData = Array.isArray(usersRes.data) ? usersRes.data : (usersRes.data?.users || []);
                 const mappedUsers = usersData.map((u: any) => ({
                     username: u.username || u,
-                    instance: u.instance || 'local',
+                    display_name: u.display_name || null,
                     avatar_url: u.avatar_url || null
                 }));
                 setSuggestedUsers(mappedUsers);
@@ -218,17 +219,14 @@ export default function SearchMobilePage() {
                                     </div>
 
                                     <div className="flex-1 min-w-0">
-                                        <Link
-                                            to={`/profile/${user.username}`}
-                                            className="block"
-                                        >
-                                            <h3 className="font-bold font-hand text-base truncate text-black leading-none mb-1 group-hover:underline decoration-2 decoration-[var(--pastel-blue)]">
-                                                {user.username}
+                                        <Link to={`/profile/${user.username}`}>
+                                            <h3 className="font-bold font-hand text-base sm:text-xl truncate text-black leading-none mb-1 group-hover:underline decoration-2 decoration-[var(--pastel-blue)]">
+                                                {user.display_name || user.username}
                                             </h3>
+                                            <p className="text-[10px] sm:text-xs font-hand text-gray-500 truncate font-bold">
+                                                @{user.username}
+                                            </p>
                                         </Link>
-                                        <p className="text-[10px] font-hand text-gray-500 truncate font-bold">
-                                            {user.email}
-                                        </p>
                                     </div>
 
                                     <div className="shrink-0">
@@ -347,10 +345,10 @@ export default function SearchMobilePage() {
                                                 {/* Info */}
                                                 <div className="overflow-hidden flex-1 min-w-0">
                                                     <div className="font-bold font-hand truncate text-sm leading-tight text-gray-800">
-                                                        {u.username}
+                                                        {u.display_name || u.username}
                                                     </div>
                                                     <div className="text-[10px] text-gray-500 truncate mt-0.5 font-hand">
-                                                        {u.instance || 'local'}
+                                                        @{u.username}
                                                     </div>
                                                 </div>
 
