@@ -186,6 +186,7 @@ export default function MentionDropdown({
         }
     }, [showDropdown, content, cursorPos, textareaRef]);
 
+    // eslint-disable-next-line
     useEffect(() => { setSelectedIndex(0); }, [query]);
 
     const insertMention = useCallback(
