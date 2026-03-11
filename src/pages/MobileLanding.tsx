@@ -97,27 +97,6 @@ export default function MobileLanding() {
                         </div>
                     </motion.div>
 
-                    {/* Personal Community Card */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.05 }}
-                        onClick={() => chooseInstance(INSTANCES[1].url)}
-                        className="bg-rose-50 rounded-2xl p-6 shadow-sm border border-rose-100 flex flex-col gap-4 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
-                    >
-                        <div className="flex justify-between items-center mb-1">
-                            <h3 className="text-xl font-bold text-gray-900">{INSTANCES[1].name}</h3>
-                            <div className="w-3 h-3 rounded-full bg-rose-500" />
-                        </div>
-                        <p className="text-gray-600 text-sm leading-relaxed mb-2">
-                            {INSTANCES[1].description}
-                        </p>
-                        <div className="flex items-center text-rose-600 font-semibold text-sm">
-                            Join {INSTANCES[1].name} <FiArrowRight strokeWidth={2.5} className="ml-1.5" />
-                        </div>
-                    </motion.div>
-
                     {/* Create Your Own Community */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}

@@ -9,12 +9,6 @@ export const INSTANCES = [
         description: "The default HeliiX social community — connect, share, and discover."
     },
     {
-        name: "Personal Community",
-        url: "https://instance-b-1094866630955.us-central1.run.app",
-        color: "bg-rose-100 border-rose-300",
-        description: "Your personal space — a private community for close friends and family."
-    },
-    {
         name: "Local Dev Backend",
         url: "http://localhost:8000",
         color: "bg-yellow-100 border-yellow-300",

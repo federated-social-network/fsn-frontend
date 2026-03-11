@@ -216,7 +216,7 @@ export default function Landing() {
             Join an instance, keep control of your data, and follow people across servers.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 md:gap-10 w-full px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 w-full px-4">
 
             {/* Social Community Card */}
             <div onClick={() => chooseInstance(INSTANCES[0].url)} className="h-full">
@@ -232,29 +232,6 @@ export default function Landing() {
 
                   <p className="text-base sm:text-lg text-gray-800 font-hand flex-grow">
                     {INSTANCES[0].description}
-                  </p>
-
-                  <button className="w-full py-2.5 sm:py-3 mt-6 border-2 border-black bg-white hover:bg-black hover:text-white transition-colors font-bold text-lg font-sketch rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-x-0 hover:translate-x-[2px] hover:translate-y-[2px]">
-                    Join Now &rarr;
-                  </button>
-                </div>
-              </SketchCard>
-            </div>
-
-            {/* Personal Community Card */}
-            <div onClick={() => chooseInstance(INSTANCES[1].url)} className="h-full">
-              <SketchCard
-                variant="paper"
-                className={`h-full flex flex-col justify-between cursor-pointer transition-transform hover:-translate-y-2 active:scale-[0.98] ${INSTANCES[1].color} border-2 border-black`}
-              >
-                <div className="p-6 sm:p-8 flex flex-col h-full">
-                  <div className="flex justify-between items-start mb-4">
-                    <h2 className="text-2xl sm:text-3xl font-bold font-sketch">{INSTANCES[1].name}</h2>
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-black bg-rose-400" />
-                  </div>
-
-                  <p className="text-base sm:text-lg text-gray-800 font-hand flex-grow">
-                    {INSTANCES[1].description}
                   </p>
 
                   <button className="w-full py-2.5 sm:py-3 mt-6 border-2 border-black bg-white hover:bg-black hover:text-white transition-colors font-bold text-lg font-sketch rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-x-0 hover:translate-x-[2px] hover:translate-y-[2px]">
