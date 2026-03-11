@@ -222,7 +222,7 @@ export default function CreateCommunityDocs() {
                         </h2>
 
                         <h3 className="text-lg font-bold mb-3">Clone the Repository</h3>
-                        <CodeBlock code={`git clone <your-repo-url>
+                        <CodeBlock code={`git clone https://github.com/federated-social-network/fsn-backend.git
 cd fsn-backend`} />
 
                         <h3 className="text-lg font-bold mb-3 mt-8">Create a Virtual Environment (Recommended)</h3>
@@ -270,23 +270,23 @@ source venv/bin/activate   # Linux / macOS
                                     <EnvRow name="INSTANCE_NAME" required description="A unique name for your community instance." example="MyCommunity" />
                                     <EnvRow name="DATABASE_URL" required description="PostgreSQL connection string." example="postgresql://user:pass@host:5432/dbname" />
                                     <EnvRow name="SECRET_KEY" required description="A long random string used for JWT signing." example="super-secret-random-key-here" />
-                                    <EnvRow name="ALGORITHM" required={false} description="JWT algorithm. Defaults to HS256." example="HS256" />
+                                    <EnvRow name="ALGORITHM" required={true} description="JWT algorithm. Defaults to HS256." example="HS256" />
                                     <EnvRow name="BASE_URL" required description="The public URL of your backend (used for ActivityPub)." example="https://my-community.example.com" />
-                                    <EnvRow name="SEND_TO_OTHER_INSTANCE" required={false} description="Enable cross-instance federation delivery. Defaults to false." example="false" />
-                                    <EnvRow name="REMOTE_INBOX_URL" required={false} description="Inbox URL of a paired instance (for bi-directional federation)." example="https://other-instance.com/inbox" />
+                                    <EnvRow name="SEND_TO_OTHER_INSTANCE" required={true} description="Enable cross-instance federation delivery. Defaults to false." example="false" />
+                                    <EnvRow name="REMOTE_INBOX_URL" required={true} description="Inbox URL of a paired instance (for bi-directional federation)." example="https://other-instance.com/inbox" />
                                     <EnvRow name="SUPABASE_URL" required description="Your Supabase project URL." example="https://xyz.supabase.co" />
                                     <EnvRow name="SUPABASE_SERVICE_KEY" required description="Your Supabase service role key (for storage)." example="eyJhbGci..." />
                                     <EnvRow name="GROQ_API_KEY" required description="API key for Groq AI (post completion/elaboration)." example="gsk_..." />
-                                    <EnvRow name="EMAIL_PROVIDER" required={false} description="Email sending method: 'gmail_oauth' or 'smtp'." example="gmail_oauth" />
-                                    <EnvRow name="FROM_EMAIL" required={false} description="Sender email address for OTP emails." example="noreply@example.com" />
-                                    <EnvRow name="OTP_EXPIRY_MINUTES" required={false} description="How long OTPs are valid (default: 10 minutes)." example="10" />
-                                    <EnvRow name="GMAIL_CLIENT_ID" required={false} description="Google OAuth2 client ID (if using gmail_oauth)." example="123456.apps.googleusercontent.com" />
-                                    <EnvRow name="GMAIL_CLIENT_SECRET" required={false} description="Google OAuth2 client secret." example="GOCSPX-..." />
-                                    <EnvRow name="GMAIL_REFRESH_TOKEN" required={false} description="Google OAuth2 refresh token." example="1//0..." />
-                                    <EnvRow name="SMTP_SERVER" required={false} description="SMTP server (if using SMTP provider)." example="smtp.gmail.com" />
-                                    <EnvRow name="SMTP_PORT" required={false} description="SMTP port. Defaults to 587." example="587" />
-                                    <EnvRow name="SMTP_USER" required={false} description="SMTP login username." example="you@gmail.com" />
-                                    <EnvRow name="SMTP_PASSWORD" required={false} description="SMTP login password or app password." example="your-app-password" />
+                                    <EnvRow name="EMAIL_PROVIDER" required={true} description="Email sending method: 'gmail_oauth' or 'smtp'." example="gmail_oauth" />
+                                    <EnvRow name="FROM_EMAIL" required={true} description="Sender email address for OTP emails." example="noreply@example.com" />
+                                    <EnvRow name="OTP_EXPIRY_MINUTES" required={true} description="How long OTPs are valid (default: 10 minutes)." example="10" />
+                                    <EnvRow name="GMAIL_CLIENT_ID" required={true} description="Google OAuth2 client ID (if using gmail_oauth)." example="123456.apps.googleusercontent.com" />
+                                    <EnvRow name="GMAIL_CLIENT_SECRET" required={true} description="Google OAuth2 client secret." example="GOCSPX-..." />
+                                    <EnvRow name="GMAIL_REFRESH_TOKEN" required={true} description="Google OAuth2 refresh token." example="1//0..." />
+                                    <EnvRow name="SMTP_SERVER" required={true} description="SMTP server (if using SMTP provider)." example="smtp.gmail.com" />
+                                    <EnvRow name="SMTP_PORT" required={true} description="SMTP port. Defaults to 587." example="587" />
+                                    <EnvRow name="SMTP_USER" required={true} description="SMTP login username." example="you@gmail.com" />
+                                    <EnvRow name="SMTP_PASSWORD" required={true} description="SMTP login password or app password." example="your-app-password" />
                                 </tbody>
                             </table>
                         </div>

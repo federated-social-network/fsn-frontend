@@ -83,7 +83,7 @@ export default function DocumentationPage() {
                         {/* Quick Links */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {[
-                                { icon: FiBook, title: "Getting Started", desc: "New to HeliiX? Learn the basics — creating an account, making posts, and connecting with others.", color: "bg-blue-50 text-blue-600" },
+                                { icon: FiBook, title: "Getting Started", desc: "New to HeliiX? Learn the basics — creating an account, making posts, and connecting with others.", color: "bg-blue-50 text-blue-600", link: "/docs/user-guide" },
                                 { icon: FiServer, title: "Self-Hosting Guide", desc: "Deploy your own HeliiX community instance with our comprehensive setup guide.", color: "bg-purple-50 text-purple-600", link: "/docs/create-community" },
                                 { icon: FiCode, title: "API Reference", desc: "Complete reference for all REST and ActivityPub endpoints, with examples.", color: "bg-green-50 text-green-600", link: "/docs/create-community#api" },
                                 { icon: FiUsers, title: "Connections & Social", desc: "Learn about the connection system, following users, and managing your network.", color: "bg-amber-50 text-amber-600" },
@@ -178,6 +178,7 @@ export default function DocumentationPage() {
                         </h2>
                         <div className="space-y-4">
                             {[
+                                { title: "User Guide", desc: "Complete guide to using HeliiX — creating posts, chatting, video calls, connections, federation, and more.", link: "/docs/user-guide" },
                                 { title: "Self-Hosting Guide", desc: "Complete step-by-step instructions to deploy your own HeliiX community instance, from installation to federation.", link: "/docs/create-community" },
                                 { title: "Privacy Policy", desc: "Our approach to data collection, storage, and sharing — including federation-specific details.", link: "/privacy" },
                                 { title: "Terms of Service", desc: "The rules governing usage of the HeliiX platform, content policies, and self-hosted instance responsibilities.", link: "/terms" },

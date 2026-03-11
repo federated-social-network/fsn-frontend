@@ -14,6 +14,7 @@ import CreateCommunityDocs from "./pages/CreateCommunityDocs";
 import DocumentationPage from "./pages/DocumentationPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
+import UserGuidePage from "./pages/UserGuidePage";
 // @ts-ignore
 import ChatPage from "./pages/ChatPage.jsx";
 import SwipeNavigation from "./components/SwipeNavigation";
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/documentation" element={<DocumentationPage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/docs/user-guide" element={<UserGuidePage />} />
 
         {/* Routes with Mobile Bottom Navbar */}
         <Route element={<AuthenticatedLayout />}>
