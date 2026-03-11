@@ -73,6 +73,19 @@ export default function Profile() {
         }
         setUser(userData);
 
+        // Set connection status from backend response
+        const status = userData.connection_status;
+        if (status === "accepted") {
+          setIsConnected(true);
+          setRequestSent(false);
+        } else if (status === "pending") {
+          setIsConnected(false);
+          setRequestSent(true);
+        } else {
+          setIsConnected(false);
+          setRequestSent(false);
+        }
+
         // Persist own avatar URL for optimistic like-avatar updates in PostCard
         if (isOwnProfile && userData.avatar_url) {
           localStorage.setItem("user_avatar_url", userData.avatar_url);
@@ -105,7 +118,6 @@ export default function Profile() {
         if (mounted) setLoading(false);
       }
     };
-    setRequestSent(false); // Reset state when profile changes
     load();
     return () => { mounted = false; };
   }, [rawUsername]);
@@ -210,25 +222,8 @@ export default function Profile() {
     }
   }, [showConnectionsModal]);
 
-  // Initial check for connection status
-  useEffect(() => {
-    const checkConnection = async () => {
-      if (!isOwnProfile && myUsername) {
-        try {
-          const res = await getConnectionsList(); // This returns all accepted connections
-          const connectedUsernames = res.data.map((c: any) => c.username);
-          if (connectedUsernames.includes(username)) {
-            setIsConnected(true);
-          } else {
-            setIsConnected(false);
-          }
-        } catch (e) {
-          console.error("Failed to check connection status", e);
-        }
-      }
-    };
-    checkConnection();
-  }, [username, isOwnProfile, myUsername]);
+  // Connection status is now set from the get_user_profile API response
+  // (see the load() function above), so no separate check is needed.
 
   // Connection Removal Confirmation State
   const [connectionToRemove, setConnectionToRemove] = useState<string | null>(null);

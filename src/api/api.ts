@@ -44,7 +44,7 @@ export const getApi = (): AxiosInstance => {
     headers: {
       "Content-Type": "application/json",
     },
-    timeout: 30000,
+    timeout: 60000,
   });
 
   // ── Request interceptor: attach access token ──
@@ -101,7 +101,7 @@ export const getApi = (): AxiosInstance => {
             `${baseURL}/auth/refresh`,
             {},
             {
-              headers: { Authorization: `Bearer ${refreshToken}` },
+              params: { refresh_token: refreshToken },
               timeout: 10000,
             }
           );
@@ -128,9 +128,11 @@ export const getApi = (): AxiosInstance => {
         } catch (refreshError) {
           _isRefreshing = false;
           _refreshSubscribers = [];
-          // Refresh failed → session is truly expired
+
+          // Safety: If handleSessionExpired triggers a redirect, 
+          // ongoing requests might get aborted. We catch that here.
           handleSessionExpired();
-          return Promise.reject(refreshError);
+          return Promise.reject(new Error("Session expired - redirecting to login"));
         }
       }
 
@@ -176,6 +178,7 @@ export const registerUser = (username: string, password: string, email?: string,
   }
   return getApi().post("/auth/register", form, {
     params: { username, password, email },
+    timeout: 90000,
   });
 };
 
@@ -186,7 +189,7 @@ export const registerUser = (username: string, password: string, email?: string,
  * @returns {Promise<import("axios").AxiosResponse<any>>} The server response containing the auth token.
  */
 export const loginUser = (username: string, password: string) =>
-  getApi().post("/auth/login", null, { params: { username, password } });
+  getApi().post("/auth/login", null, { params: { username, password }, timeout: 90000 });
 
 /**
  * Creates a new post.
