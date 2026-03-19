@@ -2,6 +2,7 @@
 
 The responsive React-based user interface for the Heliix federated social network. This Client allows users to interact with multiple backend instances, creating a seamless federated experience.
 
+
 ## Key Features
 
 - **Federated Instance Connectivity**: Connects to multiple backend instances (Instance A, Instance B) dynamically.
