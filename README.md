@@ -40,7 +40,6 @@ The responsive React-based user interface for the Heliix federated social networ
     ```bash
     npm install
     ```
-
 ### Running Locally
 
 Start the development server:
