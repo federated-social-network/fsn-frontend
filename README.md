@@ -65,6 +65,7 @@ The build artifacts will be generated in the `dist` directory.
 
 ## Project Structure
 
+
 - `src/components`: Reusable UI components (Buttons, Modals, Mascot, etc...).
 - `src/pages`: Main application views (Dashboard, Login, Profile, etc...).
 - `src/api`: API definition and Axios configuration.
