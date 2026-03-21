@@ -13,7 +13,6 @@ The responsive React-based user interface for the Heliix federated social networ
 - **Responsiveness**: Fully optimized layouts for both mobile devices (with drawer navigation) and desktop views.
 
 
-
 ## Tech Stack
 
 - **Framework**: React 19
